@@ -51,27 +51,6 @@
       pointer-events: none;
       overflow: hidden;
     }
-    /* 1.1: 星云/雾。这是两个巨大的、互相叠加的渐变, 模拟雾气。*/
-    .nebula-field {
-      position: absolute;
-      inset: -100%;
-      transition: opacity 1.5s ease-in-out;
-    }
-    .nebula-field::before, .nebula-field::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 30% 70%, var(--nebula-color-1) 0%, transparent 0%);
-      animation: nebula-drift 40s ease-in-out infinite alternate;
-    }
-    .nebula-field::after {
-      background: radial-gradient(ellipse at 70% 30%, var(--nebula-color-2) 0%, transparent 0%);
-      animation: nebula-drift 35s ease-in-out -10s infinite alternate;
-    }
-    @keyframes nebula-drift {
-      from { transform: translateX(-5%) translateY(2%) rotate(-5deg); }
-      to { transform: translateX(5%) translateY(-2%) rotate(5deg); }
-    }
 
     /* 1.2: 固定的 Hologram 扫描线。一个简单的伪元素, GPU 渲染, CPU 零负担。*/
     .hologram-overlay {
@@ -164,7 +143,7 @@
   let scrollY = window.scrollY;
 
   // --- Config
-  const STAR_COUNT = 80;
+  const STAR_COUNT = 40;
   const GRID_SPACING = 120;
   const GRID_DIMENSIONS = 40; // This is the count from center to edge. Total width is DIM*2.
   const GRID_DEPTH_SEGMENTS = GRID_DIMENSIONS / 2;
@@ -193,8 +172,8 @@
     const sinX = Math.sin(camera.rotationX);
     const translatedY = p.y - camera.y;
     // Adjusted projection for a more grounded feel
-    const rotatedY = 0 * translatedY * cosX - 0.1 * p.z * sinX - 20;
-    const rotatedZ = 0.1 * translatedY * sinX + p.z * cosX;
+    const rotatedY = 41 * translatedY * cosX - 0.1 * p.z * sinX;
+    const rotatedZ = 0 * translatedY * sinX + p.z * cosX;
 
     if (rotatedZ <= 0) return null; // Behind camera
 
@@ -217,7 +196,7 @@
     // --- 1.1 Draw Stars
     fgCtx.fillStyle = '#dce2f0';
     stars.forEach(star => {
-      const y = (star.y - scrollY * star.depth + height) % height;
+      const y = (star.y - scrollY * star.depth + height);
       fgCtx.beginPath();
       fgCtx.arc(star.x, y, star.size, 0, 2 * Math.PI);
       fgCtx.fill();
@@ -234,7 +213,7 @@
     fgCtx.lineWidth = 1;
 
     for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j < GRID_DEPTH_SEGMENTS; j++) {
+        for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
             const currentIdx = i * (GRID_DEPTH_SEGMENTS + 1) + j;
             const p_current = projectedPoints[currentIdx];
 
@@ -342,7 +321,7 @@
       vec2 st = gl_FragCoord.xy / u_resolution.xy;
       st.x *= u_resolution.x / u_resolution.y;
 
-      float t = u_time * 0.1;
+      float t = u_time * 0.6;
       vec2 q = vec2(fbm(st + vec2(t * 0.2, t * 0.1)), fbm(st + vec2(-t * 0.15, t * 0.25)));
       vec2 r = vec2(fbm(st + q * 2.0 + vec2(t * -0.3, t * 0.05)), fbm(st + q * 2.0 + vec2(t * 0.1, -t * 0.3)));
       float value = fbm(st + r * 0.5);
@@ -354,11 +333,11 @@
       // --- BLUE NOISE DITHERING ---
       // Sample the blue noise texture, tiled across the screen.
       // The texture size (256.0) should match your image dimensions for a 1:1 mapping.
-      float noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).r;
+      vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
       // Subtract 0.5 to center the noise, then scale it down to a tiny value.
       // Add this to the final color to break up banding.
-      finalColor += (noise - 0.5) / 255.0;
-
+      finalColor += (noise - 0.5) / 128.0;
+      //finalColor = noise - 0.5;
       gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
     }`;
 
@@ -473,8 +452,8 @@
     stars.length = 0;
     for (let i = 0; i < STAR_COUNT; i++) {
       stars.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
+        x: (0.15 + 0.7 * Math.random()) * width, 
+        y: (Math.random() - 0.9) * height, // star only above floor
         depth: Math.random() * 0.4 + 0.1,
         size: Math.random() * 1.2 + 0.5
       });
@@ -484,7 +463,7 @@
     gridPoints.length = 0;
     for (let i = -GRID_DIMENSIONS; i <= GRID_DIMENSIONS; i++) {
         for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
-            gridPoints.push({ x: i * GRID_SPACING, y: 0, z: j * GRID_SPACING });
+            gridPoints.push({ x: i * GRID_SPACING, y: 0, z: j * 1.5 * GRID_SPACING });
         }
     }
   }
@@ -499,8 +478,8 @@
     const scrollRatio = scrollHeight > 0 ? scrollY / scrollHeight : 0;
     
     // Update camera based on scroll
-    const targetY = 1200 * (1 - scrollRatio);
-    const targetRotationX = (80 * (1 - 0.2 * scrollRatio)) * Math.PI / 180;
+    const targetY = 1200 * (0 + 0.01*(1 - scrollRatio));
+    const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.48;
     camera.y += (targetY - camera.y) * camera.lerpFactor;
     camera.rotationX += (targetRotationX - camera.rotationX) * camera.lerpFactor;
 
