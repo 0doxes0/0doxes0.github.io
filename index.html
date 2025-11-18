@@ -2,15 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>性能修正版</title>
+  <title>Project Baseline V2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     /* --- 0. 全局变量与基础设定 --- */
     :root {
-      /* 背景星云的颜色, JS 会根据滚动改变 */
-      --nebula-color-1: rgba(50, 80, 220, 0.2);
-      --nebula-color-2: rgba(30, 100, 180, 0.1);
-      /* UI 骨架线条的颜色 */
       --ui-line-color: rgba(154, 210, 255, 0.15);
       --bg-deep: #010204;
       --fg-main: #e8ecf5;
@@ -23,27 +19,9 @@
       color: var(--fg-main);
       font-family: system-ui, -apple-system, sans-serif;
       overflow-x: hidden;
-      height: 400vh; /* 预留足够滚动空间 */
     }
 
-/* Find this rule: */
-#bg-canvas, #render-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* And replace it with this: */
-#bg-canvas, #render-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-    /* --- 1. 背景容器 (性能优化核心) --- */
-    /* 我们不再用 Canvas 绘制每帧几百万像素的背景。
-       取而代之的是多个 CSS div, 利用 GPU 进行渲染, CPU 零负担。*/
+    /* --- 1. 背景容器 --- */
     .background-container {
       position: fixed;
       inset: 0;
@@ -51,24 +29,11 @@
       pointer-events: none;
       overflow: hidden;
     }
-
-    /* 1.2: 固定的 Hologram 扫描线。一个简单的伪元素, GPU 渲染, CPU 零负担。*/
-    .hologram-overlay {
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-            to bottom,
-            transparent 0,
-            transparent 2px,
-            rgba(255, 255, 255, 0.03) 2px,
-            rgba(255, 255, 255, 0.03) 4px
-        );
-    }
-    
-    /* 1.3: Canvas 层, 现在只负责绘制 Grid 和 Stars, 大大减轻 CPU 负担。*/
-    #render-canvas {
+    #bg-canvas, #render-canvas {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
     }
 
     /* --- 2. UI 骨架 --- */
@@ -80,8 +45,32 @@
       margin: 0 auto;
       padding: 0 16px;
     }
+
+    /* --- 3. Hero Section --- */
+    .hero-section {
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 20vh;
+    }
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--fg-soft);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* --- 4. Content Section & Cards --- */
     .content-section {
-      padding: 40vh 0;
+      padding: 20vh 0;
       position: relative;
     }
     .content-section::before {
@@ -94,447 +83,460 @@
       background: linear-gradient(to bottom, transparent, var(--ui-line-color) 20%, var(--ui-line-color) 80%, transparent);
       transform: translateX(-50%);
     }
-    .cs-card { display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: center; }
-    .cs-card.reverse { grid-template-columns: 1fr 1.5fr; }
-    .cs-text { padding: 16px; text-align: left; }
-    .cs-card.reverse .cs-text { text-align: right; }
-    .cs-title { font-size: 24px; margin-bottom: 8px; }
+
+    .cs-card {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 48px;
+      align-items: start; /* Align to top by default */
+    }
+    .cs-card.reverse {
+      grid-template-columns: 1fr 1.5fr;
+    }
+    .cs-card.reverse .cs-text {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .cs-text {
+      padding: 16px;
+      text-align: left;
+      transition: all 0.5s ease-in-out;
+    }
+    .cs-card.reverse .cs-text {
+      text-align: right;
+    }
+
+    .cs-title { font-size: 24px; margin-bottom: 16px; }
     .cs-summary { color: var(--fg-soft); line-height: 1.7; }
-    .cs-visual { aspect-ratio: 16/10; background: #0C0E14; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; color: #5c667e; }
+    
+    /* --- Card Expansion Logic --- */
+    .cs-details {
+      max-height: 0;
+      overflow: hidden;
+      color: var(--fg-soft);
+      line-height: 1.7;
+      transition: max-height 0.7s ease-in-out, margin-top 0.7s ease-in-out;
+    }
+    /* When expanded, the text column now spans the full width */
+    .cs-card.is-expanded {
+      grid-template-columns: 1fr;
+      /* The visual is vertically centered when the card is expanded */
+      align-items: center;
+    }
+    .cs-card.is-expanded .cs-text {
+      text-align: left; /* Force left-align on expand for readability */
+    }
+    .cs-card.is-expanded .cs-details {
+      max-height: 500px; /* A large enough value to not clip the content */
+      margin-top: 16px;
+    }
+    /* The visual element is placed in the second row when expanded, below the text. */
+    .cs-card.is-expanded .cs-visual {
+      grid-row: 2;
+      margin-top: 32px;
+    }
+    .cs-card.is-expanded.reverse .cs-visual {
+      grid-column: 1;
+    }
+
+    .cs-expand-toggle {
+      background: none;
+      border: 1px solid var(--ui-line-color);
+      color: var(--fg-soft);
+      padding: 8px 16px;
+      margin-top: 24px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .cs-expand-toggle:hover {
+      background-color: var(--ui-line-color);
+      color: var(--fg-main);
+    }
+    .cs-card.is-expanded .cs-expand-toggle {
+      background-color: var(--ui-line-color);
+    }
+
+    .cs-visual {
+      aspect-ratio: 16/10;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5c667e;
+      overflow: hidden;
+      transition: all 0.5s ease-in-out;
+    }
+    .cs-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
 
-<div class="background-container">
-  <canvas id="bg-canvas"></canvas>
-  <canvas id="render-canvas"></canvas>
-</div>
+  <div class="background-container">
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="render-canvas"></canvas>
+  </div>
 
   <main>
-    <section class="content-section" data-color-1="rgba(50, 80, 220, 0.2)" data-color-2="rgba(30, 100, 180, 0.1)">
-      <div class="cs-card"><div class="cs-visual">占位符</div><div class="cs-text"><h2 class="cs-title">核心方案 01</h2><p class="cs-summary">这里是关于这个方案的简短描述，说明它的作用和价值。</p></div></div>
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Your Name / Title</h1>
+        <p class="hero-subtitle">My work explores the intersection of aesthetics and logic, manifesting 'possibility' through the mediums of games and visual arts.</p>
+      </div>
     </section>
-    <section class="content-section" data-color-1="rgba(110, 50, 90, 0.25)" data-color-2="rgba(130, 60, 80, 0.2)">
-      <div class="cs-card reverse"><div class="cs-text"><h2 class="cs-title">核心方案 02</h2><p class="cs-summary">这是另一个方案的描述，布局左右反转以增加节奏感。</p></div><div class="cs-visual">占位符</div></div>
+
+    <section class="content-section" data-color="50, 80, 220">
+      <div class="cs-card">
+        <div class="cs-visual">
+          <img src="Assets\Cel-shading.png" alt="Cel-shading solution visual">
+        </div>
+        <div class="cs-text">
+          <h2 class="cs-title">Core Solution 01: Performant Cel-Shading</h2>
+          <div class="cs-summary">
+            <p>Deferred rendering is efficient but its photorealistic nature clashes with stylized cel-shading. This solution bridges that gap.</p>
+          </div>
+          <div class="cs-details">
+            <p>My shader fully integrates with the deferred rendering pipeline and post-processing stack, achieving a look that is performant, realistic, and stylized—all at the same time. Features include smooth outlines, adaptive detail normals, MatCap-inspired hair, and fully customizable rim lighting and masks.</p>
+          </div>
+          <button class="cs-expand-toggle">Expand</button>
+        </div>
+      </div>
     </section>
-    <section class="content-section" data-color-1="rgba(50, 220, 150, 0.3)" data-color-2="rgba(40, 180, 160, 0.25)">
-      <div class="cs-card"><div class="cs-visual">占位符</div><div class="cs-text"><h2 class="cs-title">最终区域 (绿色极光)</h2><p class="cs-summary">网站的最后部分，背景色调变为你指定的绿色极光。</p></div></div>
+
+    <section class="content-section" data-color="110, 50, 90">
+      <div class="cs-card reverse">
+        <div class="cs-text">
+          <h2 class="cs-title">Core Solution 02: Per-Object Shadowing</h2>
+          <div class="cs-summary">
+            <p>Real-time shadows are a performance bottleneck. Per-object shadowing decouples shadow cost from scene complexity, tying it directly to shadow-casting objects.</p>
+          </div>
+          <div class="cs-details">
+            <p>This allows for fully baked scene lighting while retaining high-definition, controllable dynamic shadows, ideal for top-down or indoor scenarios where only a few characters need dynamic shadows.</p>
+          </div>
+          <button class="cs-expand-toggle">Expand</button>
+        </div>
+        <div class="cs-visual">
+          <img src="Assets\Per-objectShadow.png" alt="Per-object shadow visual">
+        </div>
+      </div>
     </section>
+
+    <div class="placeholder-section" style="height: 100vh; display: flex; align-items: center; justify-content: center; color: #5c667e;">TECH GALLERY (Placeholder)</div>
+    <div class="placeholder-section" style="height: 100vh; display: flex; align-items: center; justify-content: center; color: #5c667e;">MY GAMES (Placeholder)</div>
+    <div class="placeholder-section" style="height: 100vh; display: flex; align-items: center; justify-content: center; color: #5c667e;">ABOUT & SKILLS (Placeholder)</div>
+
   </main>
 
   <script>
-  // =======================================================================
-  //  SECTION 0: MASTER INITIALIZATION & CONFIG
-  // =======================================================================
-  // --- Canvas & Context Setup
-  const fgCanvas = document.getElementById('render-canvas'); // Foreground: Stars & Grid (2D)
-  const fgCtx = fgCanvas.getContext('2d');
-  const bgCanvas = document.getElementById('bg-canvas');   // Background: Nebula (WebGL)
-  const gl = bgCanvas.getContext('webgl', { antialias: true, powerPreference: "high-performance", alpha: false });
+    // =======================================================================
+    //  SECTION 0: MASTER INITIALIZATION & CONFIG
+    // =======================================================================
+    const fgCanvas = document.getElementById('render-canvas');
+    const fgCtx = fgCanvas.getContext('2d');
+    const bgCanvas = document.getElementById('bg-canvas');
+    const gl = bgCanvas.getContext('webgl', { antialias: true, powerPreference: "high-performance", alpha: false });
 
-  if (!gl) {
-    console.error("CRITICAL: WebGL is not supported or disabled. The background will not render.");
-    // Hide the canvas to prevent a black screen over a potentially visible body background
-    bgCanvas.style.display = 'none';
-  }
+    if (!gl) {
+      console.error("CRITICAL: WebGL is not supported. The background will not render.");
+      bgCanvas.style.display = 'none';
+    }
 
-  // --- Global State
-  let width, height;
-  let scrollY = window.scrollY;
+    let width, height;
+    let scrollY = window.scrollY;
 
-  // --- Config
-  const STAR_COUNT = 40;
-  const GRID_SPACING = 120;
-  const GRID_DIMENSIONS = 40; // This is the count from center to edge. Total width is DIM*2.
-  const GRID_DEPTH_SEGMENTS = GRID_DIMENSIONS / 2;
-  const NODE_SIZE = 3.5;
+    const STAR_COUNT = 40;
+    const GRID_SPACING = 120;
+    const GRID_DIMENSIONS = 40;
+    const GRID_DEPTH_SEGMENTS = GRID_DIMENSIONS / 2;
+    const NODE_SIZE = 3.5;
 
-
-  // =======================================================================
-  //  SECTION 1: FOREGROUND (2D CANVAS: STARS & GRID)
-  // =======================================================================
-  const stars = [];
-  const gridPoints = [];
-  const camera = {
-    fov: 355,
-    y: 0,
-    rotationX: 0,
-    targetY: 0,
-    targetRotationX: 0,
-    lerpFactor: 0.07
-  };
-
-  /**
-   * Projects a 3D point to 2D screen space.
-   */
-  function project(p) {
-    const cosX = Math.cos(camera.rotationX);
-    const sinX = Math.sin(camera.rotationX);
-    const translatedY = p.y - camera.y;
-    // Adjusted projection for a more grounded feel
-    const rotatedY = 41 * translatedY * cosX - 0.1 * p.z * sinX;
-    const rotatedZ = 0 * translatedY * sinX + p.z * cosX;
-
-    if (rotatedZ <= 0) return null; // Behind camera
-
-    const scale = camera.fov / rotatedZ;
-    return {
-      x: width / 2 + p.x * scale,
-      y: height / 2 - rotatedY * scale,
-      scale: scale,
-      z: rotatedZ
+    // =======================================================================
+    //  SECTION 1: FOREGROUND (2D CANVAS: STARS & GRID) - YOUR VERSION
+    // =======================================================================
+    const stars = [];
+    const gridPoints = [];
+    const camera = {
+      fov: 355,
+      y: 0,
+      rotationX: 0,
+      targetY: 0,
+      targetRotationX: 0,
+      lerpFactor: 0.07
     };
-  }
 
-  /**
-   * Draws the 2D foreground elements (stars and grid).
-   * This function is called every frame by the master animation loop.
-   */
-  function drawForeground() {
-    fgCtx.clearRect(0, 0, width, height);
+    function project(p) {
+      const cosX = Math.cos(camera.rotationX);
+      const sinX = Math.sin(camera.rotationX);
+      const translatedY = p.y - camera.y;
+      const rotatedY = 41 * translatedY * cosX - 0.1 * p.z * sinX;
+      const rotatedZ = 0 * translatedY * sinX + p.z * cosX;
 
-    // --- 1.1 Draw Stars
-    fgCtx.fillStyle = '#dce2f0';
-    stars.forEach(star => {
-      const y = (star.y - scrollY * star.depth + height);
-      fgCtx.beginPath();
-      fgCtx.arc(star.x, y, star.size, 0, 2 * Math.PI);
-      fgCtx.fill();
-    });
+      if (rotatedZ <= 0) return null;
 
-    // --- 1.2 Draw 3D Grid (Points and Lines)
-    // For performance, we project all points once, then draw.
-    const projectedPoints = gridPoints.map(project);
-
-    // We iterate through the grid structure to draw lines.
-    // This is more efficient than searching for neighbors.
-    const gridWidth = GRID_DIMENSIONS * 2 + 1;
-    fgCtx.strokeStyle = 'rgba(80, 130, 255, 0.2)';
-    fgCtx.lineWidth = 1;
-
-    for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
-            const currentIdx = i * (GRID_DEPTH_SEGMENTS + 1) + j;
-            const p_current = projectedPoints[currentIdx];
-
-            if (!p_current || p_current.y < 0) continue;
-
-            // Connect to point behind (in Z)
-            if (j > 0) {
-                const p_behind = projectedPoints[currentIdx - 1];
-                if (p_behind && p_behind.y > 0) {
-                    fgCtx.beginPath();
-                    fgCtx.moveTo(p_current.x, p_current.y);
-                    fgCtx.lineTo(p_behind.x, p_behind.y);
-                    fgCtx.stroke();
-                }
-            }
-
-            // Connect to point to the side (in X)
-            if (i > 0) {
-                const p_side = projectedPoints[currentIdx - (GRID_DEPTH_SEGMENTS + 1)];
-                if (p_side && p_side.y > 0) {
-                    fgCtx.beginPath();
-                    fgCtx.moveTo(p_current.x, p_current.y);
-                    fgCtx.lineTo(p_side.x, p_side.y);
-                    fgCtx.stroke();
-                }
-            }
-        }
+      const scale = camera.fov / rotatedZ;
+      return {
+        x: width / 2 + p.x * scale,
+        y: height / 2 - rotatedY * scale,
+        scale: scale,
+        z: rotatedZ
+      };
     }
 
-    // Now draw the nodes on top of the lines
-    projectedPoints.forEach(p => {
-      if (p && p.y > 0) {
-        const size = NODE_SIZE * Math.min(p.scale, 1.0);
-        const alpha = 1 - Math.min(p.z / 8000, 1);
-        if (alpha > 0.01) {
-          fgCtx.globalAlpha = alpha;
-          fgCtx.shadowBlur = size * 4;
-          fgCtx.shadowColor = 'rgba(80, 130, 255, 0.5)';
-          fgCtx.fillStyle = 'rgba(80, 130, 255, 0.8)';
-          fgCtx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
-        }
-      }
-    });
-    fgCtx.globalAlpha = 1; // Reset alpha
-    fgCtx.shadowBlur = 0;   // Reset shadow
-  }
+    function drawForeground() {
+      fgCtx.clearRect(0, 0, width, height);
 
-
-  // =======================================================================
-  //  SECTION 2: BACKGROUND (WEBGL CANVAS: PROCEDURAL NEBULA)
-  // =======================================================================
-  // --- 2.1 Shader Sources
-  const vertexShaderSource = `
-    attribute vec2 a_position;
-    void main() {
-      gl_Position = vec4(a_position, 0.0, 1.0);
-    }`;
-
-  const fragmentShaderSource = `
-    precision highp float;
-
-    uniform vec2 u_resolution;
-    uniform float u_time;
-    uniform vec3 u_color;
-    uniform sampler2D u_blueNoise;
-
-    // --- Noise Functions (Simplex Noise + FBM)
-    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-    vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-    vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-    float snoise(vec2 v) {
-      const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-      vec2 i  = floor(v + dot(v, C.yy));
-      vec2 x0 = v - i + dot(i, C.xx);
-      vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-      vec4 x12 = x0.xyxy + C.xxzz;
-      x12.xy -= i1;
-      i = mod289(i);
-      vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
-      vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-      m = m*m; m = m*m;
-      vec3 x = 2.0 * fract(p * C.www) - 1.0;
-      vec3 h = abs(x) - 0.5;
-      vec3 ox = floor(x + 0.5);
-      vec3 a0 = x - ox;
-      m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-      vec3 g;
-      g.x  = a0.x  * x0.x  + h.x  * x0.y;
-      g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-      return 130.0 * dot(m, g);
-    }
-    float fbm(vec2 st) {
-      st *= 0.1; st += 0.1;
-      float value = 0.0;
-      float amplitude = 0.5;
-      for (int i = 0; i < 6; i++) {
-        value += amplitude * snoise(st);
-        st *= 2.0;
-        amplitude *= 0.5;
-      }
-      return value;
-    }
-
-    void main() {
-      vec2 st = gl_FragCoord.xy / u_resolution.xy;
-      st.x *= u_resolution.x / u_resolution.y;
-
-      float t = u_time * 0.6;
-      vec2 q = vec2(fbm(st + vec2(t * 0.2, t * 0.1)), fbm(st + vec2(-t * 0.15, t * 0.25)));
-      vec2 r = vec2(fbm(st + q * 2.0 + vec2(t * -0.3, t * 0.05)), fbm(st + q * 2.0 + vec2(t * 0.1, -t * 0.3)));
-      float value = fbm(st + r * 0.5);
-
-      float contrastValue = pow(max(0.0, value), 2.2);
-
-      vec3 finalColor = u_color * contrastValue * 1.5; // Multiply by u_color to tint the nebula
-
-      // --- BLUE NOISE DITHERING ---
-      // Sample the blue noise texture, tiled across the screen.
-      // The texture size (256.0) should match your image dimensions for a 1:1 mapping.
-      vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
-      // Subtract 0.5 to center the noise, then scale it down to a tiny value.
-      // Add this to the final color to break up banding.
-      finalColor += (noise - 0.5) / 128.0;
-      //finalColor = noise - 0.5;
-      gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
-    }`;
-
-  // --- 2.2 WebGL State & Helpers
-  let glProgram, positionAttributeLocation, resolutionUniformLocation, timeUniformLocation, colorUniformLocation, blueNoiseUniformLocation;
-  let currentR = 50, currentG = 80, currentB = 220;
-  let targetR = 50, targetG = 80, targetB = 220;
-  let blueNoiseTexture;
-
-  function createShader(gl, type, source) { /* Omitted for brevity, it's correct */ }
-  function createProgram(gl, vs, fs) { /* Omitted for brevity, it's correct */ }
-  
-  /**
-   * Asynchronously loads a texture into WebGL.
-   * Places a 1x1 placeholder pixel until the image is loaded.
-   */
-  function loadTexture(gl, url) {
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    // Placeholder 1x1 blue pixel
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
-    
-    const image = new Image();
-    image.onload = function() {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    };
-    image.src = url;
-    return texture;
-  }
-
-  /**
-   * Sets up the entire WebGL program, shaders, and uniforms.
-   */
-  function setupWebGL() {
-    if (!gl) return;
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-    glProgram = createProgram(gl, vertexShader, fragmentShader);
-
-    positionAttributeLocation = gl.getAttribLocation(glProgram, "a_position");
-    resolutionUniformLocation = gl.getUniformLocation(glProgram, "u_resolution");
-    timeUniformLocation = gl.getUniformLocation(glProgram, "u_time");
-    colorUniformLocation = gl.getUniformLocation(glProgram, "u_color");
-    blueNoiseUniformLocation = gl.getUniformLocation(glProgram, "u_blueNoise");
-
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
-    
-    gl.useProgram(glProgram);
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // !!! IMPORTANT: Replace this URL with your actual blue noise texture URL.
-    blueNoiseTexture = loadTexture(gl, 'assets/blueNoise.png');
-  }
-
-  /**
-   * Renders the WebGL background.
-   * This is called every frame by the master animation loop.
-   */
-  function renderBackground(time) {
-    if (!gl) return;
-    time *= 0.001; // convert to seconds
-
-    // Smoothly interpolate colors
-    currentR += (targetR - currentR) * 0.02;
-    currentG += (targetG - currentG) * 0.02;
-    currentB += (targetB - currentB) * 0.02;
-
-    gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-    gl.uniform1f(timeUniformLocation, time);
-    gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
-
-    // Bind the blue noise texture to texture unit 0
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
-    gl.uniform1i(blueNoiseUniformLocation, 0);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-  }
-
-
-  // =======================================================================
-  //  SECTION 3: MASTER CONTROL & EVENT LISTENERS
-  // =======================================================================
-  /**
-   * Master initialization and resize handler.
-   * Resizes both canvases and regenerates size-dependent assets.
-   */
-  function masterInit() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    
-    // Resize 2D canvas
-    fgCanvas.width = width;
-    fgCanvas.height = height;
-
-    // Resize WebGL canvas and viewport
-    if (gl) {
-      bgCanvas.width = width;
-      bgCanvas.height = height;
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    }
-    
-    // Regenerate stars
-    stars.length = 0;
-    for (let i = 0; i < STAR_COUNT; i++) {
-      stars.push({
-        x: (0.15 + 0.7 * Math.random()) * width, 
-        y: (Math.random() - 0.9) * height, // star only above floor
-        depth: Math.random() * 0.4 + 0.1,
-        size: Math.random() * 1.2 + 0.5
+      fgCtx.fillStyle = '#dce2f0';
+      stars.forEach(star => {
+        const y = (star.y - scrollY * star.depth + height);
+        fgCtx.beginPath();
+        fgCtx.arc(star.x, y, star.size, 0, 2 * Math.PI);
+        fgCtx.fill();
       });
-    }
 
-    // Regenerate grid points
-    gridPoints.length = 0;
-    for (let i = -GRID_DIMENSIONS; i <= GRID_DIMENSIONS; i++) {
+      const projectedPoints = gridPoints.map(project);
+      const gridWidth = GRID_DIMENSIONS * 2 + 1;
+      fgCtx.strokeStyle = 'rgba(80, 130, 255, 0.2)';
+      fgCtx.lineWidth = 1;
+
+      for (let i = 0; i < gridWidth; i++) {
         for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
-            gridPoints.push({ x: i * GRID_SPACING, y: 0, z: j * 1.5 * GRID_SPACING });
+          const currentIdx = i * (GRID_DEPTH_SEGMENTS + 1) + j;
+          const p_current = projectedPoints[currentIdx];
+          if (!p_current || p_current.y < 0) continue;
+          if (j > 0) {
+            const p_behind = projectedPoints[currentIdx - 1];
+            if (p_behind && p_behind.y > 0) {
+              fgCtx.beginPath();
+              fgCtx.moveTo(p_current.x, p_current.y);
+              fgCtx.lineTo(p_behind.x, p_behind.y);
+              fgCtx.stroke();
+            }
+          }
+          if (i > 0) {
+            const p_side = projectedPoints[currentIdx - (GRID_DEPTH_SEGMENTS + 1)];
+            if (p_side && p_side.y > 0) {
+              fgCtx.beginPath();
+              fgCtx.moveTo(p_current.x, p_current.y);
+              fgCtx.lineTo(p_side.x, p_side.y);
+              fgCtx.stroke();
+            }
+          }
         }
-    }
-  }
-
-  /**
-   * Master animation loop.
-   * This single loop drives all visual updates.
-   */
-  function masterAnimate(time) {
-    scrollY = window.scrollY;
-    const scrollHeight = document.body.scrollHeight - window.innerHeight;
-    const scrollRatio = scrollHeight > 0 ? scrollY / scrollHeight : 0;
-    
-    // Update camera based on scroll
-    const targetY = 1200 * (0 + 0.01*(1 - scrollRatio));
-    const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.48;
-    camera.y += (targetY - camera.y) * camera.lerpFactor;
-    camera.rotationX += (targetRotationX - camera.rotationX) * camera.lerpFactor;
-
-    // Render both layers
-    if (gl) renderBackground(time);
-    drawForeground();
-    
-    requestAnimationFrame(masterAnimate);
-  }
-
-  // --- Intersection Observer for color changes
-  const sections = document.querySelectorAll('.content-section');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // This now updates the target color for the WebGL shader
-        const color1 = entry.target.dataset.color1.match(/\d+/g).map(Number);
-        // We'll use the first color for the nebula tint.
-        targetR = color1[0];
-        targetG = color1[1];
-        targetB = color1[2];
       }
+
+      projectedPoints.forEach(p => {
+        if (p && p.y > 0) {
+          const size = NODE_SIZE * Math.min(p.scale, 1.0);
+          const alpha = 1 - Math.min(p.z / 8000, 1);
+          if (alpha > 0.01) {
+            fgCtx.globalAlpha = alpha;
+            fgCtx.shadowBlur = size * 4;
+            fgCtx.shadowColor = 'rgba(80, 130, 255, 0.5)';
+            fgCtx.fillStyle = 'rgba(80, 130, 255, 0.8)';
+            fgCtx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
+          }
+        }
+      });
+      fgCtx.globalAlpha = 1;
+      fgCtx.shadowBlur = 0;
+    }
+
+    // =======================================================================
+    //  SECTION 2: BACKGROUND (WEBGL CANVAS: PROCEDURAL NEBULA)
+    // =======================================================================
+    const vertexShaderSource = `
+      attribute vec2 a_position; void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`;
+    const fragmentShaderSource = `
+      precision highp float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform vec3 u_color;
+      uniform sampler2D u_blueNoise;
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+      float snoise(vec2 v) {
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy)); vec2 x0 = v - i + dot(i, C.xx);
+        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1;
+        i = mod289(i);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m; m = m*m;
+        vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        vec3 g; g.x  = a0.x  * x0.x  + h.x  * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+      }
+      float fbm(vec2 st) {
+        st *= 0.1; st += 0.1; float value = 0.0; float amplitude = 0.5;
+        for (int i = 0; i < 6; i++) { value += amplitude * snoise(st); st *= 2.0; amplitude *= 0.5; }
+        return value;
+      }
+      void main() {
+        vec2 st = gl_FragCoord.xy / u_resolution.xy;
+        st.x *= u_resolution.x / u_resolution.y;
+        float t = u_time * 0.08;
+        vec2 q = vec2(fbm(st + vec2(t*0.2, t*0.1)), fbm(st + vec2(-t*0.15, t*0.25)));
+        vec2 r = vec2(fbm(st + q*2.0 + vec2(t*-0.3, t*0.05)), fbm(st + q*2.0 + vec2(t*0.1, -t*0.3)));
+        float value = fbm(st + r*0.5);
+        float contrastValue = pow(max(0.0, value), 2.2);
+        vec3 finalColor = u_color * contrastValue * 1.5;
+        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
+        finalColor += (noise - 0.5) / 128.0;
+        gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
+      }`;
+
+    let glProgram, positionAttributeLocation, resolutionUniformLocation, timeUniformLocation, colorUniformLocation, blueNoiseUniformLocation;
+    let currentR = 50, currentG = 80, currentB = 220;
+    let targetR = 50, targetG = 80, targetB = 220;
+    let blueNoiseTexture;
+
+    function loadTexture(gl, url) {
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+      image.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      };
+      image.src = url;
+      return texture;
+    }
+
+    function setupWebGL() {
+      if (!gl) return;
+      const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+      const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+      glProgram = createProgram(gl, vertexShader, fragmentShader);
+      positionAttributeLocation = gl.getAttribLocation(glProgram, "a_position");
+      resolutionUniformLocation = gl.getUniformLocation(glProgram, "u_resolution");
+      timeUniformLocation = gl.getUniformLocation(glProgram, "u_time");
+      colorUniformLocation = gl.getUniformLocation(glProgram, "u_color");
+      blueNoiseUniformLocation = gl.getUniformLocation(glProgram, "u_blueNoise");
+      const positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+      gl.useProgram(glProgram);
+      gl.enableVertexAttribArray(positionAttributeLocation);
+      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+      blueNoiseTexture = loadTexture(gl, 'assets/blueNoise.png');
+    }
+
+    function renderBackground(time) {
+      if (!gl) return;
+      time *= 0.001;
+      currentR += (targetR - currentR) * 0.02;
+      currentG += (targetG - currentG) * 0.02;
+      currentB += (targetB - currentB) * 0.02;
+      gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+      gl.uniform1f(timeUniformLocation, time);
+      gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
+      gl.uniform1i(blueNoiseUniformLocation, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    // =======================================================================
+    //  SECTION 3: MASTER CONTROL & EVENT LISTENERS
+    // =======================================================================
+    function masterInit() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      fgCanvas.width = width;
+      fgCanvas.height = height;
+      if (gl) {
+        bgCanvas.width = width;
+        bgCanvas.height = height;
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      }
+      stars.length = 0;
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: (0.15 + 0.7 * Math.random()) * width,
+          y: (1.2 * Math.random() - 0.8) * height,
+          depth: Math.random() * 0.4 + 0.1,
+          size: Math.random() * 1.2 + 0.5
+        });
+      }
+      gridPoints.length = 0;
+      for (let i = -GRID_DIMENSIONS; i <= GRID_DIMENSIONS; i++) {
+        for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
+          gridPoints.push({ x: i * GRID_SPACING, y: 0, z: j * 1.5 * GRID_SPACING });
+        }
+      }
+    }
+
+    function masterAnimate(time) {
+      scrollY = window.scrollY;
+      const scrollHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollRatio = scrollHeight > 0 ? scrollY / scrollHeight : 0;
+      
+      // YOUR CAMERA LOGIC - PRESERVED
+      const targetY = 1200 * (0 + 0.01 * (1 - scrollRatio));
+      const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.48;
+      camera.y += (targetY - camera.y) * camera.lerpFactor;
+      camera.rotationX += (targetRotationX - camera.rotationX) * camera.lerpFactor;
+
+      if (gl) renderBackground(time);
+      drawForeground();
+      requestAnimationFrame(masterAnimate);
+    }
+
+    // --- FIX: Intersection Observer for color changes ---
+    const sections = document.querySelectorAll('.content-section[data-color]');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const [r, g, b] = entry.target.dataset.color.split(',').map(Number);
+          targetR = r;
+          targetG = g;
+          targetB = b;
+        }
+      });
+    }, { threshold: 0.5 });
+    sections.forEach(section => observer.observe(section));
+
+    // --- NEW: Event Listeners for Card Expansion ---
+    document.querySelectorAll('.cs-expand-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const card = button.closest('.cs-card');
+        card.classList.toggle('is-expanded');
+        button.textContent = card.classList.contains('is-expanded') ? 'Collapse' : 'Expand';
+      });
     });
-  }, { threshold: 0.5 });
-  sections.forEach(section => observer.observe(section));
 
-  // --- Start Everything
-  window.addEventListener('resize', masterInit);
-  
-  // These are the WebGL helper functions you had, required for setup.
-  createShader = function(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      console.error("Error compiling shader:", gl.getShaderInfoLog(shader));
-      gl.deleteShader(shader); return null;
+    // --- Start Everything ---
+    window.addEventListener('resize', masterInit);
+    
+    createShader = function(gl, type, source) {
+      const shader = gl.createShader(type); gl.shaderSource(shader, source); gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) { console.error("Error compiling shader:", gl.getShaderInfoLog(shader)); gl.deleteShader(shader); return null; }
+      return shader;
     }
-    return shader;
-  }
-  createProgram = function(gl, vertexShader, fragmentShader) {
-    const program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error("Error linking program:", gl.getProgramInfoLog(program));
-      gl.deleteProgram(program); return null;
+    createProgram = function(gl, vertexShader, fragmentShader) {
+      const program = gl.createProgram(); gl.attachShader(program, vertexShader); gl.attachShader(program, fragmentShader); gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) { console.error("Error linking program:", gl.getProgramInfoLog(program)); gl.deleteProgram(program); return null; }
+      return program;
     }
-    return program;
-  }
 
-  setupWebGL();
-  masterInit();
-  masterAnimate();
-</script>
+    setupWebGL();
+    masterInit();
+    masterAnimate();
+  </script>
 </body>
 </html>
