@@ -19,7 +19,8 @@
       --line-soft: rgba(140, 200, 255, 0.18);
       --line-strong: rgba(140, 200, 255, 0.45);
 
-      --content-padding-x: clamp(16px, 5vw, 64px);
+      --content-padding-x: clamp(40px, 8vw, 128px);
+      --section-max-width: clamp(800px, 80vw, 10000px);
       --section-gap: 26vh;
 
       --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
@@ -38,6 +39,26 @@
       font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+    }
+
+    body::after {
+      /* 全屏蓝噪音降色带 */
+      content: '';
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('assets/blueNoise.png');
+      background-size: 128px 128px;
+      background-repeat: repeat;
+
+      opacity: 0.05;
+      mix-blend-mode: overlay;
+      /* overlay 或 soft-light，overlay 效果更明显 */
+
+      pointer-events: none;
+      /* 确保在所有内容之上 */
+      z-index: 9999;
     }
 
     a {
@@ -73,23 +94,33 @@
           rgba(0, 0, 0, 0.7) 0,
           transparent 60%);
       mix-blend-mode: soft-light;
-      z-index: -1;
+      z-index: -2;
     }
 
     main {
       width: 100%;
-      padding: 0 var(--content-padding-x);
     }
 
     section {
       position: relative;
     }
 
+    /* 扫描线层：固定在视口，盖在背景上，但在 main 内容下面 */
+    #scanline-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      /* 比 main 背，但比 background-container 高 */
+    }
+
     /* ================= HERO (full-width band) ================= */
 
     .hero-shell {
       position: relative;
-      padding: 56px 20px;
+      padding: 5vh 4vw;
       /* 在这里局部覆盖一些颜色；只影响 hero 区域 */
       --hero-title-gradient: linear-gradient(120deg, var(--accent-aurora-1), var(--accent-aurora-2));
       --hero-strike-color: rgba(140, 200, 255, 0.8);
@@ -97,6 +128,7 @@
       --hero-text-soft: var(--fg-soft);
       --hero-text-muted: var(--fg-muted);
     }
+
 
     /* 媒体带容器：横贯全屏，控制比例 */
     .hero-media {
@@ -106,7 +138,7 @@
       overflow: hidden;
       /* 用 aspect-ratio 控制大致 16:7，比 16:9 更扁一点 */
       aspect-ratio: 16 / 7;
-      max-height: 60vh;
+      /* max-height: 60vh; */
       background: radial-gradient(circle at 20% 10%, #274986 0, #040611 55%);
       box-shadow:
         0 40px 120px rgba(0, 0, 0, 0.9),
@@ -123,7 +155,7 @@
 
     /* 可选：给视频一个轻微的色彩调整，保持跟整站一致的调性 */
     .hero-media video {
-      filter: saturate(1.05) contrast(1.03) brightness(0.97);
+      filter: saturate(1.05) contrast(1) brightness(0.97);
     }
 
     /* 媒体上的 aurora 光+暗角+向下渐隐到背景 */
@@ -165,10 +197,41 @@
       margin: 0 auto;
       padding-top: 32px;
       /* 负 margin 把文字稍微拉到图片区域内，形成“嵌入侵入感” */
-      margin-top: -92px;
+      margin-top: -120px;
       padding-inline: var(--content-padding-x);
       /* 为了确保文字仍然清晰可读，加一点顶部内边距 */
     }
+
+    .hero-content::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--content-padding-x) * -1);
+      /* 稍微向左右溢出，避免看出边 */
+      right: calc(var(--content-padding-x) * -1);
+      top: -24px;
+      bottom: -32px;
+      pointer-events: none;
+      z-index: -1;
+
+      /* 局部渐变 + 微光，注意透明度都比较低 */
+      background:
+        /* 一点偏蓝的光晕，围绕文字区域 */
+        radial-gradient(circle at 10% 10%,
+          rgba(120, 200, 255, 0.24),
+          transparent 05%),
+        radial-gradient(circle at 35% 60%,
+          rgba(80, 160, 255, 0.06),
+          transparent 05%),
+        /* 竖向渐变：上略亮，下略暗，帮文字脱离网格 */
+        linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.04),
+          rgba(0, 0, 0, 0.8),
+          rgba(0, 0, 0, 0.12));
+      mix-blend-mode: screen;
+      /* 和背景叠加，而不是盖一块灰 */
+      opacity: 0.70;
+    }
+
 
     /* 大屏时居左，窄屏时还是左对齐但 margin 自动适配 */
     @media (min-width: 960px) {
@@ -183,9 +246,22 @@
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--hero-text-muted);
-      margin-bottom: 16px;
-      padding-left: 26px;
-      /* 为左侧小 dash 留出空间 */
+      margin-bottom: 18px;
+      padding-left: 18px;
+    }
+
+    .hero-tagline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 10px;
+      height: 1px;
+      transform: translateY(-50%);
+      background: linear-gradient(to right,
+          rgba(107, 230, 255, 0.0),
+          rgba(107, 230, 255, 0.85));
+      opacity: 0.9;
     }
 
     .hero-title {
@@ -199,24 +275,14 @@
     }
 
 
-    .hero-tagline::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 20px;
-      height: 1px;
-      transform: translateY(-50%);
-      background: linear-gradient(to right,
-          rgba(107, 230, 255, 0.0),
-          rgba(107, 230, 255, 0.85));
-      opacity: 0.9;
-    }
-
     .hero-title-name {
-      font-size: clamp(1.8rem, 2.8vw, 2.3rem);
+      font-size: clamp(2rem, 3.3vw, 2.7rem);
+      font-weight: 650;
+      letter-spacing: 0.05em;
       color: var(--hero-text-main);
-      margin-bottom: 10px;
+      text-shadow:
+        0 0 6px rgba(157, 217, 255, 0.35),
+        0 0 3px rgba(37, 252, 223, 0.55);
     }
 
     .hero-title-highlight {
@@ -232,33 +298,60 @@
 
     .hero-subline {
       font-size: 14px;
-      color: var(--hero-text-soft);
-      line-height: 1.8;
-      max-width: 60ch;
-      margin-bottom: 8px;
-      /* 稍微缩小一点，避免两段隔太开 */
+      line-height: 1.85;
+      color: rgba(168, 178, 209, 0.9);
+      /* 冷一点、暗一点，跟背景更融合 */
     }
 
     /* 第一段气质句，稍微淡一点强调 */
     .hero-subline-lead {
       font-weight: 500;
-      color: var(--hero-text-main);
+      color: rgba(232, 236, 245, 0.94);
+      /* 稍亮，偏中性 */
+    }
+
+    .hero-word-highlight {
+      position: relative;
+      color: #58ecff;
+    }
+
+    .hero-word-highlight::before {
+      content: '';
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      top: 60%;
+      height: 40%;
+      background: linear-gradient(to right,
+          rgba(120, 210, 255, 0.0),
+          rgba(120, 210, 255, 0.35),
+          rgba(120, 210, 255, 0.0));
+      filter: blur(4px);
+      opacity: 0.8;
+      z-index: -1;
     }
 
     /* 炫光 strike：短横线，带一点渐变发光但不过分 */
     .hero-strike {
-      width: 88px;
+      width: 80px;
       height: 1px;
       border-radius: 999px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+
       background:
+        radial-gradient(circle at 0% 50%,
+          rgba(90, 210, 255, 0.0),
+          rgba(90, 210, 255, 0.7),
+          rgba(90, 210, 255, 0.0)),
         linear-gradient(to right,
-          rgba(140, 200, 255, 0.0),
-          rgba(115, 215, 255, 0.9),
-          rgba(140, 200, 255, 0.0));
-      /* 去掉 box-shadow，避免变成光斑 */
-      box-shadow: none;
-      margin-bottom: 14px;
-      opacity: 0.9;
+          rgba(40, 120, 255, 0.0),
+          rgba(120, 210, 255, 1),
+          rgba(40, 120, 255, 0.0));
+      box-shadow:
+        0 0 16px rgba(130, 210, 255, 0.7),
+        0 0 2px rgba(255, 255, 255, 0.4);
+      opacity: 0.95;
     }
 
     .hero-meta-row {
@@ -289,13 +382,12 @@
       }
 
       .hero-media {
-        aspect-ratio: 16 / 9;
-        max-height: 40vh;
+        aspect-ratio: 16 / 14;
         border-radius: 20px;
       }
 
       .hero-content {
-        margin-top: -40px;
+        margin-top: -90px;
         padding-top: 24px;
         max-width: 100%;
       }
@@ -332,9 +424,44 @@
     .content-section {
       padding: var(--section-gap) 0;
       position: relative;
+      /* 原来的 padding: var(--section-gap) 0; 会覆盖左右 padding */
+      padding-top: var(--section-gap);
+      padding-bottom: var(--section-gap);
+      padding-left: var(--content-padding-x);
+      padding-right: var(--content-padding-x);
+
+      /* 如果你要限制最大宽度，用响应式设置 */
+      max-width: var(--section-max-width, none);
+      /* 默认不限制 */
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .content-section::before {
+    @media (min-width: 1920px) {
+      :root {
+        --section-max-width: 75vw;
+      }
+    }
+
+    @media (min-width: 1440px) and (max-width: 1919px) {
+      :root {
+        --section-max-width: 82vw;
+      }
+    }
+
+    @media (min-width: 1024px) and (max-width: 1439px) {
+      :root {
+        --section-max-width: 88vw;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      :root {
+        --section-max-width: none;
+      }
+    }
+
+    */ .content-section::before {
       content: '';
       position: absolute;
       left: 50%;
@@ -392,8 +519,10 @@
     /* ============ Cards (Core + Games) ============ */
 
     .cs-card {
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(40px, 5vw) minmax(0, 1.3fr);
+      display: flex;
+      align-items: flex-start;
+      gap: 6vw;
+      /* 图片和文字之间的距离，随时可以调整 */
       align-items: center;
       position: relative;
       padding: 28px 0;
@@ -407,55 +536,54 @@
       grid-template-columns: minmax(0, 1.3fr) minmax(40px, 5vw) minmax(0, 1.6fr);
     }
 
-    .cs-card::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 40px;
-      height: 1px;
-      background: linear-gradient(to right,
-          transparent,
-          rgba(140, 200, 255, 0.65),
-          transparent);
-      transform: translate(-50%, -50%);
-      opacity: 0.9;
-    }
 
     .cs-visual {
-      grid-column: 1 / 2;
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.16);
       border-radius: 18px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05);
       overflow: hidden;
-      position: relative;
-      box-shadow:
-        0 24px 70px rgba(0, 0, 0, 0.85),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
-      transition: transform 0.35s ease, box-shadow 0.35s ease;
-    }
-
-    .cs-card.reverse .cs-visual {
-      grid-column: 3 / 4;
+      vertical-align: top;
+      padding: 0;
+      /* 不加任何宽高！让图片撑开 */
     }
 
     .cs-visual img {
       display: block;
-      width: 100%;
+      width: auto;
       height: auto;
+      max-width: 45vw;
+      max-height: 65vh;
+      object-fit: unset;
+      /* 绝不用contain/cover，不拉伸不裁剪 */
+      border-radius: 0;
     }
 
-    .cs-visual::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: -8px;
-      width: 12px;
-      height: 36px;
-      border-radius: 999px;
-      background: radial-gradient(circle at center,
-          rgba(120, 210, 255, 0.9),
-          rgba(120, 210, 255, 0.0) 65%);
-      opacity: 0.6;
-      pointer-events: none;
+
+    @media (max-width: 860px) {
+
+      .cs-card,
+      .cs-card.reverse {
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .cs-visual {
+        display: block;
+        margin: 0;
+        border-radius: 14px;
+        order: 1;
+      }
+
+      .cs-visual img {
+        height: auto;
+        max-width: 100%;
+        max-height: 60vh;
+      }
+
+      .cs-text {
+        order: 2;
+      }
     }
 
     .cs-card.reverse .cs-visual::after {
@@ -471,10 +599,10 @@
     }
 
     .cs-text {
-      grid-column: 3 / 4;
       position: relative;
-      padding: 12px 0 12px 26px;
-      cursor: pointer;
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0;
     }
 
     .cs-card.reverse .cs-text {
@@ -541,8 +669,10 @@
       height: 1px;
       background: linear-gradient(to right,
           transparent,
-          var(--line-soft),
+          #57cfe7ad,
           transparent);
+      filter: drop-shadow(0 0 3px var(--accent-aurora-1));
+      /* 加辉光 */
       transform: scaleX(0.0);
       transform-origin: left;
       transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1),
@@ -812,10 +942,13 @@
   </div>
   <div class="bg-overlay"></div>
 
+
+  <canvas id="scanline-canvas"></canvas>
+
   <main>
     <!-- ============ HERO ============ -->
-    <section class="hero-shell">
-      <!-- 媒体带：后续可替换为序列帧 / video / canvas -->
+    <section class="hero-shell" data-color="50, 80, 200">
+      <!-- 媒体带 -->
       <div class="hero-media">
         <video class="hero-video" src="Assets/hero-banner.mp4" autoplay muted loop playsinline
           poster="Assets/hero-banner.png"></video>
@@ -837,7 +970,10 @@
 
 
         <p class="hero-subline hero-subline-lead">
-          My work lives on the boundary between aesthetics and logic.
+          I enjoy working on the boundary between
+          <span class="hero-word-highlight">aesthetics</span>
+          and
+          <span class="hero-word-highlight">engineering</span>.
         </p>
         <p class="hero-subline">
           I build real-time visuals and systems for games and interactive work – from shaders and lighting to production
@@ -854,15 +990,16 @@
     </section>
 
     <!-- ============ CORE SOLUTIONS ============ -->
-    <section class="content-section" data-color="80, 220, 180">
+    <section class="content-section" data-color="40, 110, 90">
+
       <header class="section-header">
         <div>
           <div class="section-kicker">CORE SOLUTIONS</div>
           <div class="section-title">Rendering Systems</div>
         </div>
         <p class="section-subtitle">
-          A sample of the kind of systems I like to build: practical, stylized, and designed to live inside real
-          production pipelines.
+          True quality comes when art design is intrinsic to the system. <br>
+          I build practical, stylized rendering solutions designed to live inside real production pipelines.
         </p>
       </header>
 
@@ -874,15 +1011,13 @@
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 01 · SHADING</div>
           <h2 class="cs-title">
-            NPR Shading in Deferred Scenes
-            <span class="cs-title-badge">URP</span>
+            NPR Shading in Deferred
+            <span class="cs-title-badge">Shader</span>
           </h2>
-          <div class="cs-meta-line">Stylized characters · busy environments · one lighting setup</div>
+          <div class="cs-meta-line">Unified Lighting ·  G-Buffer Compatible · Performant</div>
           <div class="cs-summary">
             <p>
-              The goal here is simple: let strongly stylized characters sit inside complex, deferred-lit scenes
-              without special-case compositing tricks. Characters, props, and environments share the same lights
-              and depth, while art still gets the controls it needs.
+              Integrating stylized characters into a deferred lighting environment is a complex chanllenge, 
             </p>
           </div>
           <div class="cs-details">
@@ -906,10 +1041,10 @@
               </div>
             </div>
             <div class="cs-detail-gallery">
-              <img src="Assets/cel-1.jpg" alt="Character lighting close-up">
-              <img src="Assets/cel-2.jpg" alt="Material and stockings detail">
-              <img src="Assets/cel-3.jpg" alt="Hair shading from different angles">
-              <img src="Assets/cel-4.jpg" alt="Rim-lit cinematic frame">
+              <img src="Assets/cel-1.png" alt="Character lighting close-up">
+              <img src="Assets/cel-2.png" alt="Material and stockings detail">
+              <img src="Assets/cel-3.png" alt="Hair shading from different angles">
+              <img src="Assets/cel-4.png" alt="Rim-lit cinematic frame">
             </div>
           </div>
         </div>
@@ -951,9 +1086,9 @@
               </div>
             </div>
             <div class="cs-detail-gallery">
-              <img src="Assets/shadow-1.jpg" alt="Top-down baked scene with dynamic characters">
-              <img src="Assets/shadow-2.jpg" alt="Shadow parameters adjusted in editor">
-              <img src="Assets/shadow-3.jpg" alt="Character shadow close-up">
+              <img src="Assets/shadow-1.png" alt="Top-down baked scene with dynamic characters">
+              <img src="Assets/shadow-2.png" alt="Shadow parameters adjusted in editor">
+              <img src="Assets/shadow-3.png" alt="Character shadow close-up">
             </div>
           </div>
         </div>
@@ -964,7 +1099,7 @@
     </section>
 
     <!-- ============ TECH GALLERY ============ -->
-    <section class="content-section" data-color="110, 140, 255">
+    <section class="content-section" data-color="65, 70, 120">
       <header class="section-header">
         <div>
           <div class="section-kicker">TECH GALLERY</div>
@@ -979,7 +1114,7 @@
 
       <div class="cs-card">
         <div class="cs-visual">
-          <img src="Assets/skybox.jpg" alt="Dynamic skybox and lighting">
+          <img src="Assets/skybox.png" alt="Dynamic skybox and lighting">
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow">TECH 01 · SKY & LIGHT</div>
@@ -1013,13 +1148,13 @@
           </div>
         </div>
         <div class="cs-visual">
-          <img src="Assets/triplanar.jpg" alt="Interior scene using triplanar materials">
+          <img src="Assets/triplanar.png" alt="Interior scene using triplanar materials">
         </div>
       </div>
 
       <div class="cs-card">
         <div class="cs-visual">
-          <img src="Assets/postfx.jpg" alt="Custom blur and post-processing effects">
+          <img src="Assets/postfx.png" alt="Custom blur and post-processing effects">
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow">TECH 03 · POST</div>
@@ -1053,13 +1188,13 @@
           </div>
         </div>
         <div class="cs-visual">
-          <img src="Assets/cloth-tool.jpg" alt="Cloth fitting workflow">
+          <img src="Assets/cloth-tool.png" alt="Cloth fitting workflow">
         </div>
       </div>
     </section>
 
     <!-- ============ MY GAMES ============ -->
-    <section class="content-section" data-color="140, 100, 255">
+    <section class="content-section" data-color="70, 50, 120">
       <header class="section-header">
         <div>
           <div class="section-kicker">PERSONAL PROJECTS</div>
@@ -1073,7 +1208,7 @@
       <!-- Game 01 -->
       <div class="cs-card">
         <div class="cs-visual">
-          <img src="Assets/game-eden-pv.jpg" alt="EDEN game key visual">
+          <img src="Assets/game-eden-pv.png" alt="EDEN game key visual">
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 01</span> · PC PROTOTYPE</div>
@@ -1108,9 +1243,9 @@
               </div>
             </div>
             <div class="cs-detail-gallery">
-              <img src="Assets/eden-1.jpg" alt="EDEN combat frame">
-              <img src="Assets/eden-2.jpg" alt="EDEN title or hub scene">
-              <img src="Assets/eden-3.jpg" alt="EDEN exploration vista">
+              <img src="Assets/eden-1.png" alt="EDEN combat frame">
+              <img src="Assets/eden-2.png" alt="EDEN title or hub scene">
+              <img src="Assets/eden-3.png" alt="EDEN exploration vista">
             </div>
           </div>
         </div>
@@ -1152,7 +1287,7 @@
           </div>
         </div>
         <div class="cs-visual">
-          <img src="Assets/game-sys-pv.jpg" alt="Last Train to Vladivostok visual">
+          <img src="Assets/game-sys-pv.png" alt="Last Train to Vladivostok visual">
         </div>
       </div>
     </section>
@@ -1206,7 +1341,7 @@
     </section>
 
     <!-- ============ CONTACT & HORIZON ============ -->
-    <section class="content-section">
+    <section class="content-section" data-color="50, 80, 200">
       <header class="section-header">
         <div>
           <div class="section-kicker">CONTACT</div>
@@ -1232,7 +1367,7 @@
         </div>
         <div class="horizon-caption">END OF PAGE</div>
         <div class="horizon-phrase">
-          Looking up is usually where my projects start.
+          Looking up is usually where a great journey begins.
         </div>
       </div>
     </section>
@@ -1249,6 +1384,27 @@
       powerPreference: "high-performance",
       alpha: false
     });
+    const scanCanvas = document.getElementById('scanline-canvas');
+    const scanCtx = scanCanvas.getContext('2d');
+
+    // 在 scanline-canvas 上绘制全屏扫描线
+    function drawScanlines() {
+      if (!scanCtx) return;
+      scanCanvas.width = window.innerWidth;
+      scanCanvas.height = window.innerHeight;
+
+      const width = scanCanvas.width;
+      const height = scanCanvas.height;
+
+      // 先清空
+      scanCtx.clearRect(0, 0, width, height);
+
+      // 显示器风格的细竖线也可以加，这里按你给的横向扫描线来
+      scanCtx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      for (let i = 0; i < height; i += 4) {
+        scanCtx.fillRect(0, i, width, 2);
+      }
+    }
 
     if (!gl) {
       console.error("WebGL not supported.");
@@ -1304,7 +1460,7 @@
 
       const projected = gridPoints.map(project);
       const gridWidth = GRID_DIMENSIONS * 2 + 1;
-      fgCtx.strokeStyle = 'rgba(80, 130, 255, 0.2)';
+      fgCtx.strokeStyle = `rgba(${Math.round(currentR)},${Math.round(currentG)},${Math.round(currentB)},0.2)`;
       fgCtx.lineWidth = 1;
 
       for (let i = 0; i < gridWidth; i++) {
@@ -1340,8 +1496,11 @@
           if (alpha > 0.01) {
             fgCtx.globalAlpha = alpha;
             fgCtx.shadowBlur = size * 4;
-            fgCtx.shadowColor = 'rgba(80, 130, 255, 0.5)';
-            fgCtx.fillStyle = 'rgba(80, 130, 255, 0.8)';
+            const nodeR = Math.round(currentR * 0.35 + 80 * 0.65);
+            const nodeG = Math.round(currentG * 0.35 + 130 * 0.65);
+            const nodeB = Math.round(currentB * 0.35 + 255 * 0.65);
+            fgCtx.shadowColor = `rgba(${nodeR},${nodeG},${nodeB},0.5)`;
+            fgCtx.fillStyle = `rgba(${nodeR},${nodeG},${nodeB},0.80)`;
             fgCtx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
           }
         }
@@ -1421,7 +1580,7 @@
         float value = fbm(st + r*0.5);
         float contrastValue = pow(max(0.0, value), 2.2);
         vec3 finalColor = u_color * contrastValue * 1.5;
-        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
+        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 128.0).rgb;
         finalColor += (noise - 0.5) / 128.0;
         gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
       }`;
@@ -1568,6 +1727,9 @@
           });
         }
       }
+
+
+      drawScanlines();
     }
 
     function masterAnimate(time) {
@@ -1587,7 +1749,7 @@
       requestAnimationFrame(masterAnimate);
     }
 
-    const sections = document.querySelectorAll('.content-section[data-color]');
+    const sections = document.querySelectorAll('section[data-color]');
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -1612,6 +1774,7 @@
     window.addEventListener('resize', () => {
       masterInit();
       if (gl) gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      drawScanlines();  // 这里再调用一次，确保 scanline 匹配新尺寸
     });
 
     setupWebGL();
