@@ -27,6 +27,30 @@
         "Segoe UI", sans-serif;
     }
 
+    @media (min-width: 1920px) {
+      :root {
+        --section-max-width: 75vw;
+      }
+    }
+
+    @media (min-width: 1440px) and (max-width: 1919px) {
+      :root {
+        --section-max-width: 82vw;
+      }
+    }
+
+    @media (min-width: 1024px) and (max-width: 1439px) {
+      :root {
+        --section-max-width: 88vw;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      :root {
+        --section-max-width: none;
+      }
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -49,10 +73,10 @@
       width: 100%;
       height: 100%;
       background-image: url('assets/blueNoise.png');
-      background-size: 128px 128px;
+      background-size: 64px 64px;
       background-repeat: repeat;
 
-      opacity: 0.05;
+      opacity: 0.075;
       mix-blend-mode: overlay;
       /* overlay 或 soft-light，overlay 效果更明显 */
 
@@ -437,30 +461,6 @@
       margin-right: auto;
     }
 
-    @media (min-width: 1920px) {
-      :root {
-        --section-max-width: 75vw;
-      }
-    }
-
-    @media (min-width: 1440px) and (max-width: 1919px) {
-      :root {
-        --section-max-width: 82vw;
-      }
-    }
-
-    @media (min-width: 1024px) and (max-width: 1439px) {
-      :root {
-        --section-max-width: 88vw;
-      }
-    }
-
-    @media (max-width: 1023px) {
-      :root {
-        --section-max-width: none;
-      }
-    }
-
     */ .content-section::before {
       content: '';
       position: absolute;
@@ -500,7 +500,7 @@
     .section-subtitle {
       font-size: 13px;
       color: var(--fg-soft);
-      max-width: 46ch;
+      max-width: 72ch;
       line-height: 1.7;
       text-align: right;
     }
@@ -545,20 +545,29 @@
       overflow: hidden;
       vertical-align: top;
       padding: 0;
-      /* 不加任何宽高！让图片撑开 */
     }
 
     .cs-visual img {
       display: block;
       width: auto;
       height: auto;
-      max-width: 45vw;
+      max-width: 40vw;
       max-height: 65vh;
-      object-fit: unset;
+      object-fit: fill;
       /* 绝不用contain/cover，不拉伸不裁剪 */
       border-radius: 0;
     }
 
+    .cs-visual video {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 40vw;
+      max-height: 65vh;
+      object-fit: fill;
+      /* 或者 cover，看你需求 */
+      border-radius: 0;
+    }
 
     @media (max-width: 860px) {
 
@@ -601,7 +610,7 @@
     .cs-text {
       position: relative;
       flex: 1 1 0;
-      min-width: 0;
+      min-width: 12vw;
       padding: 0;
     }
 
@@ -653,7 +662,7 @@
       font-size: 13px;
       color: var(--fg-soft);
       line-height: 1.9;
-      max-width: 40ch;
+      max-width: 80ch;
     }
 
     .cs-card.reverse .cs-summary {
@@ -703,64 +712,78 @@
     .cs-details {
       max-height: 0;
       overflow: hidden;
-      color: var(--fg-soft);
-      line-height: 1.8;
-      font-size: 13px;
-      transition: max-height 0.7s ease, margin-top 0.7s ease;
+      /* 给个稍微深一点的背景，区分于Summary */
+      background: rgba(0, 0, 0, 0.2);
+      margin-top: 0;
+      padding: 0 26px;
+      /* 和上面的文字对齐 */
+      border-radius: 8px;
+      transition: max-height 0.5s cubic-bezier(0.65, 0, 0.35, 1), padding 0.5s ease, margin 0.5s ease;
     }
 
     .cs-card.is-expanded .cs-details {
-      max-height: 1200px;
-      margin-top: 18px;
+      max-height: 1500px;
+      /* 给够高度 */
+      margin-top: 24px;
+      padding-top: 24px;
+      padding-bottom: 24px;
+      border-top: 1px solid var(--line-soft);
     }
 
-    .cs-detail-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 20px;
-      margin-top: 10px;
+    /* 技术故事段落：左对齐，宽一点，像博客 */
+    .cs-detail-story {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--fg-main);
+      /* 亮一点，强调这是干货 */
+      max-width: 65ch;
+      /* 最佳阅读宽度 */
+      margin-bottom: 32px;
     }
 
-    .cs-detail-block-title {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--fg-muted);
-      margin-bottom: 6px;
+    .cs-detail-story p+p {
+      margin-top: 16px;
     }
 
-    .cs-detail-block ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .cs-detail-block li {
-      margin-bottom: 4px;
-    }
-
-    .cs-detail-block li::before {
-      content: '– ';
+    .cs-detail-story strong {
       color: var(--accent-aurora-1);
+      font-weight: 500;
     }
 
-    .cs-detail-gallery {
+    /* 图片/Feature Grid：田字格布局 */
+    .cs-feature-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .cs-detail-gallery img {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
       width: 100%;
-      display: block;
-      border-radius: 8px;
-      opacity: 0.86;
-      transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    .cs-detail-gallery img:hover {
-      opacity: 1;
-      transform: translateY(-2px);
+    .cs-feature-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cs-feature-item img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #000;
+    }
+
+    .cs-feature-caption {
+      font-size: 12px;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cs-feature-desc {
+      font-size: 13px;
+      color: var(--fg-soft);
+      line-height: 1.5;
     }
 
     .game-tag {
@@ -998,102 +1021,140 @@
           <div class="section-title">Rendering Systems</div>
         </div>
         <p class="section-subtitle">
-          True quality comes when art design is intrinsic to the system. <br>
+          I believe true quality comes when art is baked into the system. <br>
           I build practical, stylized rendering solutions designed to live inside real production pipelines.
         </p>
       </header>
 
-      <!-- Core 01 -->
-      <div class="cs-card">
-        <div class="cs-visual">
-          <img src="Assets/Cel-shading.png" alt="Stylized character shading in a lit scene">
-        </div>
+      <div class="cs-card ">
         <div class="cs-text">
-          <div class="cs-eyebrow">CORE 01 · SHADING</div>
+          <div class="cs-eyebrow">CORE 01 · Feature and System</div>
           <h2 class="cs-title">
-            NPR Shading in Deferred
-            <span class="cs-title-badge">Shader</span>
-          </h2>
-          <div class="cs-meta-line">Unified Lighting ·  G-Buffer Compatible · Performant</div>
-          <div class="cs-summary">
-            <p>
-              Integrating stylized characters into a deferred lighting environment is a complex chanllenge, 
-            </p>
-          </div>
-          <div class="cs-details">
-            <div class="cs-detail-grid">
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What It Does</div>
-                <ul>
-                  <li>Uses an NPR shading path that works inside a deferred-style setup and still writes sane depth and
-                    lighting.</li>
-                  <li>Keeps stylized characters playing nicely with depth-based effects in the existing pipeline.</li>
-                  <li>Respects how scenes are already lit, instead of forcing a separate “toon-only” world.</li>
-                </ul>
-              </div>
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">Look Controls</div>
-                <ul>
-                  <li>Geometry-based outlines that stay smooth with camera movement and resolution changes.</li>
-                  <li>Adaptive normal detail: close-up materials keep their texture; distance shots stay clean.</li>
-                  <li>Dedicated controls for stylized highlights and rim light on hair and key materials.</li>
-                </ul>
-              </div>
-            </div>
-            <div class="cs-detail-gallery">
-              <img src="Assets/cel-1.png" alt="Character lighting close-up">
-              <img src="Assets/cel-2.png" alt="Material and stockings detail">
-              <img src="Assets/cel-3.png" alt="Hair shading from different angles">
-              <img src="Assets/cel-4.png" alt="Rim-lit cinematic frame">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Core 02 -->
-      <div class="cs-card reverse">
-        <div class="cs-text">
-          <div class="cs-eyebrow">CORE 02 · LIGHT & SHADOW</div>
-          <h2 class="cs-title">
-            Per-Object Shadows for Baked Worlds
+            Per-Object Shadows
             <span class="cs-title-badge">URP</span>
           </h2>
-          <div class="cs-meta-line">Fully baked scenes · dynamic characters · predictable cost</div>
+          <div class="cs-meta-line">Optimization · Render Feature · Customizable</div>
+
+          <!-- Summary: 结论 -->
           <div class="cs-summary">
             <p>
-              In top-down and indoor scenes, turning on full real-time shadows for a handful of moving characters
-              is often the biggest performance sink. This setup keeps the world baked and gives only the important
-              dynamic objects their own high-quality, adjustable shadows.
+              This per-object shadow system renders high-quality shadows only for dynamic objects, decoupling shadow
+              cost from scene
+              complexity. You can keep all environment lighting fully baked, while providing high-quality,
+              artist-controlled shadows for dynamic characters.
             </p>
           </div>
+
+          <!-- Details: 迭代过程 -->
           <div class="cs-details">
-            <div class="cs-detail-grid">
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What It Does</div>
-                <ul>
-                  <li>Keeps static lighting fully baked so the environment doesn’t pay for real-time shadows.</li>
-                  <li>Lets characters and key props project their own shadows onto the baked world.</li>
-                  <li>Makes shadow cost scale with “how many things actually need it” instead of scene size.</li>
-                </ul>
-              </div>
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">Art Controls</div>
-                <ul>
-                  <li>Per-object control over softness, density, and length.</li>
-                  <li>Editable directly in-scene, so artists can dial shadows while looking at the shot.</li>
-                  <li>Visually designed to sit next to baked lightmaps and AO without fighting them.</li>
-                </ul>
-              </div>
+            <div class="cs-detail-story">
+              <p>
+                <strong>The Problem:</strong> Real-time shadow rendering is a major performance bottleneck in games.
+                While techniques like shadowmask and culling exist.
+                They usually fail to address the core issue: rendering full real-time shadows for just a few dynamic
+                characters.
+                In a top-down scene or a complex environment, that can be very costly.
+              </p>
+              <p>
+                <strong>Deriving Solution:</strong> I first experimented with <em>Decal Projectors</em> using depth
+                textures.
+                While technically functional, Decals are not designed for shadow projection, leading to poor control
+                over the result.
+                Besides, they are fundamentally orthographic and cannot correctly project point light shadows.
+                <br>
+                I ended up writing a custom Render Feature that manually handles the projection matrix, registers the
+                actor-light pairs, projects and blend their shadow onto world space.
+                It’s a manual setup, but it provides the best results and artistic control with the lowest runtime
+                overhead.
+              </p>
             </div>
-            <div class="cs-detail-gallery">
-              <img src="Assets/shadow-1.png" alt="Top-down baked scene with dynamic characters">
-              <img src="Assets/shadow-2.png" alt="Shadow parameters adjusted in editor">
-              <img src="Assets/shadow-3.png" alt="Character shadow close-up">
+
+            <div class="cs-feature-grid">
+              <div class="cs-feature-item">
+                <img src="Assets/shadow-1.png" alt="Comparison: No Shadow vs Custom Shadow">
+                <div>
+                  <div class="cs-feature-caption">Before / After</div>
+                  <div class="cs-feature-desc">Grounding characters in a fully baked environment.</div>
+                </div>
+              </div>
+              <div class="cs-feature-item">
+                <img src="Assets/shadow-2.png" alt="Shadow Settings Inspector">
+                <div>
+                  <div class="cs-feature-caption">System Controls</div>
+                  <div class="cs-feature-desc">Per-character settings for shadow softness, opacity, and projection bias.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div class="cs-visual">
           <img src="Assets/Per-objectShadow.png" alt="Per-object shadow visual">
+        </div>
+      </div>
+
+      <div class="cs-card reverse">
+        <div class="cs-visual">
+          <img src="Assets/Cel-shading.png" alt="Stylized character shading">
+        </div>
+        <div class="cs-text">
+          <div class="cs-eyebrow">CORE 02 · SHADING</div>
+          <h2 class="cs-title">
+            NPR shading in Deferred
+            <span class="cs-title-badge">Shader</span>
+          </h2>
+          <div class="cs-meta-line">Cel-Shading · G-Buffer · Lighting</div>
+
+          <div class="cs-summary">
+            <p>
+              This shader natively supports G-buffer lighting and screen-space post-processing, delivering high-quality
+              visuals for skin, hair, and physically-based clothing,
+              achieving performance, realism, and stylization all at the same time.
+            </p>
+          </div>
+
+          <div class="cs-details">
+            <div class="cs-detail-story">
+              <p>
+                <strong>The Problem:</strong>
+                Integrating stylized characters into a deferred lighting environment is a major shading and pipeline
+                challenge,
+                both in terms of the artistic consistency and limitations to the lighting model.
+                There're some solutions out there, but they're either too bulky or doesn't provide the art style I'm
+                aiming for.
+              </p>
+              <p>
+                <strong>Deriving Solution:</strong>
+                I started on custom Cel-Shading attempting a Forward+ approach for its simplicity and light-culling
+                efficiency.
+                However, this forward-hack broke many deferred-based screen-space effects - AO and reflections won't
+                work correctly without a proper G-buffer.
+                The solution was to modify the shader to fully integrate with the Deferred pipeline and use of G-buffer
+                just like other shaders.
+                I gained valuable insignts into deferred shading in the process. By useing the same mudular API, the
+                shader also maintains consistency between Forward+ and Deferred.
+              </p>
+            </div>
+
+            <div class="cs-feature-grid">
+              <div class="cs-feature-item">
+                <img src="Assets/cel-1.png" alt="G-Buffer Debug View">
+                <div>
+                  <div class="cs-feature-caption">G-Buffer Integration</div>
+                  <div class="cs-feature-desc">Custom data packing allows stylized lighting logic to run alongside
+                    standard PBR.</div>
+                </div>
+              </div>
+              <div class="cs-feature-item">
+                <img src="Assets/cel-2.png" alt="Rim Light Control">
+                <div>
+                  <div class="cs-feature-caption">Art Direction</div>
+                  <div class="cs-feature-desc">View-dependent rim lights and outline width control based on camera
+                    distance.</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1132,30 +1193,8 @@
         </div>
       </div>
 
-      <div class="cs-card reverse">
-        <div class="cs-text">
-          <div class="cs-eyebrow">TECH 02 · MATERIALS</div>
-          <h2 class="cs-title">
-            Triplanar Material Pipeline
-            <span class="cs-title-badge">URP</span>
-          </h2>
-          <div class="cs-meta-line">World-space texturing · no-UV geometry</div>
-          <div class="cs-summary">
-            <p>
-              A hand-written triplanar shader that integrates with URP, usable both as a full material and as
-              a triplanar detail layer on top of existing textures—most useful for quick, clean interior props.
-            </p>
-          </div>
-        </div>
-        <div class="cs-visual">
-          <img src="Assets/triplanar.png" alt="Interior scene using triplanar materials">
-        </div>
-      </div>
 
-      <div class="cs-card">
-        <div class="cs-visual">
-          <img src="Assets/postfx.png" alt="Custom blur and post-processing effects">
-        </div>
+      <div class="cs-card reverse">
         <div class="cs-text">
           <div class="cs-eyebrow">TECH 03 · POST</div>
           <h2 class="cs-title">
@@ -1167,6 +1206,29 @@
             <p>
               A set of custom render features for things like dual-Kawase blur, streaks, glitch, and camera
               transitions using render textures—used for item inspection views, menu reveals, and other UI moments.
+            </p>
+          </div>
+        </div>
+        <div class="cs-visual">
+          <img src="Assets/postfx.png" alt="Custom blur and post-processing effects">
+        </div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-visual">
+          <video src="Assets/triplanar.mp4" autoplay loop muted playsinline>
+        </div>
+        <div class="cs-text">
+          <div class="cs-eyebrow">TECH 02 · MATERIALS</div>
+          <h2 class="cs-title">
+            Triplanar Material Shader
+            <span class="cs-title-badge">URP</span>
+          </h2>
+          <div class="cs-meta-line">World-space texturing · no-UV geometry</div>
+          <div class="cs-summary">
+            <p>
+              A hand-written triplanar shader that integrates with URP, usable both as a full material and as
+              a triplanar detail layer on top of existing textures—most useful for quick, clean interior props.
             </p>
           </div>
         </div>
@@ -1223,32 +1285,13 @@
               power fantasy and more about moving through a broken world at your own pace.
             </p>
           </div>
-          <div class="cs-details">
-            <div class="cs-detail-grid">
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What I Did</div>
-                <ul>
-                  <li>Owned the URP rendering setup and custom shaders for the game’s look.</li>
-                  <li>Implemented the player controller, combat logic, and camera behavior for combat and exploration.
-                  </li>
-                  <li>Planned lighting and layout to carry mood and story through space instead of dialogue walls.</li>
-                </ul>
-              </div>
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What It Shows</div>
-                <ul>
-                  <li>How I tie rendering, design, and tools together in a single prototype.</li>
-                  <li>That I care a lot about moment-to-moment feel, not just visuals in isolation.</li>
-                </ul>
-              </div>
-            </div>
-            <div class="cs-detail-gallery">
-              <img src="Assets/eden-1.png" alt="EDEN combat frame">
-              <img src="Assets/eden-2.png" alt="EDEN title or hub scene">
-              <img src="Assets/eden-3.png" alt="EDEN exploration vista">
-            </div>
+          <div class="cs-detail-gallery">
+            <img src="Assets/eden-1.png" alt="EDEN combat frame">
+            <img src="Assets/eden-2.png" alt="EDEN title or hub scene">
+            <img src="Assets/eden-3.png" alt="EDEN exploration vista">
           </div>
         </div>
+      </div>
       </div>
 
       <!-- Game 02 -->
@@ -1266,28 +1309,9 @@
               Designed from the start to run on both desktop and mobile hardware.
             </p>
           </div>
-          <div class="cs-details">
-            <div class="cs-detail-grid">
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What I Did</div>
-                <ul>
-                  <li>Implemented all core game logic, state flow, and UI behavior.</li>
-                  <li>Designed and animated UI so it reads cleanly on touch screens and monitors.</li>
-                  <li>Tuned performance and memory for low-to-mid range mobile devices.</li>
-                </ul>
-              </div>
-              <div class="cs-detail-block">
-                <div class="cs-detail-block-title">What It Shows</div>
-                <ul>
-                  <li>That I can take a project from prototype to a content-complete, shippable build.</li>
-                  <li>That I understand mobile constraints as well as desktop workflows.</li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
         <div class="cs-visual">
-          <img src="Assets/game-sys-pv.png" alt="Last Train to Vladivostok visual">
+          <img src="Assets/game-ltv-img1.png" alt="Last Train to Vladivostok visual">
         </div>
       </div>
     </section>
@@ -1328,7 +1352,8 @@
           </div>
           <div class="skills-group">
             <h3>Rendering & Tools</h3>
-            <p>Stylized shading, optimization, custom render features, custom tools, asset pipeline, Visual Effect Graph
+            <p>Stylized shading, optimization, custom render features, custom tools, asset pipeline, Visual Effect
+              Graph
             </p>
           </div>
           <div class="skills-group">
@@ -1580,7 +1605,7 @@
         float value = fbm(st + r*0.5);
         float contrastValue = pow(max(0.0, value), 2.2);
         vec3 finalColor = u_color * contrastValue * 1.5;
-        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 128.0).rgb;
+        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
         finalColor += (noise - 0.5) / 128.0;
         gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
       }`;
