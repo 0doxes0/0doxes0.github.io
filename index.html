@@ -481,6 +481,9 @@
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 32px;
+
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--line-soft);
     }
 
     .section-kicker {
@@ -598,13 +601,14 @@
       left: -8px;
     }
 
+    /*
     .cs-card:hover .cs-visual {
       transform: translateY(-6px);
       box-shadow:
         0 30px 90px rgba(0, 0, 0, 0.95),
         0 0 0 1px rgba(180, 230, 255, 0.22);
     }
-
+    */
     .cs-text {
       position: relative;
       flex: 1 1 0;
@@ -821,8 +825,6 @@
       }
     }
 
-
-    /* ================== NEW TECH GALLERY (THE DRIFT) ================== */
     /* ================== TECH GALLERY (THE DRIFT - REFINED) ================== */
 
     .tg-container {
@@ -1047,65 +1049,120 @@
 
 
     /* ============ About & Skills ============ */
-
-    .about-layout {
+    .about-section-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr);
-      gap: 32px;
-      align-items: flex-start;
+      /* 左侧文字 : 右侧矩阵 = 1 : 2.2 
+           给右侧田字格留出足够宽度 */
+      grid-template-columns: 1fr 2.2fr;
+      gap: 60px;
+      align-items: start;
     }
 
-    .about-text {
+    .about-text-column {
       font-size: 14px;
-      line-height: 1.9;
-      color: var(--fg-soft);
-    }
-
-    .skills-matrix {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 18px 32px;
-      font-size: 13px;
-      color: var(--fg-soft);
-    }
-
-    .skills-group h3 {
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--fg-muted);
-      margin-bottom: 6px;
-    }
-
-    .skills-group p {
-      line-height: 1.7;
-    }
-
-    @media (max-width: 860px) {
-      .about-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .skills-matrix {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* ============ Contact & Horizon ============ */
-
-    .contact-block {
-      font-size: 13px;
-      color: var(--fg-soft);
       line-height: 1.8;
+      color: var(--fg-soft);
+      /* 限制最大宽度，保证阅读体验，同时让高度自然撑开 */
+      max-width: 360px;
     }
 
-    .contact-list {
-      list-style: none;
-      margin-top: 10px;
+    /* 右侧容器：田字格布局 */
+    .skills-hud-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      /* 2列 */
+      gap: 24px;
+      /* 块之间的间距 */
     }
 
-    .contact-list li+li {
-      margin-top: 6px;
+    .skills-hud-block {
+      position: relative;
+      padding: 6px 20px;
+
+      /* 背景：极度克制。
+           几乎透明的白色 (0.02)，只为了把文字和背景区分开一点点。
+           不再使用长渐变，而是整体微弱填充。 */
+      background: rgba(255, 255, 255, 0.02);
+
+      /* 边框：强调色在这里。
+           3px 宽度，使用你的 Aurora Cyan，实色。 */
+      border-left: 3px solid var(--accent-aurora-1);
+
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .skills-hud-block:hover {
+      /* Hover 时稍微亮一点点，给个反馈 */
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .skills-hud-header {
+      /* 字体：恢复原样，白色，大写 */
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--fg-main);
+      /* 白色 */
+
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .skills-hud-content {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--fg-soft);
+      font-family: var(--font-sans);
+    }
+
+    .skill-item {
+      display: inline-block;
+      transition: color 0.2s;
+    }
+
+    .skill-item:hover {
+      color: var(--fg-main);
+      text-shadow: 0 0 8px rgba(107, 230, 255, 0.4);
+    }
+
+    .skill-sep {
+      color: var(--fg-muted);
+      margin: 0 5px;
+      opacity: 0.5;
+      font-size: 11px;
+    }
+
+    /* 响应式：屏幕窄时变单列 */
+    @media (max-width: 860px) {
+      .about-section-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .skills-hud-matrix {
+        grid-template-columns: 1fr;
+        /* 手机上变单列 */
+        gap: 16px;
+      }
+
+      .about-text-column {
+        max-width: none;
+      }
+    }
+
+
+    /* ============ Contact (横排修正版) ============ */
+    .contact-block {
+      display: flex;
+      align-items: center;
+      justify-content: center; /* 居中平铺 */
+      gap: 24px;
+      margin-bottom: 80px; /* 与下方的分割线保持原有距离 */
+      
+      font-size: 13px;
+      color: var(--fg-soft);
     }
 
     .contact-label {
@@ -1113,11 +1170,55 @@
       text-transform: uppercase;
       letter-spacing: 0.16em;
       color: var(--fg-muted);
-      margin-right: 8px;
+      /* 加一个小竖线分隔，或者只用间距也可以 */
+      padding-right: 24px;
+      border-right: 1px solid rgba(140, 200, 255, 0.15);
     }
 
+    .contact-list {
+      list-style: none;
+      display: flex;
+      gap: 32px; /* 链接之间的间距 */
+      margin: 0;
+      padding: 0;
+    }
+
+    .contact-list li {
+      margin: 0; /* 覆盖掉之前的 margin-top */
+    }
+
+    .contact-list a {
+      text-decoration: none;
+      color: var(--fg-main);
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .contact-list a:hover {
+      opacity: 1;
+      text-shadow: 0 0 8px rgba(140, 200, 255, 0.6);
+    }
+
+    /* 移动端适配：屏幕太窄时还是得竖一下，不然放不下 */
+    @media (max-width: 600px) {
+      .contact-block {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .contact-label {
+        border-right: none;
+        border-bottom: 1px solid rgba(140, 200, 255, 0.15);
+        padding-right: 0;
+        padding-bottom: 8px;
+      }
+    }
+
+
+    /* ============ Horizon & Binary Orbit (原版 Option 3) ============ */
+    
     .horizon-wrap {
-      margin-top: 72px;
+      /* 保持你原有的 margin，确保网格对齐 */
+      margin-top: 72px; 
       padding-bottom: 40px;
       text-align: center;
     }
@@ -1132,37 +1233,53 @@
       margin-bottom: 18px;
     }
 
-    .horizon-orbit {
+    /* Option 3: The Binary Orbit - 原始参数 */
+    .orbit-binary {
       position: absolute;
       left: 50%;
-      top: -14px;
-      width: 32px;
-      height: 32px;
-      transform: translateX(-50%);
-      border-radius: 50%;
-      border: 1px solid rgba(140, 200, 255, 0.6);
-      box-shadow: 0 0 18px rgba(140, 200, 255, 0.5);
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px; 
+      pointer-events: none;
     }
 
-    .horizon-orbit::before {
+    /* 轨道线：极细，压扁 */
+    .orbit-binary::before {
       content: '';
       position: absolute;
-      inset: 6px;
+      inset: 0;
       border-radius: 50%;
-      border: 1px dashed rgba(140, 200, 255, 0.4);
+      border: 1px solid rgba(91, 130, 212, 0.616);
+      transform: scaleY(0.3); /* 关键：压扁 */
     }
 
-    .horizon-orbit::after {
+    /* 星星 1：浮动在左上 */
+    .orbit-binary::after {
       content: '';
       position: absolute;
-      top: 4px;
-      left: 50%;
-      width: 6px;
-      height: 6px;
+      width: 3px;
+      height: 3px;
+      background: #ffa600;
+      border-radius: 100%;
+      top: 0px; 
+      left: 0%;
+      box-shadow: 0 0 6px rgb(255, 187, 0);
+      isolation: isolate;
+      z-index: 10000;     /* 强制最顶层 */
+    }
+
+    /* 星星 2：浮动在右下 */
+    .orbit-binary .star-2 {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent-aurora-2);
       border-radius: 50%;
-      transform: translateX(-50%);
-      background: radial-gradient(circle, #ffffff, #7ee4ff);
-      box-shadow: 0 0 10px rgba(126, 228, 255, 0.9);
+      bottom: 5px;
+      right: 10%;
+      box-shadow: 0 0 5px var(--accent-aurora-2);
+      isolation: isolate;
     }
 
     .horizon-caption {
@@ -1249,7 +1366,7 @@
         </p>
       </header>
 
-      <div class="cs-card ">
+      <div class="cs-card hover-float">
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 01 · Feature and System</div>
           <h2 class="cs-title">
@@ -1316,7 +1433,7 @@
         </div>
       </div>
 
-      <div class="cs-card reverse">
+      <div class="cs-card hover-float reverse">
         <div class="cs-visual">
           <img src="Assets/Per-objectShadow.png" alt="Stylized character shading">
         </div>
@@ -1492,7 +1609,7 @@
       </header>
 
       <!-- Game 01 -->
-      <div class="cs-card">
+      <div class="cs-card hover-float">
         <div class="cs-visual">
           <img src="Assets/game-eden-img.png" alt="EDEN game key visual">
         </div>
@@ -1524,7 +1641,7 @@
       </div>
 
       <!-- Game 02 -->
-      <div class="cs-card reverse">
+      <div class="cs-card hover-float reverse">
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 02</span> · PC & MOBILE</div>
           <h2 class="cs-title">
@@ -1534,7 +1651,7 @@
           <!-- <div class="cs-meta-line">Historical setting · systemic play · mobile constraints</div>  -->
           <div class="cs-summary">
             <p>
-              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia, 
+              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia,
               <br>
               delivering a unified visual and UX that adapts seamlessly between Desktop and Mobile constraints.
             </p>
@@ -1553,77 +1670,99 @@
           <div class="section-kicker">ABOUT & SKILLS</div>
           <div class="section-title">Profile</div>
         </div>
-        <p class="section-subtitle">
-          A quick over view of my skills.
-        </p>
       </header>
 
-      <div class="about-layout">
-        <div class="about-text">
+      <div class="about-section-layout">
+        <!-- 左侧文字 -->
+        <div class="about-text-column">
           <p>
-            I’m a technical artist and rendering-focused developer graduating in <strong>[Month&nbsp;Year]</strong>.
-            Most of my work sits where art direction, engineering, and tooling meet—whether that’s for games,
-            interactive spaces, or other real-time pieces.
-          </p>
-          <p>
-            I’m currently looking for roles where I can help build and optimize real-time worlds:
-            shaders, lighting, render features, pipelines, and the systems around them.
+            With a broad exposure to rendering contexts and platforms, I'm adept at integrating tools into production
+            workflows and solving complex challenges.
           </p>
         </div>
-        <div class="skills-matrix">
-          <div class="skills-group">
-            <h3>Programming</h3>
-            <p>C#, C++, Python, ShaderLab, GLSL/HLSL, JavaScript &amp; WebGL, SQL</p>
+
+        <!-- 右侧：田字格矩阵 -->
+        <div class="skills-hud-matrix">
+
+          <!-- Block 1 -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header">Pipeline & Workflow</div>
+            <div class="skills-hud-content">
+              <span class="skill-item">Profiling & Optimization</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Addressables</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Localization</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Git & Perforce</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Blender Python API</span>
+            </div>
           </div>
-          <div class="skills-group">
-            <h3>Engines & Pipelines</h3>
-            <p>Unity (URP/HDRP, Render Features, Render Graph), UE5, Jobs/Burst, ECS, Addressables, Localization,
-              Cinemachine, Input System</p>
+
+          <!-- Block 2 -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header">Engines & Frameworks</div>
+            <div class="skills-hud-content">
+              <span class="skill-item">Unity (SRP)</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Unreal Engine 5</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Visual Effect Graph</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Cinemachine</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Jobs, ECS & Burst</span>
+            </div>
           </div>
-          <div class="skills-group">
-            <h3>Rendering & Tools</h3>
-            <p>Stylized shading, optimization, custom render features, custom tools, asset pipeline, Visual Effect
-              Graph
-            </p>
+
+          <!-- Block 3 -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header">Languages</div>
+            <div class="skills-hud-content">
+              <span class="skill-item">C#</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Python</span> <span class="skill-sep">/</span>
+              <span class="skill-item">C++</span> <span class="skill-sep">/</span>
+              <span class="skill-item">HLSL & GLSL</span> <span class="skill-sep">/</span>
+              <span class="skill-item">SQL</span>
+            </div>
           </div>
-          <div class="skills-group">
-            <h3>Design & Content</h3>
-            <p>Narrative & gameplay design, interior layout, lighting & composition, Blender, Maya, cloth-fitting
-              workflows</p>
+
+          <!-- Block 4 -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header">Techniques</div>
+            <div class="skills-hud-content">
+              <span class="skill-item">Compute Shaders</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Raymarching</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Data Structures</span> <span class="skill-sep">/</span>
+              <span class="skill-item">PyTorch</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Math Analysis</span>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
 
     <!-- ============ CONTACT & HORIZON ============ -->
     <section class="content-section" data-color="50, 80, 200">
-      <header class="section-header">
-        <div>
-          <div class="section-kicker">CONTACT</div>
-          <div class="section-title">Get in touch</div>
-        </div>
-        <p class="section-subtitle">
-          If any of this looks useful for what you’re building, I’d be happy to talk.
-        </p>
-      </header>
-
+      
+      <!-- 1. Contact 区域：横向平铺的小条 -->
       <div class="contact-block">
+        <span class="contact-label">Get in touch</span>
         <ul class="contact-list">
-          <li><span class="contact-label">Email</span> <a href="mailto:you@example.com">Fill</a></li>
-          <li><span class="contact-label">LinkedIn</span> <a href="#">Fill</a></li>
-          <li><span class="contact-label">Resume</span> <a href="#">Fill</a></li>
+          <li><a href="mailto:you@example.com">Email</a></li>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">Resume</a></li>
         </ul>
       </div>
 
+      <!-- 2. Horizon 区域：位置不变，只换中间的图 -->
       <div class="horizon-wrap">
         <div class="horizon-line">
-          <div class="horizon-orbit"></div>
+          <!-- 这里的 orbit-binary 是完全原版的 Option 3 -->
+          <div class="orbit-binary">
+            <div class="star-2"></div>
+          </div>
         </div>
         <div class="horizon-caption">END OF PAGE</div>
         <div class="horizon-phrase">
           Looking up is usually where a great journey begins.
         </div>
       </div>
+
     </section>
 
   </main>
