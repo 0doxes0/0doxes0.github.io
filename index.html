@@ -525,12 +525,10 @@
       /* 图片和文字之间的距离，随时可以调整 */
       align-items: center;
       position: relative;
-      padding: 28px 0;
+      padding: 60px 0;
     }
 
-    .cs-card+.cs-card {
-      border-top: 1px solid rgba(120, 150, 200, 0.2);
-    }
+    .cs-card+.cs-card {}
 
     .cs-card.reverse {
       grid-template-columns: minmax(0, 1.3fr) minmax(40px, 5vw) minmax(0, 1.6fr);
@@ -823,6 +821,231 @@
       }
     }
 
+
+    /* ================== NEW TECH GALLERY (THE DRIFT) ================== */
+    /* ================== TECH GALLERY (THE DRIFT - REFINED) ================== */
+
+    .tg-container {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+      padding: 20px 0;
+    }
+
+    .tg-banner {
+      display: flex;
+      /* 限制最大宽度，防止在超宽屏上拉得太长 */
+      width: 90%;
+      max-width: 1400px;
+      /* 高度设为 auto，由内容(主要是图片比例)撑开 */
+      height: auto;
+      position: relative;
+      /* 删除了 transform transition，这里只留背景和滤镜的过渡 */
+      transition: background 0.4s ease;
+    }
+
+    /* === 布局变体 === */
+
+    /* 左图右文 */
+    .tg-banner.left {
+      margin-right: auto;
+      /* 背景：从图片(左)向文字(右)淡出 */
+      background: linear-gradient(to right,
+          rgba(20, 35, 55, 0.6) 0%,
+          rgba(20, 35, 55, 0.25) 50%,
+          transparent 100%);
+    }
+
+    /* 右图左文 */
+    .tg-banner.right {
+      margin-left: auto;
+      flex-direction: row-reverse;
+      /* 背景：从图片(右)向文字(左)淡出 */
+      background: linear-gradient(to left,
+          rgba(20, 35, 55, 0.6) 0%,
+          rgba(20, 35, 55, 0.25) 50%,
+          transparent 100%);
+    }
+
+    /* === 图片区域 (固定比例) === */
+    .tg-visual {
+      /* 稍微加宽图片占比，给 16:10 留空间 */
+      flex: 0 0 48%;
+      /* 强制 16:10 比例，不再随意裁剪 */
+      aspect-ratio: 2 / 1;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .tg-visual img,
+    .tg-visual video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* 依然是 cover，但因为容器比例固定了，所以不会切掉太多 */
+      opacity: 0.8;
+      filter: contrast(1.05);
+      transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
+    }
+
+    /* === 文字区域 === */
+    .tg-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* 统一左对齐，阅读体验最好 */
+      text-align: left;
+      align-items: flex-start;
+
+      /* 关键：使用 clamp 控制内边距 
+         最小 24px，理想 4%，最大 60px。
+         这样宽屏时文字不会离图片太远，窄屏时也不会贴死。
+      */
+      padding-inline: clamp(24px, 4vw, 60px);
+    }
+
+    .tg-eyebrow {
+      font-family: var(--font-mono, monospace);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--fg-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    .tg-title {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      color: var(--fg-main);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tg-badge {
+      font-size: 9px;
+      padding: 3px 8px;
+      border: 1px solid var(--line-soft);
+      border-radius: 4px;
+      color: var(--fg-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* === 分割线 (The Line) === */
+    .tg-line {
+      width: 100%;
+      max-width: 240px;
+      /* 限制长度，精致一点 */
+      height: 1px;
+      margin: 12px 0 16px 0;
+      /* 上下间距 */
+
+      /* 发光渐变：中间亮，两头淡 */
+      background: linear-gradient(to right,
+          rgba(107, 230, 255, 0.0),
+          rgba(107, 230, 255, 0.6),
+          rgba(107, 230, 255, 0.0));
+      /* 稍微加点辉光 */
+      box-shadow: 0 0 8px rgba(107, 230, 255, 0.4);
+      opacity: 0.8;
+    }
+
+    .tg-desc {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--fg-soft);
+      max-width: 50ch;
+    }
+
+    /* === 桌面端交互 (Hover) === */
+    /* 只在支持 Hover 的设备(鼠标)上启用 */
+    @media (hover: hover) {
+
+      /* 1. 图片变亮、变彩色、微放大 */
+      .tg-banner:hover .tg-visual img,
+      .tg-banner:hover .tg-visual video {
+        opacity: 1;
+      }
+
+      /* 2. 背景渐变增强 (发光感) */
+      .tg-banner.left:hover {
+        background: linear-gradient(to right,
+            rgba(40, 70, 100, 0.5) 0%,
+            rgba(40, 70, 100, 0.2) 50%,
+            transparent 100%);
+      }
+
+      .tg-banner.right:hover {
+        background: linear-gradient(to left,
+            rgba(40, 70, 100, 0.5) 0%,
+            rgba(40, 70, 100, 0.2) 50%,
+            transparent 100%);
+      }
+
+      /* 3. 线条变亮 */
+      .tg-banner:hover .tg-line {
+        background: linear-gradient(to right,
+            rgba(107, 230, 255, 0.0),
+            rgba(107, 230, 255, 1.0),
+            rgba(107, 230, 255, 0.0));
+        opacity: 1;
+      }
+    }
+
+    /* === 移动端适配 === */
+    @media (max-width: 800px) {
+
+      .tg-banner,
+      .tg-banner.left,
+      .tg-banner.right {
+        width: 100%;
+        flex-direction: column;
+        /* 垂直堆叠 */
+        margin: 0;
+        /* 统一使用左侧渐变 (从左边亮到右边暗)，保持视觉统一 */
+        background: linear-gradient(to right,
+            rgba(20, 35, 55, 0.5) 0%,
+            transparent 100%) !important;
+        border-radius: 0;
+        /* 去掉圆角 */
+      }
+
+      .tg-visual {
+        flex: none;
+        width: 100%;
+        aspect-ratio: 16/9;
+        /* 手机上回归 16:9 */
+      }
+
+      .tg-content {
+        padding: 24px 20px;
+        /* 手机上的内边距 */
+        width: 100%;
+      }
+
+      .tg-desc {
+        max-width: none;
+      }
+    }
+
+    /* === 通用漂浮动画类 (Utility Class) === */
+    /* 你想让谁飘，就给谁加 class="hover-float" */
+    .hover-float {
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .hover-float:hover {
+      transform: translateY(-6px);
+    }
+
+
     /* ============ About & Skills ============ */
 
     .about-layout {
@@ -982,7 +1205,7 @@
         <div class="hero-tagline">TECHNICAL ART · REAL-TIME RENDERING · PIPELINES</div>
 
         <h1 class="hero-title">
-          <span class="hero-title-name">Your Name</span>
+          <span class="hero-title-name">Name</span>
           <div class="hero-strike"></div>
           <!--
           <span class="hero-title-highlight">
@@ -1021,8 +1244,8 @@
           <div class="section-title">Rendering Systems</div>
         </div>
         <p class="section-subtitle">
-          I believe true quality comes when art is baked into the system. <br>
-          I build practical, stylized rendering solutions designed to live inside real production pipelines.
+          True quality comes when art is part of the system. <br>
+          I build practical, stylized rendering solutions, designed to live inside real production pipelines.
         </p>
       </header>
 
@@ -1071,17 +1294,17 @@
 
             <div class="cs-feature-grid">
               <div class="cs-feature-item">
-                <img src="Assets/shadow-1.png" alt="Comparison: No Shadow vs Custom Shadow">
+                <img src="Assets/shadow-1.png" alt="Top-down baked scene with dynamic characters">
                 <div>
-                  <div class="cs-feature-caption">Before / After</div>
-                  <div class="cs-feature-desc">Grounding characters in a fully baked environment.</div>
+                  <div class="cs-feature-caption">Shadows In-action</div>
+                  <div class="cs-feature-desc">Dynamic shadows easily blend into fully-baked scene.</div>
                 </div>
               </div>
               <div class="cs-feature-item">
-                <img src="Assets/shadow-2.png" alt="Shadow Settings Inspector">
+                <img src="Assets/shadow-2.png" alt="Shadow parameters adjusted in editor">
                 <div>
                   <div class="cs-feature-caption">System Controls</div>
-                  <div class="cs-feature-desc">Per-character settings for shadow softness, opacity, and projection bias.
+                  <div class="cs-feature-desc">Support per-character quality, global visual, and other system settings.
                   </div>
                 </div>
               </div>
@@ -1095,7 +1318,7 @@
 
       <div class="cs-card reverse">
         <div class="cs-visual">
-          <img src="Assets/Cel-shading.png" alt="Stylized character shading">
+          <img src="Assets/Per-objectShadow.png" alt="Stylized character shading">
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 02 · SHADING</div>
@@ -1138,19 +1361,24 @@
 
             <div class="cs-feature-grid">
               <div class="cs-feature-item">
-                <img src="Assets/cel-1.png" alt="G-Buffer Debug View">
+                <img src="Assets/cel-1.png" alt="Character lighting close-up">
                 <div>
-                  <div class="cs-feature-caption">G-Buffer Integration</div>
-                  <div class="cs-feature-desc">Custom data packing allows stylized lighting logic to run alongside
-                    standard PBR.</div>
+                  <div class="cs-feature-caption">Responsive Lighting</div>
+                  <div class="cs-feature-desc">Fill</div>
                 </div>
               </div>
               <div class="cs-feature-item">
-                <img src="Assets/cel-2.png" alt="Rim Light Control">
+                <img src="Assets/cel-2.png" alt="Material and stockings detail">
                 <div>
-                  <div class="cs-feature-caption">Art Direction</div>
-                  <div class="cs-feature-desc">View-dependent rim lights and outline width control based on camera
-                    distance.</div>
+                  <div class="cs-feature-caption">Adaptive Detail Normals</div>
+                  <div class="cs-feature-desc">Fill</div>
+                </div>
+              </div>
+              <div class="cs-feature-item">
+                <img src="Assets/cel-3.png" alt="Hair shading from different angles">
+                <div>
+                  <div class="cs-feature-caption">Matcap inspired Hair Shading</div>
+                  <div class="cs-feature-desc">Fill</div>
                 </div>
               </div>
             </div>
@@ -1158,8 +1386,7 @@
         </div>
       </div>
     </section>
-
-    <!-- ============ TECH GALLERY ============ -->
+    <!-- ============ TECH GALLERY (THE DRIFT) ============ -->
     <section class="content-section" data-color="65, 70, 120">
       <header class="section-header">
         <div>
@@ -1167,91 +1394,87 @@
           <div class="section-title">Systems, Shaders & Tools</div>
         </div>
         <p class="section-subtitle">
-          A cross-section of smaller rendering pieces and utilities I’ve built along the way.
+          From shaders to features, asset pipeline to optimization tools.
+          I have come across many interesting fields and generated these smaller pieces along the way.
         </p>
       </header>
 
-      <!-- 这里可以用简化版卡片结构，先放几个例子 -->
+      <div class="tg-container">
 
-      <div class="cs-card">
-        <div class="cs-visual">
-          <img src="Assets/skybox.png" alt="Dynamic skybox and lighting">
-        </div>
-        <div class="cs-text">
-          <div class="cs-eyebrow">TECH 01 · SKY & LIGHT</div>
-          <h2 class="cs-title">
-            Layered Skybox & Time-of-Day
-            <span class="cs-title-badge">URP</span>
-          </h2>
-          <div class="cs-meta-line">Custom skybox · time-driven lighting hooks</div>
-          <div class="cs-summary">
-            <p>
-              A multi-layer skybox shader wired into a time controller, used to drive lighting mood and subtle
-              color shifts across a scene without going into full volumetric simulation.
-            </p>
+        <div class="tg-banner left">
+          <div class="tg-visual">
+            <img src="Assets/skybox.png" alt="Skybox System">
+          </div>
+          <div class="tg-content">
+            <div class="tg-eyebrow">TECH 01 · ATMOSPHERE</div>
+            <div class="tg-title">
+              Layered Skybox & Time Controller
+              <span class="tg-badge">Art Tool</span>
+            </div>
+            <!-- 新增的分割线 -->
+            <div class="tg-line"></div>
+            <div class="tg-desc">
+              A dynamic multi-layer skybox shader wired into a time controller, can drive lighting mood and subtle color
+              shifts across the scene. Also including a compute shader for directional light’s cloud occlusion.
+            </div>
           </div>
         </div>
-      </div>
 
-
-      <div class="cs-card reverse">
-        <div class="cs-text">
-          <div class="cs-eyebrow">TECH 03 · POST</div>
-          <h2 class="cs-title">
-            Custom Blur & Transitions
-            <span class="cs-title-badge">URP</span>
-          </h2>
-          <div class="cs-meta-line">Dual-Kawase blur · RT-based UI transitions</div>
-          <div class="cs-summary">
-            <p>
-              A set of custom render features for things like dual-Kawase blur, streaks, glitch, and camera
-              transitions using render textures—used for item inspection views, menu reveals, and other UI moments.
-            </p>
+        <div class="tg-banner right">
+          <div class="tg-visual">
+            <img src="Assets/postfx.png" alt="Post Processing">
+          </div>
+          <div class="tg-content">
+            <div class="tg-eyebrow">TECH 02 · SRP POST PROCESSING</div>
+            <div class="tg-title">
+              Custom Blur & Transitions
+              <span class="tg-badge">Render Graph</span>
+            </div>
+            <div class="tg-line"></div>
+            <div class="tg-desc">
+              I have migrated many features to URP6 render graph, including dual-kawase blur, streak, glitches and more.
+              I'm here for any visual style you desired.
+            </div>
           </div>
         </div>
-        <div class="cs-visual">
-          <img src="Assets/postfx.png" alt="Custom blur and post-processing effects">
-        </div>
-      </div>
 
-      <div class="cs-card">
-        <div class="cs-visual">
-          <video src="Assets/triplanar.mp4" autoplay loop muted playsinline>
-        </div>
-        <div class="cs-text">
-          <div class="cs-eyebrow">TECH 02 · MATERIALS</div>
-          <h2 class="cs-title">
-            Triplanar Material Shader
-            <span class="cs-title-badge">URP</span>
-          </h2>
-          <div class="cs-meta-line">World-space texturing · no-UV geometry</div>
-          <div class="cs-summary">
-            <p>
-              A hand-written triplanar shader that integrates with URP, usable both as a full material and as
-              a triplanar detail layer on top of existing textures—most useful for quick, clean interior props.
-            </p>
+        <div class="tg-banner left">
+          <div class="tg-visual">
+            <video src="Assets/triplanar.mp4" autoplay loop muted playsinline></video>
+          </div>
+          <div class="tg-content">
+            <div class="tg-eyebrow">TECH 03 · SHADERS</div>
+            <div class="tg-title">
+              Triplanar Shader
+              <span class="tg-badge">HLSL</span>
+            </div>
+            <div class="tg-line"></div>
+            <div class="tg-desc">
+              A triplanar shader that integrates with URP. Use as full-fledged rotatable triplanar shader, or use
+              triplanar uv only for details.
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="cs-card reverse">
-        <div class="cs-text">
-          <div class="cs-eyebrow">TECH 04 · WORKFLOWS</div>
-          <h2 class="cs-title">
-            Cloth-Fitting Tools in Blender
-            <span class="cs-title-badge">BLENDER</span>
-          </h2>
-          <div class="cs-meta-line">Iterative fit · complex outfits · rig-aware</div>
-          <div class="cs-summary">
-            <p>
-              A prototype toolchain in Blender to iteratively fit clothing to rigged characters and transfer
-              weights, cutting manual setup time for complex outfits down to a few hours per look.
-            </p>
+
+        <div class="tg-banner right">
+          <div class="tg-visual">
+            <img src="Assets/cloth-tool.png" alt="Tools">
+          </div>
+          <div class="tg-content">
+            <div class="tg-eyebrow">TECH 04 · WORKFLOWS</div>
+            <div class="tg-title">
+              Cloth-Fitting Tools
+              <span class="tg-badge">Asset Pipeline</span>
+            </div>
+            <div class="tg-line"></div>
+            <div class="tg-desc">
+              A prototype python extension in Blender to iteratively fit clothing to characters and transfer weights.
+              Cuts manual labor for complex outfits down to 2 hours per look.
+            </div>
           </div>
         </div>
-        <div class="cs-visual">
-          <img src="Assets/cloth-tool.png" alt="Cloth fitting workflow">
-        </div>
+
       </div>
     </section>
 
@@ -1263,33 +1486,39 @@
           <div class="section-title">My Games</div>
         </div>
         <p class="section-subtitle">
-          Where all the pieces meet: rendering, systems, tools, level layout, and how it actually feels to play.
+          I believe games speak the language of possibility. These projects are my playground for development,
+          rendering, systems, narratives, and design.
         </p>
       </header>
 
       <!-- Game 01 -->
       <div class="cs-card">
         <div class="cs-visual">
-          <img src="Assets/game-eden-pv.png" alt="EDEN game key visual">
+          <img src="Assets/game-eden-img.png" alt="EDEN game key visual">
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 01</span> · PC PROTOTYPE</div>
           <h2 class="cs-title">
             EDEN
-            <span class="cs-title-badge">TOP-DOWN SCI-FI</span>
+            <span class="cs-title-badge">ART PIPELINE R&D</span>
           </h2>
-          <div class="cs-meta-line">Combat · exploration · post-collapse fiction</div>
+          <!-- <div class="cs-meta-line">Combat · exploration · Narrative</div> -->
           <div class="cs-summary">
             <p>
-              A top-down sci-fi game built around fast fights and quiet in-between spaces. It’s less about
-              power fantasy and more about moving through a broken world at your own pace.
+              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the
+              remnants of humanity.
+              <br>
+              This project is my primary testbed for establishing a commercial-grade art pipeline - iterating on
+              everything from asset workflows to lighting and post-processing.
             </p>
           </div>
+          <!-- 
           <div class="cs-detail-gallery">
             <img src="Assets/eden-1.png" alt="EDEN combat frame">
             <img src="Assets/eden-2.png" alt="EDEN title or hub scene">
             <img src="Assets/eden-3.png" alt="EDEN exploration vista">
           </div>
+          -->
         </div>
       </div>
       </div>
@@ -1302,11 +1531,12 @@
             Last Train to Vladivostok
             <span class="cs-title-badge">DIGITAL BOARD GAME</span>
           </h2>
-          <div class="cs-meta-line">Historical setting · systemic play · mobile constraints</div>
+          <!-- <div class="cs-meta-line">Historical setting · systemic play · mobile constraints</div>  -->
           <div class="cs-summary">
             <p>
-              A story-driven board game about the Czechoslovak Legion trying to cross a collapsing Russia.
-              Designed from the start to run on both desktop and mobile hardware.
+              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia, 
+              <br>
+              delivering a unified visual and UX that adapts seamlessly between Desktop and Mobile constraints.
             </p>
           </div>
         </div>
@@ -1324,7 +1554,7 @@
           <div class="section-title">Profile</div>
         </div>
         <p class="section-subtitle">
-          A quick look at what I work with day to day: languages, engines, rendering, tools, and design.
+          A quick over view of my skills.
         </p>
       </header>
 
@@ -1379,10 +1609,9 @@
 
       <div class="contact-block">
         <ul class="contact-list">
-          <li><span class="contact-label">Email</span> <a href="mailto:you@example.com">you@example.com</a></li>
-          <li><span class="contact-label">LinkedIn</span> <a href="#">linkedin.com/in/your-profile</a></li>
-          <li><span class="contact-label">Resume</span> <a href="#">Download PDF</a></li>
-          <li><span class="contact-label">GitHub / ArtStation</span> <a href="#">links here if you want</a></li>
+          <li><span class="contact-label">Email</span> <a href="mailto:you@example.com">Fill</a></li>
+          <li><span class="contact-label">LinkedIn</span> <a href="#">Fill</a></li>
+          <li><span class="contact-label">Resume</span> <a href="#">Fill</a></li>
         </ul>
       </div>
 
@@ -1788,12 +2017,16 @@
 
     sections.forEach(section => observer.observe(section));
 
-    document.querySelectorAll('.cs-text').forEach(textBlock => {
-      textBlock.addEventListener('click', () => {
-        const card = textBlock.closest('.cs-card');
-        if (!card) return;
-        card.classList.toggle('is-expanded');
-      });
+    document.querySelectorAll('.cs-card').forEach(card => {
+      // 只给有 .cs-details 的卡片加展开逻辑
+      if (card.querySelector('.cs-details')) {
+        card.addEventListener('click', function (e) {
+          // 防止点里面的链接等冒泡干扰
+          if (e.target.tagName === 'A') return;
+          card.classList.toggle('is-expanded');
+        });
+        card.style.cursor = 'pointer';
+      }
     });
 
     window.addEventListener('resize', () => {
