@@ -93,7 +93,7 @@
     .background-container {
       position: fixed;
       inset: 0;
-      z-index: -1;
+      z-index: -2;
       pointer-events: none;
       overflow: hidden;
     }
@@ -106,6 +106,7 @@
       height: 100%;
     }
 
+    /* 1. 最底层的颜色叠加 */
     .bg-overlay {
       position: fixed;
       inset: 0;
@@ -118,7 +119,8 @@
           rgba(0, 0, 0, 0.7) 0,
           transparent 60%);
       mix-blend-mode: soft-light;
-      z-index: -2;
+      z-index: -3;
+      /* 往后退 */
     }
 
     main {
@@ -130,14 +132,18 @@
     }
 
     /* 扫描线层：固定在视口，盖在背景上，但在 main 内容下面 */
-    #scanline-canvas {
+    /* 使用伪元素替代 Canvas 扫描线，完全交给 GPU 合成 */
+    body::before {
+      content: "";
       position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
       z-index: -1;
-      /* 比 main 背，但比 background-container 高 */
+      /* 关键：负数会让它在文字下面 */
+
+      background: url('Assets/scanline.png') repeat;
     }
 
     /* ================= HERO (full-width band) ================= */
@@ -1157,10 +1163,12 @@
     .contact-block {
       display: flex;
       align-items: center;
-      justify-content: center; /* 居中平铺 */
+      justify-content: center;
+      /* 居中平铺 */
       gap: 24px;
-      margin-bottom: 80px; /* 与下方的分割线保持原有距离 */
-      
+      margin-bottom: 80px;
+      /* 与下方的分割线保持原有距离 */
+
       font-size: 13px;
       color: var(--fg-soft);
     }
@@ -1178,13 +1186,15 @@
     .contact-list {
       list-style: none;
       display: flex;
-      gap: 32px; /* 链接之间的间距 */
+      gap: 32px;
+      /* 链接之间的间距 */
       margin: 0;
       padding: 0;
     }
 
     .contact-list li {
-      margin: 0; /* 覆盖掉之前的 margin-top */
+      margin: 0;
+      /* 覆盖掉之前的 margin-top */
     }
 
     .contact-list a {
@@ -1205,6 +1215,7 @@
         flex-direction: column;
         gap: 16px;
       }
+
       .contact-label {
         border-right: none;
         border-bottom: 1px solid rgba(140, 200, 255, 0.15);
@@ -1215,10 +1226,10 @@
 
 
     /* ============ Horizon & Binary Orbit (原版 Option 3) ============ */
-    
+
     .horizon-wrap {
       /* 保持你原有的 margin，确保网格对齐 */
-      margin-top: 72px; 
+      margin-top: 72px;
       padding-bottom: 40px;
       text-align: center;
     }
@@ -1240,7 +1251,7 @@
       top: 50%;
       transform: translate(-50%, -50%);
       width: 48px;
-      height: 48px; 
+      height: 48px;
       pointer-events: none;
     }
 
@@ -1251,7 +1262,8 @@
       inset: 0;
       border-radius: 50%;
       border: 1px solid rgba(91, 130, 212, 0.616);
-      transform: scaleY(0.3); /* 关键：压扁 */
+      transform: scaleY(0.3);
+      /* 关键：压扁 */
     }
 
     /* 星星 1：浮动在左上 */
@@ -1262,11 +1274,12 @@
       height: 3px;
       background: #ffa600;
       border-radius: 100%;
-      top: 0px; 
+      top: 0px;
       left: 0%;
       box-shadow: 0 0 6px rgb(255, 187, 0);
       isolation: isolate;
-      z-index: 10000;     /* 强制最顶层 */
+      z-index: 10000;
+      /* 强制最顶层 */
     }
 
     /* 星星 2：浮动在右下 */
@@ -1306,7 +1319,7 @@
   <div class="bg-overlay"></div>
 
 
-  <canvas id="scanline-canvas"></canvas>
+  <!-- Scanline Canvas 已移除，改为 CSS 实现 -->
 
   <main>
     <!-- ============ HERO ============ -->
@@ -1738,7 +1751,7 @@
 
     <!-- ============ CONTACT & HORIZON ============ -->
     <section class="content-section" data-color="50, 80, 200">
-      
+
       <!-- 1. Contact 区域：横向平铺的小条 -->
       <div class="contact-block">
         <span class="contact-label">Get in touch</span>
@@ -1777,27 +1790,7 @@
       powerPreference: "high-performance",
       alpha: false
     });
-    const scanCanvas = document.getElementById('scanline-canvas');
-    const scanCtx = scanCanvas.getContext('2d');
-
-    // 在 scanline-canvas 上绘制全屏扫描线
-    function drawScanlines() {
-      if (!scanCtx) return;
-      scanCanvas.width = window.innerWidth;
-      scanCanvas.height = window.innerHeight;
-
-      const width = scanCanvas.width;
-      const height = scanCanvas.height;
-
-      // 先清空
-      scanCtx.clearRect(0, 0, width, height);
-
-      // 显示器风格的细竖线也可以加，这里按你给的横向扫描线来
-      scanCtx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-      for (let i = 0; i < height; i += 4) {
-        scanCtx.fillRect(0, i, width, 2);
-      }
-    }
+    // Scanline 逻辑已移至 CSS
 
     if (!gl) {
       console.error("WebGL not supported.");
@@ -1843,6 +1836,7 @@
     function drawForeground() {
       fgCtx.clearRect(0, 0, width, height);
 
+      // 1. 依然用 2D 画星星 (数量少，开销低)
       fgCtx.fillStyle = '#dce2f0';
       stars.forEach(star => {
         const y = (star.y - scrollY * star.depth + height);
@@ -1851,55 +1845,45 @@
         fgCtx.fill();
       });
 
-      const projected = gridPoints.map(project);
-      const gridWidth = GRID_DIMENSIONS * 2 + 1;
-      fgCtx.strokeStyle = `rgba(${Math.round(currentR)},${Math.round(currentG)},${Math.round(currentB)},0.2)`;
-      fgCtx.lineWidth = 1;
+      // Phase 2: 纯 GPU 渲染路径
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive Blending 增加发光感
 
-      for (let i = 0; i < gridWidth; i++) {
-        for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
-          const idx = i * (GRID_DEPTH_SEGMENTS + 1) + j;
-          const p = projected[idx];
-          if (!p || p.y < 0) continue;
-          if (j > 0) {
-            const pb = projected[idx - 1];
-            if (pb && pb.y > 0) {
-              fgCtx.beginPath();
-              fgCtx.moveTo(p.x, p.y);
-              fgCtx.lineTo(pb.x, pb.y);
-              fgCtx.stroke();
-            }
-          }
-          if (i > 0) {
-            const ps = projected[idx - (GRID_DEPTH_SEGMENTS + 1)];
-            if (ps && ps.y > 0) {
-              fgCtx.beginPath();
-              fgCtx.moveTo(p.x, p.y);
-              fgCtx.lineTo(ps.x, ps.y);
-              fgCtx.stroke();
-            }
-          }
-        }
-      }
+      gl.useProgram(gridProgram);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gridBuffer);
+      gl.enableVertexAttribArray(gridPositionLoc);
+      // 注意这里是 3 (x,y,z)
+      gl.vertexAttribPointer(gridPositionLoc, 3, gl.FLOAT, false, 0, 0);
+      
+      // 传递当前帧的相机参数
+      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_scrollY"), camera.y);
+      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_fov"), camera.fov);
+      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_rotationX"), camera.rotationX);
+      gl.uniform2f(gridResLoc, width, height);
+      gl.uniform4f(gridColorLoc, currentR/255, currentG/255, currentB/255, 0.16);
+      
+      gl.drawArrays(gl.LINES, 0, gridPointsCount);
 
-      projected.forEach(p => {
-        if (p && p.y > 0) {
-          const size = NODE_SIZE * Math.min(p.scale, 1.0);
-          const alpha = 1 - Math.min(p.z / 8000, 1);
-          if (alpha > 0.01) {
-            fgCtx.globalAlpha = alpha;
-            fgCtx.shadowBlur = size * 4;
-            const nodeR = Math.round(currentR * 0.35 + 80 * 0.65);
-            const nodeG = Math.round(currentG * 0.35 + 130 * 0.65);
-            const nodeB = Math.round(currentB * 0.35 + 255 * 0.65);
-            fgCtx.shadowColor = `rgba(${nodeR},${nodeG},${nodeB},0.5)`;
-            fgCtx.fillStyle = `rgba(${nodeR},${nodeG},${nodeB},0.80)`;
-            fgCtx.fillRect(p.x - size / 2, p.y - size / 2, size, size);
-          }
-        }
-      });
-      fgCtx.globalAlpha = 1;
-      fgCtx.shadowBlur = 0;
+      // --- Phase 3: GPU 渲染节点 ---
+      gl.useProgram(window.nodeProgram);
+      gl.bindBuffer(gl.ARRAY_BUFFER, window.nodeBuffer);
+      const nodePosLoc = gl.getAttribLocation(window.nodeProgram, "a_pos3d");
+      gl.enableVertexAttribArray(nodePosLoc);
+      gl.vertexAttribPointer(nodePosLoc, 3, gl.FLOAT, false, 0, 0);
+
+      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_scrollY"), camera.y);
+      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_fov"), camera.fov);
+      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_rotationX"), camera.rotationX);
+      gl.uniform2f(gl.getUniformLocation(window.nodeProgram, "u_resolution"), width, height);
+      
+      const nodeR = (currentR * 0.35 + 80 * 0.65) / 255;
+      const nodeG = (currentG * 0.35 + 130 * 0.65) / 255;
+      const nodeB = (currentB * 0.35 + 255 * 0.65) / 255;
+      gl.uniform3f(gl.getUniformLocation(window.nodeProgram, "u_color"), nodeR, nodeG, nodeB);
+
+      gl.drawArrays(gl.POINTS, 0, window.nodeCount);
+      
+      gl.disable(gl.BLEND);
     }
 
     const vertexShaderSource = `
@@ -1978,12 +1962,19 @@
         gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
       }`;
 
+    // 必须在全局声明，确保所有函数都能访问到这些“句柄”
     let glProgram,
       positionAttributeLocation,
       resolutionUniformLocation,
       timeUniformLocation,
       colorUniformLocation,
-      blueNoiseUniformLocation;
+      blueNoiseUniformLocation,
+      positionBuffer; // 刚才漏掉的背景顶点缓冲句柄
+
+    // Phase 2: Grid 渲染程序变量
+    let gridProgram, gridPositionLoc, gridResLoc, gridColorLoc, gridBuffer;
+    let gridPointsCount = 0; // 必须全局声明
+
     let currentR = 50, currentG = 80, currentB = 220;
     let targetR = 50, targetG = 80, targetB = 220;
     let blueNoiseTexture;
@@ -2050,7 +2041,8 @@
       colorUniformLocation = gl.getUniformLocation(glProgram, "u_color");
       blueNoiseUniformLocation = gl.getUniformLocation(glProgram, "u_blueNoise");
 
-      const positionBuffer = gl.createBuffer();
+      // 删掉 const！直接给全局变量 positionBuffer 赋值
+      positionBuffer = gl.createBuffer(); 
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(
         gl.ARRAY_BUFFER,
@@ -2065,23 +2057,117 @@
       gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
       blueNoiseTexture = loadTexture(gl, 'assets/blueNoise.png');
+
+      // --- Phase 2: GPU 投影 Shader (带像素级裁剪) ---
+      const gridVS = createShader(gl, gl.VERTEX_SHADER, `
+        attribute vec3 a_pos3d;
+        uniform float u_scrollY;
+        uniform float u_fov;
+        uniform float u_rotationX;
+        uniform vec2 u_resolution;
+        varying float v_z; // 传给 FS 的深度
+
+        void main() {
+          float cosX = cos(u_rotationX);
+          float sinX = sin(u_rotationX);
+          
+          float translatedY = a_pos3d.y - u_scrollY;
+          float rotatedY = 41.0 * translatedY * cosX - 0.1 * a_pos3d.z * sinX;
+          float rotatedZ = a_pos3d.z * cosX; 
+          
+          v_z = rotatedZ; // 记录深度
+
+          // 即使在相机后，我们也给它一个数学上合理的坐标，由 FS 负责剔除
+          float safeZ = max(rotatedZ, 1.0); 
+          float scale = u_fov / safeZ;
+          float x = (a_pos3d.x * scale) / (u_resolution.x / 2.0);
+          float y = (rotatedY * scale) / (u_resolution.y / 2.0);
+          gl_Position = vec4(x, y, 0.0, 1.0);
+        }
+      `);
+      const gridFS = createShader(gl, gl.FRAGMENT_SHADER, `
+        precision mediump float;
+        uniform vec4 u_color;
+        varying float v_z;
+        void main() {
+          // 如果深度小于近平面（比如 20.0），直接丢弃该像素
+          if (v_z < 20.0) discard; 
+          gl_FragColor = u_color;
+        }
+      `);
+      gridProgram = createProgram(gl, gridVS, gridFS);
+      // 必须匹配 Shader 里的新名字 a_pos3d
+      gridPositionLoc = gl.getAttribLocation(gridProgram, "a_pos3d"); 
+      gridResLoc = gl.getUniformLocation(gridProgram, "u_resolution");
+      gridColorLoc = gl.getUniformLocation(gridProgram, "u_color");
+      gridBuffer = gl.createBuffer();
+
+      // --- Phase 3: Node Shader (渲染发光点) ---
+      const nodeVS = createShader(gl, gl.VERTEX_SHADER, `
+        attribute vec3 a_pos3d;
+        uniform float u_scrollY;
+        uniform float u_fov;
+        uniform float u_rotationX;
+        uniform vec2 u_resolution;
+        varying float v_alpha;
+
+        void main() {
+          float cosX = cos(u_rotationX);
+          float sinX = sin(u_rotationX);
+          float rotatedY = 41.0 * (a_pos3d.y - u_scrollY) * cosX - 0.1 * a_pos3d.z * sinX;
+          float rotatedZ = a_pos3d.z * cosX; 
+
+          if (rotatedZ <= 20.0) {
+            gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
+          } else {
+            float scale = u_fov / rotatedZ;
+            gl_Position = vec4((a_pos3d.x * scale) / (u_resolution.x / 2.0), (rotatedY * scale) / (u_resolution.y / 2.0), 0.0, 1.0);
+            // 模拟 NODE_SIZE * Math.min(p.scale, 1.0)
+            gl_PointSize = 3.5 * min(scale, 1.0); // 稍微放大一点以包含发光边缘
+            v_alpha = 1.0 - min(rotatedZ / 8000.0, 1.0);
+          }
+        }
+      `);
+      const nodeFS = createShader(gl, gl.FRAGMENT_SHADER, `
+        precision mediump float;
+        uniform vec3 u_color;
+        varying float v_alpha;
+        void main() {
+          float dist = max(abs(gl_PointCoord.x - 0.5), abs(gl_PointCoord.y - 0.5));
+          if (dist > 0.5) discard;
+          float glow = 1.0 - dist * 1.0;
+          gl_FragColor = vec4(u_color, v_alpha * glow);
+        }
+      `);
+      window.nodeProgram = createProgram(gl, nodeVS, nodeFS);
+      // 预分配一个足够大的数组：(81*41 + 80*41) * 2个点 * 2个坐标
+      gridVertexArray = new Float32Array(20000); 
     }
 
     function renderBackground(time) {
       if (!gl) return;
       time *= 0.001;
 
+      // 1. 强制重置 WebGL 状态
+      gl.useProgram(glProgram);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer); 
+      gl.enableVertexAttribArray(positionAttributeLocation);
+      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+      
+      // 2. 确保背景是不透明的，关闭混合
+      gl.disable(gl.BLEND);
+
       currentR += (targetR - currentR) * 0.02;
       currentG += (targetG - currentG) * 0.02;
       currentB += (targetB - currentB) * 0.02;
 
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      
+      // 3. 重新设置背景 Uniforms (非常重要，切换 Program 后必须重设)
       gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
       gl.uniform1f(timeUniformLocation, time);
-      gl.uniform3f(
-        colorUniformLocation,
-        currentR / 255, currentG / 255, currentB / 255
-      );
+      gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
+      
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
       gl.uniform1i(blueNoiseUniformLocation, 0);
@@ -2111,18 +2197,39 @@
       }
 
       gridPoints.length = 0;
+      let lineData = [];
+      let nodeData = []; // 新增：存放点的 3D 坐标
+      
+      const START_J = 1; // 固化起始排
+
       for (let i = -GRID_DIMENSIONS; i <= GRID_DIMENSIONS; i++) {
-        for (let j = 0; j <= GRID_DEPTH_SEGMENTS; j++) {
-          gridPoints.push({
-            x: i * GRID_SPACING,
-            y: 0,
-            z: j * 1.5 * GRID_SPACING
-          });
+        for (let j = START_J; j <= GRID_DEPTH_SEGMENTS; j++) {
+          const px = i * GRID_SPACING;
+          const py = 0;
+          const pz = j * 1.5 * GRID_SPACING;
+          
+          gridPoints.push({ x: px, y: py, z: pz });
+          nodeData.push(px, py, pz); // 收集点数据
+
+          if (j > START_J) {
+            lineData.push(px, py, pz, px, py, (j - 1) * 1.5 * GRID_SPACING);
+          }
+          if (i > -GRID_DIMENSIONS) {
+            lineData.push(px, py, pz, (i - 1) * GRID_SPACING, py, pz);
+          }
         }
       }
 
+      // 更新线段 Buffer
+      gl.bindBuffer(gl.ARRAY_BUFFER, gridBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineData), gl.STATIC_DRAW);
+      gridPointsCount = lineData.length / 3;
 
-      drawScanlines();
+      // 更新点 Buffer (Phase 3)
+      if (!window.nodeBuffer) window.nodeBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, window.nodeBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nodeData), gl.STATIC_DRAW);
+      window.nodeCount = nodeData.length / 3;
     }
 
     function masterAnimate(time) {
@@ -2133,8 +2240,20 @@
       const targetY = 1200 * (0 + 0.01 * (1 - scrollRatio));
       const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.45;
 
+      // --- DIRTY FLAG CHECK ---
+      const deltaY = Math.abs(camera.y - targetY);
+      const deltaRot = Math.abs(camera.rotationX - targetRotationX);
+
+      // 如果变化极小，且不是第一帧，直接跳过渲染
+      if (deltaY < 0.01 && deltaRot < 0.001 && time > 1000) {
+        requestAnimationFrame(masterAnimate);
+        return;
+      }
+      // -------------------------
+
       camera.y += (targetY - camera.y) * camera.lerpFactor;
       camera.rotationX += (targetRotationX - camera.rotationX) * camera.lerpFactor;
+
 
       if (gl) renderBackground(time);
       drawForeground();
@@ -2171,7 +2290,6 @@
     window.addEventListener('resize', () => {
       masterInit();
       if (gl) gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-      drawScanlines();  // 这里再调用一次，确保 scanline 匹配新尺寸
     });
 
     setupWebGL();
