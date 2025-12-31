@@ -5,1427 +5,32 @@
   <meta charset="UTF-8" />
   <title>Portfolio – Technical Art & Real-Time Rendering</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg-deep: #010204;
-      --fg-main: #e8ecf5;
-      --fg-soft: #a8b2d1;
-      --fg-muted: #6b7184;
-
-      --accent-aurora-1: #6be6ff;
-      --accent-aurora-2: #52ffb8;
-      --accent-aurora-3: #8a7aff;
-
-      --line-soft: rgba(140, 200, 255, 0.18);
-      --line-strong: rgba(140, 200, 255, 0.45);
-
-      --content-padding-x: clamp(40px, 8vw, 128px);
-      --section-max-width: clamp(800px, 80vw, 10000px);
-      --section-gap: 26vh;
-
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-    }
-
-    @media (min-width: 1920px) {
-      :root {
-        --section-max-width: 75vw;
-      }
-    }
-
-    @media (min-width: 1440px) and (max-width: 1919px) {
-      :root {
-        --section-max-width: 82vw;
-      }
-    }
-
-    @media (min-width: 1024px) and (max-width: 1439px) {
-      :root {
-        --section-max-width: 88vw;
-      }
-    }
-
-    @media (max-width: 1023px) {
-      :root {
-        --section-max-width: none;
-      }
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-deep);
-      color: var(--fg-main);
-      font-family: var(--font-sans);
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    body::after {
-      /* 全屏蓝噪音降色带 */
-      content: '';
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('assets/blueNoise.png');
-      background-size: 64px 64px;
-      background-repeat: repeat;
-
-      opacity: 0.075;
-      mix-blend-mode: overlay;
-      /* overlay 或 soft-light，overlay 效果更明显 */
-
-      pointer-events: none;
-      /* 确保在所有内容之上 */
-      z-index: 9999;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .background-container {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    #bg-canvas,
-    #render-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* 1. 最底层的颜色叠加 */
-    .bg-overlay {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at top center,
-          rgba(0, 10, 35, 0.8) 0,
-          rgba(0, 0, 0, 0.0) 55%),
-        radial-gradient(circle at bottom center,
-          rgba(0, 0, 0, 0.7) 0,
-          transparent 60%);
-      mix-blend-mode: soft-light;
-      z-index: -3;
-      /* 往后退 */
-    }
-
-    main {
-      width: 100%;
-    }
-
-    section {
-      position: relative;
-    }
-
-    /* 扫描线层：固定在视口，盖在背景上，但在 main 内容下面 */
-    /* 使用伪元素替代 Canvas 扫描线，完全交给 GPU 合成 */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-      /* 关键：负数会让它在文字下面 */
-
-      background: url('Assets/scanline.png') repeat;
-    }
-
-    /* ================= HERO (full-width band) ================= */
-
-    .hero-shell {
-      position: relative;
-      padding: 5vh 4vw;
-      /* 在这里局部覆盖一些颜色；只影响 hero 区域 */
-      --hero-title-gradient: linear-gradient(120deg, var(--accent-aurora-1), var(--accent-aurora-2));
-      --hero-strike-color: rgba(140, 200, 255, 0.8);
-      --hero-text-main: var(--fg-main);
-      --hero-text-soft: var(--fg-soft);
-      --hero-text-muted: var(--fg-muted);
-    }
-
-
-    /* 媒体带容器：横贯全屏，控制比例 */
-    .hero-media {
-      position: relative;
-      width: 100%;
-      border-radius: 24px;
-      overflow: hidden;
-      /* 用 aspect-ratio 控制大致 16:7，比 16:9 更扁一点 */
-      aspect-ratio: 16 / 7;
-      /* max-height: 60vh; */
-      background: radial-gradient(circle at 20% 10%, #274986 0, #040611 55%);
-      box-shadow:
-        0 40px 120px rgba(0, 0, 0, 0.9),
-        0 0 0 1px rgba(255, 255, 255, 0.04);
-    }
-
-    .hero-media img,
-    .hero-media video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* 可选：给视频一个轻微的色彩调整，保持跟整站一致的调性 */
-    .hero-media video {
-      filter: saturate(1.05) contrast(1) brightness(0.97);
-    }
-
-    /* 媒体上的 aurora 光+暗角+向下渐隐到背景 */
-    .hero-media::before {
-      content: '';
-      position: absolute;
-      inset: -20%;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(107, 230, 255, 0.6), transparent 48%),
-        radial-gradient(circle at 80% 70%, rgba(138, 122, 255, 0.55), transparent 52%),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.9));
-      mix-blend-mode: screen;
-      pointer-events: none;
-      opacity: 0.9;
-    }
-
-    /* 下缘渐变到页面主背景 + 轻微纹理感 */
-    .hero-media::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -1px;
-      height: 40%;
-      background:
-        /* 垂直渐变：从透明过渡到 bg-deep */
-        linear-gradient(to bottom,
-          rgba(1, 2, 4, 0.0) 0%,
-          rgba(1, 2, 4, 0.35) 45%,
-          rgba(1, 2, 4, 0.82) 100%);
-      pointer-events: none;
-      /* 简易 noise 纹理：用小尺寸背景图将来可替代；当前先用渐变的“条纹”感占位 */
-      background-blend-mode: soft-light;
-    }
-
-    /* 文案块：略微 overlap 到 hero-media，下方继续延伸到页面背景 */
-    .hero-content {
-      position: relative;
-      margin: 0 auto;
-      padding-top: 32px;
-      /* 负 margin 把文字稍微拉到图片区域内，形成“嵌入侵入感” */
-      margin-top: -120px;
-      padding-inline: var(--content-padding-x);
-      /* 为了确保文字仍然清晰可读，加一点顶部内边距 */
-    }
-
-    .hero-content::before {
-      content: '';
-      position: absolute;
-      left: calc(var(--content-padding-x) * -1);
-      /* 稍微向左右溢出，避免看出边 */
-      right: calc(var(--content-padding-x) * -1);
-      top: -24px;
-      bottom: -32px;
-      pointer-events: none;
-      z-index: -1;
-
-      /* 局部渐变 + 微光，注意透明度都比较低 */
-      background:
-        /* 一点偏蓝的光晕，围绕文字区域 */
-        radial-gradient(circle at 10% 10%,
-          rgba(120, 200, 255, 0.24),
-          transparent 05%),
-        radial-gradient(circle at 35% 60%,
-          rgba(80, 160, 255, 0.06),
-          transparent 05%),
-        /* 竖向渐变：上略亮，下略暗，帮文字脱离网格 */
-        linear-gradient(to bottom,
-          rgba(0, 0, 0, 0.04),
-          rgba(0, 0, 0, 0.8),
-          rgba(0, 0, 0, 0.12));
-      mix-blend-mode: screen;
-      /* 和背景叠加，而不是盖一块灰 */
-      opacity: 0.70;
-    }
-
-
-    /* 大屏时居左，窄屏时还是左对齐但 margin 自动适配 */
-    @media (min-width: 960px) {
-      .hero-content {
-        margin-left: 0;
-      }
-    }
-
-    .hero-tagline {
-      position: relative;
-      font-size: 11px;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: var(--hero-text-muted);
-      margin-bottom: 18px;
-      padding-left: 18px;
-    }
-
-    .hero-tagline::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 10px;
-      height: 1px;
-      transform: translateY(-50%);
-      background: linear-gradient(to right,
-          rgba(107, 230, 255, 0.0),
-          rgba(107, 230, 255, 0.85));
-      opacity: 0.9;
-    }
-
-    .hero-title {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-weight: 650;
-      letter-spacing: 0.02em;
-      line-height: 1.1;
-      margin-bottom: 14px;
-    }
-
-
-    .hero-title-name {
-      font-size: clamp(2rem, 3.3vw, 2.7rem);
-      font-weight: 650;
-      letter-spacing: 0.05em;
-      color: var(--hero-text-main);
-      text-shadow:
-        0 0 6px rgba(157, 217, 255, 0.35),
-        0 0 3px rgba(37, 252, 223, 0.55);
-    }
-
-    .hero-title-highlight {
-      font-size: clamp(1.2rem, 2.2vw, 1.4rem);
-      max-width: 32ch;
-      /* 别让这句无限拉长 */
-      background: var(--hero-title-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 1 1 20px rgba(0, 0, 0, 0.85);
-    }
-
-    .hero-subline {
-      font-size: 14px;
-      line-height: 1.85;
-      color: rgba(168, 178, 209, 0.9);
-      /* 冷一点、暗一点，跟背景更融合 */
-    }
-
-    /* 第一段气质句，稍微淡一点强调 */
-    .hero-subline-lead {
-      font-weight: 500;
-      color: rgba(232, 236, 245, 0.94);
-      /* 稍亮，偏中性 */
-    }
-
-    .hero-word-highlight {
-      position: relative;
-      color: #58ecff;
-    }
-
-    .hero-word-highlight::before {
-      content: '';
-      position: absolute;
-      left: -2px;
-      right: -2px;
-      top: 60%;
-      height: 40%;
-      background: linear-gradient(to right,
-          rgba(120, 210, 255, 0.0),
-          rgba(120, 210, 255, 0.35),
-          rgba(120, 210, 255, 0.0));
-      filter: blur(4px);
-      opacity: 0.8;
-      z-index: -1;
-    }
-
-    /* 炫光 strike：短横线，带一点渐变发光但不过分 */
-    .hero-strike {
-      width: 80px;
-      height: 1px;
-      border-radius: 999px;
-      margin-top: 6px;
-      margin-bottom: 12px;
-
-      background:
-        radial-gradient(circle at 0% 50%,
-          rgba(90, 210, 255, 0.0),
-          rgba(90, 210, 255, 0.7),
-          rgba(90, 210, 255, 0.0)),
-        linear-gradient(to right,
-          rgba(40, 120, 255, 0.0),
-          rgba(120, 210, 255, 1),
-          rgba(40, 120, 255, 0.0));
-      box-shadow:
-        0 0 16px rgba(130, 210, 255, 0.7),
-        0 0 2px rgba(255, 255, 255, 0.4);
-      opacity: 0.95;
-    }
-
-    .hero-meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--hero-text-muted);
-    }
-
-    .hero-meta-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(140, 200, 255, 0.25);
-      background: radial-gradient(circle at top left,
-          rgba(140, 200, 255, 0.16),
-          rgba(3, 6, 16, 0.88));
-      backdrop-filter: blur(10px);
-    }
-
-    /* 响应式调整：窄屏时减小高度和 overlap，避免图片过高/文字拥挤 */
-    @media (max-width: 960px) {
-      .hero-shell {
-        padding-top: 40px;
-        padding-bottom: 32px;
-      }
-
-      .hero-media {
-        aspect-ratio: 16 / 14;
-        border-radius: 20px;
-      }
-
-      .hero-content {
-        margin-top: -90px;
-        padding-top: 24px;
-        max-width: 100%;
-      }
-
-      .hero-subline {
-        max-width: none;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .hero-shell {
-        padding: 32px var(--content-padding-x) 28px;
-      }
-
-      .hero-title-name {
-        font-size: 1.6rem;
-      }
-
-      .hero-title-highlight {
-        font-size: 1.9rem;
-      }
-
-      .hero-subline {
-        font-size: 13px;
-      }
-
-      .hero-strike {
-        width: 64px;
-      }
-    }
-
-    /* ============ Section frame ============ */
-
-    .content-section {
-      padding: var(--section-gap) 0;
-      position: relative;
-      /* 原来的 padding: var(--section-gap) 0; 会覆盖左右 padding */
-      padding-top: var(--section-gap);
-      padding-bottom: var(--section-gap);
-      padding-left: var(--content-padding-x);
-      padding-right: var(--content-padding-x);
-
-      /* 如果你要限制最大宽度，用响应式设置 */
-      max-width: var(--section-max-width, none);
-      /* 默认不限制 */
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    */ .content-section::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: -30px;
-      height: var(--section-gap);
-      width: 1px;
-      background: linear-gradient(to bottom,
-          rgba(135, 190, 255, 0.0),
-          var(--line-soft) 50%,
-          rgba(135, 190, 255, 0.0));
-      transform: translateX(-50%);
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 32px;
-
-      padding-bottom: 30px;
-      border-bottom: 1px solid var(--line-soft);
-    }
-
-    .section-kicker {
-      font-size: 11px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--fg-muted);
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 500;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-    }
-
-    .section-subtitle {
-      font-size: 13px;
-      color: var(--fg-soft);
-      max-width: 72ch;
-      line-height: 1.7;
-      text-align: right;
-    }
-
-    @media (max-width: 820px) {
-      .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .section-subtitle {
-        text-align: left;
-      }
-    }
-
-    /* ============ Cards (Core + Games) ============ */
-
-    .cs-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 6vw;
-      /* 图片和文字之间的距离，随时可以调整 */
-      align-items: center;
-      position: relative;
-      padding: 60px 0;
-    }
-
-    .cs-card+.cs-card {}
-
-    .cs-card.reverse {
-      grid-template-columns: minmax(0, 1.3fr) minmax(40px, 5vw) minmax(0, 1.6fr);
-    }
-
-
-    .cs-visual {
-      display: inline-block;
-      background: rgba(0, 0, 0, 0.16);
-      border-radius: 18px;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05);
-      overflow: hidden;
-      vertical-align: top;
-      padding: 0;
-    }
-
-    .cs-visual img {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 40vw;
-      max-height: 65vh;
-      object-fit: fill;
-      /* 绝不用contain/cover，不拉伸不裁剪 */
-      border-radius: 0;
-    }
-
-    .cs-visual video {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 40vw;
-      max-height: 65vh;
-      object-fit: fill;
-      /* 或者 cover，看你需求 */
-      border-radius: 0;
-    }
-
-    @media (max-width: 860px) {
-
-      .cs-card,
-      .cs-card.reverse {
-        flex-direction: column;
-        gap: 18px;
-      }
-
-      .cs-visual {
-        display: block;
-        margin: 0;
-        border-radius: 14px;
-        order: 1;
-      }
-
-      .cs-visual img {
-        height: auto;
-        max-width: 100%;
-        max-height: 60vh;
-      }
-
-      .cs-text {
-        order: 2;
-      }
-    }
-
-    .cs-card.reverse .cs-visual::after {
-      right: auto;
-      left: -8px;
-    }
-
-    /*
-    .cs-card:hover .cs-visual {
-      transform: translateY(-6px);
-      box-shadow:
-        0 30px 90px rgba(0, 0, 0, 0.95),
-        0 0 0 1px rgba(180, 230, 255, 0.22);
-    }
-    */
-    .cs-text {
-      position: relative;
-      flex: 1 1 0;
-      min-width: 12vw;
-      padding: 0;
-    }
-
-    .cs-card.reverse .cs-text {
-      grid-column: 1 / 2;
-      padding: 12px 26px 12px 0;
-      text-align: right;
-      cursor: pointer;
-    }
-
-    .cs-eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--fg-muted);
-      margin-bottom: 8px;
-    }
-
-    .cs-title {
-      font-size: 20px;
-      font-weight: 560;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-
-    .cs-title-badge {
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(140, 200, 255, 0.35);
-      color: var(--fg-soft);
-    }
-
-    .cs-meta-line {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--fg-muted);
-      margin-bottom: 10px;
-    }
-
-    .cs-summary {
-      font-size: 13px;
-      color: var(--fg-soft);
-      line-height: 1.9;
-      max-width: 80ch;
-    }
-
-    .cs-card.reverse .cs-summary {
-      margin-left: auto;
-    }
-
-    .cs-text::after {
-      content: '';
-      position: absolute;
-      left: 26px;
-      right: 0;
-      bottom: 0;
-      height: 1px;
-      background: linear-gradient(to right,
-          transparent,
-          #57cfe7ad,
-          transparent);
-      filter: drop-shadow(0 0 3px var(--accent-aurora-1));
-      /* 加辉光 */
-      transform: scaleX(0.0);
-      transform-origin: left;
-      transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1),
-        opacity 0.4s ease;
-      opacity: 0;
-    }
-
-    .cs-card.reverse .cs-text::after {
-      left: 0;
-      right: 26px;
-      transform-origin: right;
-    }
-
-    .cs-card:hover .cs-text::after {
-      opacity: 1;
-      transform: scaleX(1);
-    }
-
-    .cs-card.is-expanded .cs-text::after {
-      opacity: 1;
-      transform: scaleX(1);
-      background: linear-gradient(to right,
-          transparent,
-          var(--line-strong),
-          transparent);
-    }
-
-    .cs-details {
-      max-height: 0;
-      overflow: hidden;
-      /* 给个稍微深一点的背景，区分于Summary */
-      background: rgba(0, 0, 0, 0.2);
-      margin-top: 0;
-      padding: 0 26px;
-      /* 和上面的文字对齐 */
-      border-radius: 8px;
-      transition: max-height 0.5s cubic-bezier(0.65, 0, 0.35, 1), padding 0.5s ease, margin 0.5s ease;
-    }
-
-    .cs-card.is-expanded .cs-details {
-      max-height: 1500px;
-      /* 给够高度 */
-      margin-top: 24px;
-      padding-top: 24px;
-      padding-bottom: 24px;
-      border-top: 1px solid var(--line-soft);
-    }
-
-    /* 技术故事段落：左对齐，宽一点，像博客 */
-    .cs-detail-story {
-      font-size: 13px;
-      line-height: 1.8;
-      color: var(--fg-main);
-      /* 亮一点，强调这是干货 */
-      max-width: 65ch;
-      /* 最佳阅读宽度 */
-      margin-bottom: 32px;
-    }
-
-    .cs-detail-story p+p {
-      margin-top: 16px;
-    }
-
-    .cs-detail-story strong {
-      color: var(--accent-aurora-1);
-      font-weight: 500;
-    }
-
-    /* 图片/Feature Grid：田字格布局 */
-    .cs-feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      width: 100%;
-    }
-
-    .cs-feature-item {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .cs-feature-item img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #000;
-    }
-
-    .cs-feature-caption {
-      font-size: 12px;
-      color: var(--fg-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .cs-feature-desc {
-      font-size: 13px;
-      color: var(--fg-soft);
-      line-height: 1.5;
-    }
-
-    .game-tag {
-      color: var(--accent-aurora-2);
-    }
-
-    @media (max-width: 860px) {
-
-      .cs-card,
-      .cs-card.reverse {
-        grid-template-columns: 1fr;
-        padding: 24px 0;
-      }
-
-      .cs-visual,
-      .cs-card.reverse .cs-visual {
-        grid-column: 1 / -1;
-        margin-bottom: 18px;
-      }
-
-      .cs-text,
-      .cs-card.reverse .cs-text {
-        grid-column: 1 / -1;
-        padding: 8px 0;
-        text-align: left;
-      }
-
-      .cs-summary {
-        max-width: none;
-      }
-
-      .cs-text::after,
-      .cs-card.reverse .cs-text::after {
-        left: 0;
-        right: 0;
-        transform-origin: center;
-      }
-    }
-
-    /* ================== TECH GALLERY (THE DRIFT - REFINED) ================== */
-
-    .tg-container {
-      display: flex;
-      flex-direction: column;
-      gap: 80px;
-      padding: 20px 0;
-    }
-
-    .tg-banner {
-      display: flex;
-      /* 限制最大宽度，防止在超宽屏上拉得太长 */
-      width: 90%;
-      max-width: 1400px;
-      /* 高度设为 auto，由内容(主要是图片比例)撑开 */
-      height: auto;
-      position: relative;
-      /* 删除了 transform transition，这里只留背景和滤镜的过渡 */
-      transition: background 0.4s ease;
-    }
-
-    /* === 布局变体 === */
-
-    /* 左图右文 */
-    .tg-banner.left {
-      margin-right: auto;
-      /* 背景：从图片(左)向文字(右)淡出 */
-      background: linear-gradient(to right,
-          rgba(20, 35, 55, 0.6) 0%,
-          rgba(20, 35, 55, 0.25) 50%,
-          transparent 100%);
-    }
-
-    /* 右图左文 */
-    .tg-banner.right {
-      margin-left: auto;
-      flex-direction: row-reverse;
-      /* 背景：从图片(右)向文字(左)淡出 */
-      background: linear-gradient(to left,
-          rgba(20, 35, 55, 0.6) 0%,
-          rgba(20, 35, 55, 0.25) 50%,
-          transparent 100%);
-    }
-
-    /* === 图片区域 (固定比例) === */
-    .tg-visual {
-      /* 稍微加宽图片占比，给 16:10 留空间 */
-      flex: 0 0 48%;
-      /* 强制 16:10 比例，不再随意裁剪 */
-      aspect-ratio: 2 / 1;
-      position: relative;
-      overflow: hidden;
-      background: #000;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .tg-visual img,
-    .tg-visual video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      /* 依然是 cover，但因为容器比例固定了，所以不会切掉太多 */
-      opacity: 0.8;
-      filter: contrast(1.05);
-      transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
-    }
-
-    /* === 文字区域 === */
-    .tg-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      /* 统一左对齐，阅读体验最好 */
-      text-align: left;
-      align-items: flex-start;
-
-      /* 关键：使用 clamp 控制内边距 
-         最小 24px，理想 4%，最大 60px。
-         这样宽屏时文字不会离图片太远，窄屏时也不会贴死。
-      */
-      padding-inline: clamp(24px, 4vw, 60px);
-    }
-
-    .tg-eyebrow {
-      font-family: var(--font-mono, monospace);
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      color: var(--fg-muted);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      opacity: 0.9;
-    }
-
-    .tg-title {
-      font-size: 20px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-      color: var(--fg-main);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .tg-badge {
-      font-size: 9px;
-      padding: 3px 8px;
-      border: 1px solid var(--line-soft);
-      border-radius: 4px;
-      color: var(--fg-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    /* === 分割线 (The Line) === */
-    .tg-line {
-      width: 100%;
-      max-width: 240px;
-      /* 限制长度，精致一点 */
-      height: 1px;
-      margin: 12px 0 16px 0;
-      /* 上下间距 */
-
-      /* 发光渐变：中间亮，两头淡 */
-      background: linear-gradient(to right,
-          rgba(107, 230, 255, 0.0),
-          rgba(107, 230, 255, 0.6),
-          rgba(107, 230, 255, 0.0));
-      /* 稍微加点辉光 */
-      box-shadow: 0 0 8px rgba(107, 230, 255, 0.4);
-      opacity: 0.8;
-    }
-
-    .tg-desc {
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--fg-soft);
-      max-width: 50ch;
-    }
-
-    /* === 桌面端交互 (Hover) === */
-    /* 只在支持 Hover 的设备(鼠标)上启用 */
-    @media (hover: hover) {
-
-      /* 1. 图片变亮、变彩色、微放大 */
-      .tg-banner:hover .tg-visual img,
-      .tg-banner:hover .tg-visual video {
-        opacity: 1;
-      }
-
-      /* 2. 背景渐变增强 (发光感) */
-      .tg-banner.left:hover {
-        background: linear-gradient(to right,
-            rgba(40, 70, 100, 0.5) 0%,
-            rgba(40, 70, 100, 0.2) 50%,
-            transparent 100%);
-      }
-
-      .tg-banner.right:hover {
-        background: linear-gradient(to left,
-            rgba(40, 70, 100, 0.5) 0%,
-            rgba(40, 70, 100, 0.2) 50%,
-            transparent 100%);
-      }
-
-      /* 3. 线条变亮 */
-      .tg-banner:hover .tg-line {
-        background: linear-gradient(to right,
-            rgba(107, 230, 255, 0.0),
-            rgba(107, 230, 255, 1.0),
-            rgba(107, 230, 255, 0.0));
-        opacity: 1;
-      }
-    }
-
-    /* === 移动端适配 === */
-    @media (max-width: 800px) {
-
-      .tg-banner,
-      .tg-banner.left,
-      .tg-banner.right {
-        width: 100%;
-        flex-direction: column;
-        /* 垂直堆叠 */
-        margin: 0;
-        /* 统一使用左侧渐变 (从左边亮到右边暗)，保持视觉统一 */
-        background: linear-gradient(to right,
-            rgba(20, 35, 55, 0.5) 0%,
-            transparent 100%) !important;
-        border-radius: 0;
-        /* 去掉圆角 */
-      }
-
-      .tg-visual {
-        flex: none;
-        width: 100%;
-        aspect-ratio: 16/9;
-        /* 手机上回归 16:9 */
-      }
-
-      .tg-content {
-        padding: 24px 20px;
-        /* 手机上的内边距 */
-        width: 100%;
-      }
-
-      .tg-desc {
-        max-width: none;
-      }
-    }
-
-    /* === 通用漂浮动画类 (Utility Class) === */
-    /* 你想让谁飘，就给谁加 class="hover-float" */
-    .hover-float {
-      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .hover-float:hover {
-      transform: translateY(-6px);
-    }
-
-
-    /* ============ About & Skills ============ */
-    .about-section-layout {
-      display: grid;
-      /* 左侧文字 : 右侧矩阵 = 1 : 2.2 
-           给右侧田字格留出足够宽度 */
-      grid-template-columns: 1fr 2.2fr;
-      gap: 60px;
-      align-items: start;
-    }
-
-    .about-text-column {
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--fg-soft);
-      /* 限制最大宽度，保证阅读体验，同时让高度自然撑开 */
-      max-width: 360px;
-    }
-
-    /* 右侧容器：田字格布局 */
-    .skills-hud-matrix {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      /* 2列 */
-      gap: 24px;
-      /* 块之间的间距 */
-    }
-
-    .skills-hud-block {
-      position: relative;
-      padding: 6px 20px;
-
-      /* 背景：极度克制。
-           几乎透明的白色 (0.02)，只为了把文字和背景区分开一点点。
-           不再使用长渐变，而是整体微弱填充。 */
-      background: rgba(255, 255, 255, 0.02);
-
-      /* 边框：强调色在这里。
-           3px 宽度，使用你的 Aurora Cyan，实色。 */
-      border-left: 3px solid var(--accent-aurora-1);
-
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-
-    .skills-hud-block:hover {
-      /* Hover 时稍微亮一点点，给个反馈 */
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .skills-hud-header {
-      /* 字体：恢复原样，白色，大写 */
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--fg-main);
-      /* 白色 */
-
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-    }
-
-    .skills-hud-content {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--fg-soft);
-      font-family: var(--font-sans);
-    }
-
-    .skill-item {
-      display: inline-block;
-      transition: color 0.2s;
-    }
-
-    .skill-item:hover {
-      color: var(--fg-main);
-      text-shadow: 0 0 8px rgba(107, 230, 255, 0.4);
-    }
-
-    .skill-sep {
-      color: var(--fg-muted);
-      margin: 0 5px;
-      opacity: 0.5;
-      font-size: 11px;
-    }
-
-    /* 响应式：屏幕窄时变单列 */
-    @media (max-width: 860px) {
-      .about-section-layout {
-        grid-template-columns: 1fr;
-        gap: 40px;
-      }
-
-      .skills-hud-matrix {
-        grid-template-columns: 1fr;
-        /* 手机上变单列 */
-        gap: 16px;
-      }
-
-      .about-text-column {
-        max-width: none;
-      }
-    }
-
-
-    /* ============ Contact (横排修正版) ============ */
-    .contact-block {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      /* 居中平铺 */
-      gap: 24px;
-      margin-bottom: 80px;
-      /* 与下方的分割线保持原有距离 */
-
-      font-size: 13px;
-      color: var(--fg-soft);
-    }
-
-    .contact-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--fg-muted);
-      /* 加一个小竖线分隔，或者只用间距也可以 */
-      padding-right: 24px;
-      border-right: 1px solid rgba(140, 200, 255, 0.15);
-    }
-
-    .contact-list {
-      list-style: none;
-      display: flex;
-      gap: 32px;
-      /* 链接之间的间距 */
-      margin: 0;
-      padding: 0;
-    }
-
-    .contact-list li {
-      margin: 0;
-      /* 覆盖掉之前的 margin-top */
-    }
-
-    .contact-list a {
-      text-decoration: none;
-      color: var(--fg-main);
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-
-    .contact-list a:hover {
-      opacity: 1;
-      text-shadow: 0 0 8px rgba(140, 200, 255, 0.6);
-    }
-
-    /* 移动端适配：屏幕太窄时还是得竖一下，不然放不下 */
-    @media (max-width: 600px) {
-      .contact-block {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .contact-label {
-        border-right: none;
-        border-bottom: 1px solid rgba(140, 200, 255, 0.15);
-        padding-right: 0;
-        padding-bottom: 8px;
-      }
-    }
-
-
-    /* ============ Horizon & Binary Orbit (原版 Option 3) ============ */
-
-    .horizon-wrap {
-      /* 保持你原有的 margin，确保网格对齐 */
-      margin-top: 72px;
-      padding-bottom: 40px;
-      text-align: center;
-    }
-
-    .horizon-line {
-      position: relative;
-      height: 1px;
-      background: linear-gradient(to right,
-          rgba(70, 90, 130, 0.0),
-          rgba(120, 160, 220, 0.7),
-          rgba(70, 90, 130, 0.0));
-      margin-bottom: 18px;
-    }
-
-    /* Option 3: The Binary Orbit - 原始参数 */
-    .orbit-binary {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 48px;
-      height: 48px;
-      pointer-events: none;
-    }
-
-    /* 轨道线：极细，压扁 */
-    .orbit-binary::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1px solid rgba(91, 130, 212, 0.616);
-      transform: scaleY(0.3);
-      /* 关键：压扁 */
-    }
-
-    /* 星星 1：浮动在左上 */
-    .orbit-binary::after {
-      content: '';
-      position: absolute;
-      width: 3px;
-      height: 3px;
-      background: #ffa600;
-      border-radius: 100%;
-      top: 0px;
-      left: 0%;
-      box-shadow: 0 0 6px rgb(255, 187, 0);
-      isolation: isolate;
-      z-index: 10000;
-      /* 强制最顶层 */
-    }
-
-    /* 星星 2：浮动在右下 */
-    .orbit-binary .star-2 {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: var(--accent-aurora-2);
-      border-radius: 50%;
-      bottom: 5px;
-      right: 10%;
-      box-shadow: 0 0 5px var(--accent-aurora-2);
-      isolation: isolate;
-    }
-
-    .horizon-caption {
-      font-size: 12px;
-      color: var(--fg-muted);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .horizon-phrase {
-      font-size: 13px;
-      color: var(--fg-soft);
-    }
-
-    .site-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 64px;
-      z-index: 10000;
-      background: rgba(1, 2, 4, 0.5);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--line-soft);
-      display: flex;
-      align-items: center;
-      padding: 0 var(--content-padding-x);
-    }
-
-    .header-inner {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--accent-aurora-2);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent-aurora-2);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.4;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .header-logo {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      color: var(--fg-main);
-      text-transform: uppercase;
-    }
-
-    .header-logo .version {
-      font-size: 9px;
-      color: var(--fg-muted);
-      margin-left: 8px;
-      font-family: monospace;
-    }
-
-    .header-nav {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .header-nav a {
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: var(--fg-soft);
-      transition: all 0.3s ease;
-    }
-
-    .header-nav a:hover {
-      color: var(--accent-aurora-1);
-      text-shadow: 0 0 8px var(--accent-aurora-1);
-    }
-
-    .contact-btn {
-      padding: 6px 16px;
-      border: 1px solid var(--accent-aurora-1);
-      color: var(--accent-aurora-1) !important;
-      font-size: 10px;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .contact-btn:hover {
-      background: rgba(107, 230, 255, 0.1);
-      box-shadow: 0 0 15px rgba(107, 230, 255, 0.2);
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
 </head>
 
 <body>
-
   <nav class="site-header">
     <div class="header-inner">
-      <div class="header-left">
+      <!-- 左侧：Logo -->
+      <div class="header-slot-left">
         <div class="status-dot"></div>
-        <div class="header-logo">NAME <span class="version">SYS.CORE.v2</span></div>
+        <div class="header-logo">NAME <span class="version">Portfolio.Page.</span></div>
       </div>
-      <div class="header-right">
+
+      <!-- 中间：核心导航 (居中) -->
+      <div class="header-slot-center">
         <div class="header-nav">
           <a href="#solutions">Solutions</a>
-          <a href="#games">Games</a>
+          <a href="#games">Projects</a>
           <a href="#gallery">Gallery</a>
           <a href="#about">About</a>
-          <a href="mailto:you@example.com" class="contact-btn">Contact</a>
         </div>
+      </div>
+
+      <!-- 右侧：联系方式 -->
+      <div class="header-slot-right">
+        <a href="mailto:you@example.com" class="contact-btn">Contact</a>
       </div>
     </div>
   </nav>
@@ -1492,31 +97,42 @@
           <div class="section-title">CORE SOLUTIONS</div>
         </div>
         <p class="section-subtitle">
-          True quality comes when art is part of the system. <br>
-          I build practical, stylized rendering solutions, designed to live inside real production pipelines.
+          I build rendering systems that solve real production problems - <br>
+          optimized for performance, designed for art direction.
         </p>
       </header>
 
-      <div class="cs-card hover-float">
+      <!-- 统一 HTML 结构：图片在前，文字在后。不再依赖 CSS reverse -->
+      <div class="cs-card  hover-float">
+        <div class="cs-visual">
+          <img src="Assets/Per-objectShadow.png" alt="Per-object shadow visual">
+        </div>
+
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 01 · Feature and System</div>
-          <h2 class="cs-title">
-            Per-Object Shadows
-            <span class="cs-title-badge">URP</span>
-          </h2>
-          <div class="cs-meta-line">Optimization · Render Feature · Customizable</div>
+          <h2 class="cs-title">Per-Object Shadows <span class="cs-title-badge">URP</span></h2>
+          <div class="cs-meta-line">Optimization · Render Feature · Point Light Support</div>
 
-          <!-- Summary: 结论 -->
           <div class="cs-summary">
-            <p>
-              This per-object shadow system renders high-quality shadows only for dynamic objects, decoupling shadow
-              cost from scene
-              complexity. You can keep all environment lighting fully baked, while providing high-quality,
-              artist-controlled shadows for dynamic characters.
-            </p>
+            <p>Real-time shadow rendering is a major performance bottleneck. How do we provide high-fidelity,
+              artist-controlled shadows for dynamic actors in a fully-baked environment without the overhead of global
+              shadow maps?</p>
+          </div>
+
+          <!-- 规范的交互提示符 -->
+          <div class="cs-action-trigger">
+            <div class="trigger-expand">
+              <span class="trigger-icon">+</span>
+              <span class="trigger-text">CLICK TO VIEW TECHNICAL BREAKDOWN</span>
+            </div>
+            <div class="trigger-close">
+              <span class="trigger-icon">×</span>
+              <span class="trigger-text">CLOSE BREAKDOWN</span>
+            </div>
           </div>
 
           <!-- Details: 迭代过程 -->
+
           <div class="cs-details">
             <div class="cs-detail-story">
               <p>
@@ -1526,6 +142,14 @@
                 characters.
                 In a top-down scene or a complex environment, that can be very costly.
               </p>
+
+              
+              <!-- 示例：如何在两个章节间加图 -->
+              <div class="cs-inline-image">
+                <img src="Assets/shadow-comparison.png" alt="Comparison between Decal and Custom Feature">
+                <span>Fig 1.1: Prototype comparison - Decal Projector (Left) vs. Custom Render Feature (Right)</span>
+              </div>
+
               <p>
                 <strong>Deriving Solution:</strong> I first experimented with <em>Decal Projectors</em> using depth
                 textures.
@@ -1559,9 +183,6 @@
             </div>
           </div>
         </div>
-        <div class="cs-visual">
-          <img src="Assets/Per-objectShadow.png" alt="Per-object shadow visual">
-        </div>
       </div>
 
       <div class="cs-card hover-float reverse">
@@ -1582,6 +203,19 @@
               visuals for skin, hair, and physically-based clothing,
               achieving performance, realism, and stylization all at the same time.
             </p>
+          </div>
+
+
+          <!-- 规范的交互提示符 -->
+          <div class="cs-action-trigger">
+            <div class="trigger-expand">
+              <span class="trigger-icon">+</span>
+              <span class="trigger-text">CLICK TO VIEW TECHNICAL BREAKDOWN</span>
+            </div>
+            <div class="trigger-close">
+              <span class="trigger-icon">×</span>
+              <span class="trigger-text">CLOSE BREAKDOWN</span>
+            </div>
           </div>
 
           <div class="cs-details">
@@ -1663,26 +297,49 @@
           <!-- <div class="cs-meta-line">Combat · exploration · Narrative</div> -->
           <div class="cs-summary">
             <p>
-              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the
-              remnants of humanity.
-              <br>
-              This project is my primary testbed for establishing a commercial-grade art pipeline - iterating on
-              everything from asset workflows to lighting and post-processing.
+              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the remnants of humanity.
             </p>
           </div>
-          <!-- 
-          <div class="cs-detail-gallery">
-            <img src="Assets/eden-1.png" alt="EDEN combat frame">
-            <img src="Assets/eden-2.png" alt="EDEN title or hub scene">
-            <img src="Assets/eden-3.png" alt="EDEN exploration vista">
+
+          <div class="cs-action-trigger">
+            <div class="trigger-expand">
+              <span class="trigger-icon">+</span>
+              <span class="trigger-text">VIEW PROJECT LOG</span>
+            </div>
+            <div class="trigger-close">
+              <span class="trigger-icon">×</span>
+              <span class="trigger-text">CLOSE</span>
+            </div>
           </div>
-          -->
+
+          <div class="cs-details">
+            <div class="cs-detail-story">
+              <p>
+                <strong>The Vision:</strong> This project is my primary testbed for establishing a commercial-grade art pipeline. 
+                I'm iterating on everything from asset workflows to lighting and post-processing.
+              </p>
+            </div>
+            <div class="cs-feature-grid">
+              <div class="cs-feature-item">
+                <img src="Assets/eden-1.png" alt="EDEN combat frame">
+                <div class="cs-feature-caption">Combat Systems</div>
+              </div>
+              <div class="cs-feature-item">
+                <img src="Assets/eden-2.png" alt="EDEN environment">
+                <div class="cs-feature-caption">Lighting R&D</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       </div>
 
       <!-- Game 02 -->
       <div class="cs-card hover-float reverse">
+        <div class="cs-visual">
+          <img src="Assets/game-ltv-img1.png" alt="Last Train to Vladivostok visual">
+        </div>
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 02</span> · PC & MOBILE</div>
           <h2 class="cs-title">
@@ -1692,14 +349,28 @@
           <!-- <div class="cs-meta-line">Historical setting · systemic play · mobile constraints</div>  -->
           <div class="cs-summary">
             <p>
-              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia,
-              <br>
-              delivering a unified visual and UX that adapts seamlessly between Desktop and Mobile constraints.
+              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia.
             </p>
           </div>
-        </div>
-        <div class="cs-visual">
-          <img src="Assets/game-ltv-img1.png" alt="Last Train to Vladivostok visual">
+
+          <div class="cs-action-trigger">
+            <div class="trigger-expand">
+              <span class="trigger-icon">+</span>
+              <span class="trigger-text">VIEW DESIGN CASE STUDY</span>
+            </div>
+            <div class="trigger-close">
+              <span class="trigger-icon">×</span>
+              <span class="trigger-text">CLOSE</span>
+            </div>
+          </div>
+
+          <div class="cs-details">
+            <div class="cs-detail-story">
+              <p>
+                <strong>The Challenge:</strong> Delivering a unified visual and UX that adapts seamlessly between Desktop and Mobile constraints.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1781,7 +452,7 @@
             <img src="Assets/cloth-tool.png" alt="Tools">
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 04 · WORKFLOWS</div>
+            <div class="tg-eyebrow">TECH 04 · PIPELINE</div>
             <div class="tg-title">
               Cloth-Fitting Tools
               <span class="tg-badge">Asset Pipeline</span>
@@ -1794,6 +465,25 @@
           </div>
         </div>
 
+        <!-- TECH 05: AI HUB -->
+        <div class="tg-banner left">
+          <div class="tg-visual">
+            <img src="Assets/ai-hub-preview.png" alt="AI Engineering Hub">
+          </div>
+          <div class="tg-content">
+            <div class="tg-eyebrow">TECH 05 · WORKFLOWS</div>
+            <div class="tg-title">
+              AIHub
+              <span class="tg-badge">Workflow Tool</span>
+            </div>
+            <div class="tg-line"></div>
+            <div class="tg-desc">
+              An AI-driven modular workflow accelerator, featuring a multimodal interaction pipeline.
+              It combines a multi-layered prompt injection system with vector-based context indexing,
+              enabling a production-ready, frictionless development cycle.
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1820,57 +510,67 @@
         <!-- 右侧：田字格矩阵 -->
         <div class="skills-hud-matrix">
 
-          <!-- Block 1 -->
+          <!-- Block 1: Real-time Graphics & Rendering -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Pipeline & Workflow</div>
+            <div class="skills-hud-header">Graphics & Rendering</div>
             <div class="skills-hud-content">
-              <span class="skill-item">Profiling & Optimization</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Addressables</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Custom Render Features</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Shader Development (HLSL/GLSL)</span> <span class="skill-sep">/</span>
+              <span class="skill-item">NPR Shading</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Real-time Lighting</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Rendering Optimization</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Compute Shaders</span> <span class="skill-sep">/</span>
+              <span class="skill-item">PBR Principles</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Linear Algebra</span>
+            </div>
+          </div>
+
+          <!-- Block 2: Technical Pipeline & Tooling -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header">Pipeline & Tooling</div>
+            <div class="skills-hud-content">
+              <span class="skill-item">Asset Workflows (Addressables, AssetBundle)</span> <span
+                class="skill-sep">/</span>
+              <span class="skill-item">Blender Python API</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Editor Tools</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Profiling</span> <span class="skill-sep">/</span>
               <span class="skill-item">Localization</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Git & Perforce</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Blender Python API</span>
+              <span class="skill-item">Version Control (Git/Perforce)</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Memory Optimization</span>
             </div>
           </div>
 
-          <!-- Block 2 -->
+          <!-- Block 3: Software Engineering & Languages -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Engines & Frameworks</div>
-            <div class="skills-hud-content">
-              <span class="skill-item">Unity (SRP)</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Unreal Engine 5</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Visual Effect Graph</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Cinemachine</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Jobs, ECS & Burst</span>
-            </div>
-          </div>
-
-          <!-- Block 3 -->
-          <div class="skills-hud-block">
-            <div class="skills-hud-header">Languages</div>
+            <div class="skills-hud-header">Engineering & Languages</div>
             <div class="skills-hud-content">
               <span class="skill-item">C#</span> <span class="skill-sep">/</span>
               <span class="skill-item">Python</span> <span class="skill-sep">/</span>
               <span class="skill-item">C++</span> <span class="skill-sep">/</span>
-              <span class="skill-item">HLSL & GLSL</span> <span class="skill-sep">/</span>
-              <span class="skill-item">SQL</span>
+              <span class="skill-item">Data Structures & Algorithms</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Object-Oriented Design</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Database SQL</span> <span class="skill-sep">/</span>
+              <span class="skill-item">QT</span>
             </div>
           </div>
 
-          <!-- Block 4 -->
+          <!-- Block 4: Game Dev & Tech -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Techniques</div>
+            <div class="skills-hud-header">Game Dev & Tech</div>
             <div class="skills-hud-content">
-              <span class="skill-item">Compute Shaders</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Raymarching</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Data Structures</span> <span class="skill-sep">/</span>
-              <span class="skill-item">PyTorch</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Math Analysis</span>
+              <span class="skill-item">Unity Engine (URP/SRP)</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Unreal Engine 5</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Cross-Platform Development</span> <span class="skill-sep">/</span>
+              <span class="skill-item">AI/ML (PyTorch)</span> <span class="skill-sep">/</span>
+              <span class="skill-item">Gameplay Systems</span> <span class="skill-sep">/</span>
+              <span class="skill-item">3D Modeling (Blender/Maya)</span>
             </div>
           </div>
 
         </div>
       </div>
     </section>
+
 
     <!-- ============ CONTACT & HORIZON ============ -->
     <section class="content-section" data-color="50, 80, 200">
@@ -1895,7 +595,7 @@
         </div>
         <div class="horizon-caption">END OF PAGE</div>
         <div class="horizon-phrase">
-          Looking up is where a great journey would begin.
+          Looking up is how a great journey would begin.
         </div>
       </div>
 
@@ -1903,522 +603,13 @@
 
   </main>
 
-  <script>
-    // ======= same background & interaction code, slightly compressed comments =======
-    const fgCanvas = document.getElementById('render-canvas');
-    const fgCtx = fgCanvas.getContext('2d');
-    const bgCanvas = document.getElementById('bg-canvas');
-    const gl = bgCanvas.getContext('webgl', {
-      antialias: true,
-      powerPreference: "high-performance",
-      alpha: false
-    });
-    // Scanline 逻辑已移至 CSS
-
-    if (!gl) {
-      console.error("WebGL not supported.");
-      bgCanvas.style.display = 'none';
-    }
-
-    let width, height;
-    let scrollY = window.scrollY;
-
-    const STAR_COUNT = 40;
-    const GRID_SPACING = 120;
-    const GRID_DIMENSIONS = 40;
-    const GRID_DEPTH_SEGMENTS = GRID_DIMENSIONS / 2;
-    const NODE_SIZE = 3.5;
-
-    const stars = [];
-    const gridPoints = [];
-    const camera = {
-      fov: 355,
-      y: 0,
-      rotationX: 0,
-      targetY: 0,
-      targetRotationX: 0,
-      lerpFactor: 0.07
-    };
-
-    function project(p) {
-      const cosX = Math.cos(camera.rotationX);
-      const sinX = Math.sin(camera.rotationX);
-      const translatedY = p.y - camera.y;
-      const rotatedY = 41 * translatedY * cosX - 0.1 * p.z * sinX;
-      const rotatedZ = 0 * translatedY * sinX + p.z * cosX;
-      if (rotatedZ <= 0) return null;
-      const scale = camera.fov / rotatedZ;
-      return {
-        x: width / 2 + p.x * scale,
-        y: height / 2 - rotatedY * scale,
-        scale,
-        z: rotatedZ
-      };
-    }
-
-    function drawForeground() {
-      fgCtx.clearRect(0, 0, width, height);
-
-      // 1. 依然用 2D 画星星 (数量少，开销低)
-      fgCtx.fillStyle = '#dce2f0';
-      stars.forEach(star => {
-        const y = (star.y - scrollY * star.depth + height);
-        fgCtx.beginPath();
-        fgCtx.arc(star.x, y, star.size, 0, 2 * Math.PI);
-        fgCtx.fill();
-      });
-
-      // Phase 2: 纯 GPU 渲染路径
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // Additive Blending 增加发光感
-
-      gl.useProgram(gridProgram);
-      gl.bindBuffer(gl.ARRAY_BUFFER, gridBuffer);
-      gl.enableVertexAttribArray(gridPositionLoc);
-      // 注意这里是 3 (x,y,z)
-      gl.vertexAttribPointer(gridPositionLoc, 3, gl.FLOAT, false, 0, 0);
-
-      // 传递当前帧的相机参数
-      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_scrollY"), camera.y);
-      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_fov"), camera.fov);
-      gl.uniform1f(gl.getUniformLocation(gridProgram, "u_rotationX"), camera.rotationX);
-      gl.uniform2f(gridResLoc, width, height);
-      gl.uniform4f(gridColorLoc, currentR / 255, currentG / 255, currentB / 255, 0.16);
-
-      gl.drawArrays(gl.LINES, 0, gridPointsCount);
-
-      // --- Phase 3: GPU 渲染节点 ---
-      gl.useProgram(window.nodeProgram);
-      gl.bindBuffer(gl.ARRAY_BUFFER, window.nodeBuffer);
-      const nodePosLoc = gl.getAttribLocation(window.nodeProgram, "a_pos3d");
-      gl.enableVertexAttribArray(nodePosLoc);
-      gl.vertexAttribPointer(nodePosLoc, 3, gl.FLOAT, false, 0, 0);
-
-      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_scrollY"), camera.y);
-      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_fov"), camera.fov);
-      gl.uniform1f(gl.getUniformLocation(window.nodeProgram, "u_rotationX"), camera.rotationX);
-      gl.uniform2f(gl.getUniformLocation(window.nodeProgram, "u_resolution"), width, height);
-
-      const nodeR = (currentR * 0.35 + 80 * 0.65) / 255;
-      const nodeG = (currentG * 0.35 + 130 * 0.65) / 255;
-      const nodeB = (currentB * 0.35 + 255 * 0.65) / 255;
-      gl.uniform3f(gl.getUniformLocation(window.nodeProgram, "u_color"), nodeR, nodeG, nodeB);
-
-      gl.drawArrays(gl.POINTS, 0, window.nodeCount);
-
-      gl.disable(gl.BLEND);
-    }
-
-    const vertexShaderSource = `
-      attribute vec2 a_position;
-      void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`;
-
-    const fragmentShaderSource = `
-      precision highp float;
-      uniform vec2 u_resolution;
-      uniform float u_time;
-      uniform vec3 u_color;
-      uniform sampler2D u_blueNoise;
-
-      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-
-      float snoise(vec2 v) {
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                            -0.577350269189626, 0.024390243902439);
-        vec2 i  = floor(v + dot(v, C.yy));
-        vec2 x0 = v - i + dot(i, C.xx);
-        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-        vec4 x12 = x0.xyxy + C.xxzz;
-        x12.xy -= i1;
-        i = mod289(i);
-        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-                        + i.x + vec3(0.0, i1.x, 1.0 ));
-        vec3 m = max(0.5 - vec3(
-          dot(x0,x0),
-          dot(x12.xy,x12.xy),
-          dot(x12.zw,x12.zw)
-        ), 0.0);
-        m = m*m; m = m*m;
-        vec3 x = 2.0 * fract(p * C.www) - 1.0;
-        vec3 h = abs(x) - 0.5;
-        vec3 ox = floor(x + 0.5);
-        vec3 a0 = x - ox;
-        m *= 1.79284291400159 - 0.85373472095314 *
-             ( a0*a0 + h*h );
-        vec3 g;
-        g.x  = a0.x  * x0.x  + h.x  * x0.y;
-        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-        return 130.0 * dot(m, g);
-      }
-
-      float fbm(vec2 st) {
-        st *= 0.1; st += 0.1;
-        float value = 0.0;
-        float amplitude = 0.5;
-        for (int i = 0; i < 6; i++) {
-          value += amplitude * snoise(st);
-          st *= 2.0;
-          amplitude *= 0.5;
-        }
-        return value;
-      }
-
-      void main() {
-        vec2 st = gl_FragCoord.xy / u_resolution.xy;
-        st.x *= u_resolution.x / u_resolution.y;
-        float t = u_time * 0.6;
-        vec2 q = vec2(
-          fbm(st + vec2(t*0.2, t*0.1)),
-          fbm(st + vec2(-t*0.15, t*0.25))
-        );
-        vec2 r = vec2(
-          fbm(st + q*2.0 + vec2(t*-0.3, t*0.05)),
-          fbm(st + q*2.0 + vec2(t*0.1, -t*0.3))
-        );
-        float value = fbm(st + r*0.5);
-        float contrastValue = pow(max(0.0, value), 2.2);
-        vec3 finalColor = u_color * contrastValue * 1.5;
-        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
-        finalColor += (noise - 0.5) / 128.0;
-        gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
-      }`;
-
-    // 必须在全局声明，确保所有函数都能访问到这些“句柄”
-    let glProgram,
-      positionAttributeLocation,
-      resolutionUniformLocation,
-      timeUniformLocation,
-      colorUniformLocation,
-      blueNoiseUniformLocation,
-      positionBuffer; // 刚才漏掉的背景顶点缓冲句柄
-
-    // Phase 2: Grid 渲染程序变量
-    let gridProgram, gridPositionLoc, gridResLoc, gridColorLoc, gridBuffer;
-    let gridPointsCount = 0; // 必须全局声明
-
-    let currentR = 50, currentG = 80, currentB = 220;
-    let targetR = 50, targetG = 80, targetB = 220;
-    let blueNoiseTexture;
-
-    function createShader(gl, type, source) {
-      const shader = gl.createShader(type);
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error("Shader compile error:", gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
-      }
-      return shader;
-    }
-
-    function createProgram(gl, v, f) {
-      const program = gl.createProgram();
-      gl.attachShader(program, v);
-      gl.attachShader(program, f);
-      gl.linkProgram(program);
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.error("Program link error:", gl.getProgramInfoLog(program));
-        gl.deleteProgram(program);
-        return null;
-      }
-      return program;
-    }
-
-    function loadTexture(gl, url) {
-      const texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA,
-        1, 1, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE,
-        new Uint8Array([0, 0, 0, 255])
-      );
-      const image = new Image();
-      image.crossOrigin = "anonymous";
-      image.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-          gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      };
-      image.src = 'assets/blueNoise.png';
-      return texture;
-    }
-
-    function setupWebGL() {
-      if (!gl) return;
-      const vs = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-      const fs = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-      glProgram = createProgram(gl, vs, fs);
-      gl.useProgram(glProgram);
-
-      positionAttributeLocation = gl.getAttribLocation(glProgram, "a_position");
-      resolutionUniformLocation = gl.getUniformLocation(glProgram, "u_resolution");
-      timeUniformLocation = gl.getUniformLocation(glProgram, "u_time");
-      colorUniformLocation = gl.getUniformLocation(glProgram, "u_color");
-      blueNoiseUniformLocation = gl.getUniformLocation(glProgram, "u_blueNoise");
-
-      // 删掉 const！直接给全局变量 positionBuffer 赋值
-      positionBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-          -1, -1, 1, -1, -1, 1,
-          -1, 1, 1, -1, 1, 1
-        ]),
-        gl.STATIC_DRAW
-      );
-
-      gl.enableVertexAttribArray(positionAttributeLocation);
-      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-      blueNoiseTexture = loadTexture(gl, 'assets/blueNoise.png');
-
-      // --- Phase 2: GPU 投影 Shader (带像素级裁剪) ---
-      const gridVS = createShader(gl, gl.VERTEX_SHADER, `
-        attribute vec3 a_pos3d;
-        uniform float u_scrollY;
-        uniform float u_fov;
-        uniform float u_rotationX;
-        uniform vec2 u_resolution;
-        varying float v_z; // 传给 FS 的深度
-
-        void main() {
-          float cosX = cos(u_rotationX);
-          float sinX = sin(u_rotationX);
-          
-          float translatedY = a_pos3d.y - u_scrollY;
-          float rotatedY = 41.0 * translatedY * cosX - 0.1 * a_pos3d.z * sinX;
-          float rotatedZ = a_pos3d.z * cosX; 
-          
-          v_z = rotatedZ; // 记录深度
-
-          // 即使在相机后，我们也给它一个数学上合理的坐标，由 FS 负责剔除
-          float safeZ = max(rotatedZ, 1.0); 
-          float scale = u_fov / safeZ;
-          float x = (a_pos3d.x * scale) / (u_resolution.x / 2.0);
-          float y = (rotatedY * scale) / (u_resolution.y / 2.0);
-          gl_Position = vec4(x, y, 0.0, 1.0);
-        }
-      `);
-      const gridFS = createShader(gl, gl.FRAGMENT_SHADER, `
-        precision mediump float;
-        uniform vec4 u_color;
-        varying float v_z;
-        void main() {
-          // 如果深度小于近平面（比如 20.0），直接丢弃该像素
-          if (v_z < 20.0) discard; 
-          gl_FragColor = u_color;
-        }
-      `);
-      gridProgram = createProgram(gl, gridVS, gridFS);
-      // 必须匹配 Shader 里的新名字 a_pos3d
-      gridPositionLoc = gl.getAttribLocation(gridProgram, "a_pos3d");
-      gridResLoc = gl.getUniformLocation(gridProgram, "u_resolution");
-      gridColorLoc = gl.getUniformLocation(gridProgram, "u_color");
-      gridBuffer = gl.createBuffer();
-
-      // --- Phase 3: Node Shader (渲染发光点) ---
-      const nodeVS = createShader(gl, gl.VERTEX_SHADER, `
-        attribute vec3 a_pos3d;
-        uniform float u_scrollY;
-        uniform float u_fov;
-        uniform float u_rotationX;
-        uniform vec2 u_resolution;
-        varying float v_alpha;
-
-        void main() {
-          float cosX = cos(u_rotationX);
-          float sinX = sin(u_rotationX);
-          float rotatedY = 41.0 * (a_pos3d.y - u_scrollY) * cosX - 0.1 * a_pos3d.z * sinX;
-          float rotatedZ = a_pos3d.z * cosX; 
-
-          if (rotatedZ <= 20.0) {
-            gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
-          } else {
-            float scale = u_fov / rotatedZ;
-            gl_Position = vec4((a_pos3d.x * scale) / (u_resolution.x / 2.0), (rotatedY * scale) / (u_resolution.y / 2.0), 0.0, 1.0);
-            // 模拟 NODE_SIZE * Math.min(p.scale, 1.0)
-            gl_PointSize = 3.5 * min(scale, 1.0); // 稍微放大一点以包含发光边缘
-            v_alpha = 1.0 - min(rotatedZ / 8000.0, 1.0);
-          }
-        }
-      `);
-      const nodeFS = createShader(gl, gl.FRAGMENT_SHADER, `
-        precision mediump float;
-        uniform vec3 u_color;
-        varying float v_alpha;
-        void main() {
-          float dist = max(abs(gl_PointCoord.x - 0.5), abs(gl_PointCoord.y - 0.5));
-          if (dist > 0.5) discard;
-          float glow = 1.0 - dist * 1.0;
-          gl_FragColor = vec4(u_color, v_alpha * glow);
-        }
-      `);
-      window.nodeProgram = createProgram(gl, nodeVS, nodeFS);
-      // 预分配一个足够大的数组：(81*41 + 80*41) * 2个点 * 2个坐标
-      gridVertexArray = new Float32Array(20000);
-    }
-
-    function renderBackground(time) {
-      if (!gl) return;
-      time *= 0.001;
-
-      // 1. 强制重置 WebGL 状态
-      gl.useProgram(glProgram);
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.enableVertexAttribArray(positionAttributeLocation);
-      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-      // 2. 确保背景是不透明的，关闭混合
-      gl.disable(gl.BLEND);
-
-      currentR += (targetR - currentR) * 0.02;
-      currentG += (targetG - currentG) * 0.02;
-      currentB += (targetB - currentB) * 0.02;
-
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-      // 3. 重新设置背景 Uniforms (非常重要，切换 Program 后必须重设)
-      gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-      gl.uniform1f(timeUniformLocation, time);
-      gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
-
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
-      gl.uniform1i(blueNoiseUniformLocation, 0);
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    }
-
-    function masterInit() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-
-      fgCanvas.width = width;
-      fgCanvas.height = height;
-      if (gl) {
-        bgCanvas.width = width;
-        bgCanvas.height = height;
-      }
-
-      stars.length = 0;
-      for (let i = 0; i < STAR_COUNT; i++) {
-        stars.push({
-          x: (0.15 + 0.7 * Math.random()) * width,
-          y: (Math.random() - 0.9) * height,
-          depth: Math.random() * 0.4 + 0.1,
-          size: Math.random() * 1.2 + 0.5
-        });
-      }
-
-      gridPoints.length = 0;
-      let lineData = [];
-      let nodeData = []; // 新增：存放点的 3D 坐标
-
-      const START_J = 1; // 固化起始排
-
-      for (let i = -GRID_DIMENSIONS; i <= GRID_DIMENSIONS; i++) {
-        for (let j = START_J; j <= GRID_DEPTH_SEGMENTS; j++) {
-          const px = i * GRID_SPACING;
-          const py = 0;
-          const pz = j * 1.5 * GRID_SPACING;
-
-          gridPoints.push({ x: px, y: py, z: pz });
-          nodeData.push(px, py, pz); // 收集点数据
-
-          if (j > START_J) {
-            lineData.push(px, py, pz, px, py, (j - 1) * 1.5 * GRID_SPACING);
-          }
-          if (i > -GRID_DIMENSIONS) {
-            lineData.push(px, py, pz, (i - 1) * GRID_SPACING, py, pz);
-          }
-        }
-      }
-
-      // 更新线段 Buffer
-      gl.bindBuffer(gl.ARRAY_BUFFER, gridBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineData), gl.STATIC_DRAW);
-      gridPointsCount = lineData.length / 3;
-
-      // 更新点 Buffer (Phase 3)
-      if (!window.nodeBuffer) window.nodeBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, window.nodeBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nodeData), gl.STATIC_DRAW);
-      window.nodeCount = nodeData.length / 3;
-    }
-
-    function masterAnimate(time) {
-      scrollY = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const scrollRatio = scrollHeight > 0 ? scrollY / scrollHeight : 0;
-
-      const targetY = 1200 * (0 + 0.01 * (1 - scrollRatio));
-      const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.45;
-
-      // --- DIRTY FLAG CHECK ---
-      const deltaY = Math.abs(camera.y - targetY);
-      const deltaRot = Math.abs(camera.rotationX - targetRotationX);
-
-      // 如果变化极小，且不是第一帧，直接跳过渲染
-      if (deltaY < 0.01 && deltaRot < 0.001 && time > 1000) {
-        requestAnimationFrame(masterAnimate);
-        return;
-      }
-      // -------------------------
-
-      camera.y += (targetY - camera.y) * camera.lerpFactor;
-      camera.rotationX += (targetRotationX - camera.rotationX) * camera.lerpFactor;
-
-
-      if (gl) renderBackground(time);
-      drawForeground();
-
-      requestAnimationFrame(masterAnimate);
-    }
-
-    const sections = document.querySelectorAll('section[data-color]');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const [r, g, b] = entry.target.dataset.color.split(',').map(Number);
-          targetR = r;
-          targetG = g;
-          targetB = b;
-        }
-      });
-    }, { threshold: 0.5 });
-
-    sections.forEach(section => observer.observe(section));
-
-    document.querySelectorAll('.cs-card').forEach(card => {
-      // 只给有 .cs-details 的卡片加展开逻辑
-      if (card.querySelector('.cs-details')) {
-        card.addEventListener('click', function (e) {
-          // 防止点里面的链接等冒泡干扰
-          if (e.target.tagName === 'A') return;
-          card.classList.toggle('is-expanded');
-        });
-        card.style.cursor = 'pointer';
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      masterInit();
-      if (gl) gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    });
-
-    setupWebGL();
-    masterInit();
-    requestAnimationFrame(masterAnimate);
-  </script>
+  <!-- 全局图片/视频预览层 -->
+  <div id="lightbox" class="lightbox-overlay">
+    <div class="lightbox-content">
+      <!-- 动态插入内容 -->
+    </div>
+    <div class="lightbox-close">×</div>
+  </div>
 </body>
 
 </html>
