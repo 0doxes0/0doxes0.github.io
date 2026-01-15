@@ -20,8 +20,8 @@
 
     const STAR_COUNT = 40;
     const GRID_SPACING = 120;
-    const GRID_DIMENSIONS = 40;
-    const GRID_DEPTH_SEGMENTS = GRID_DIMENSIONS / 2;
+    const GRID_DIMENSIONS = 15;
+    const GRID_DEPTH_SEGMENTS = 16;
     const NODE_SIZE = 3.5;
 
     const stars = [];
@@ -423,11 +423,12 @@
         bgCanvas.height = height;
       }
 
+      // 星星
       stars.length = 0;
       for (let i = 0; i < STAR_COUNT; i++) {
         stars.push({
           x: (0.15 + 0.7 * Math.random()) * width,
-          y: (Math.random() - 0.9) * height,
+          y: (Math.random() * 0.8 - 0.5) * height,
           depth: Math.random() * 0.4 + 0.1,
           size: Math.random() * 1.2 + 0.5
         });
@@ -556,11 +557,11 @@
     });
 
 
-    // 同时也给 Tech Gallery 增加预览功能
-    document.querySelectorAll('.tg-visual').forEach(tgv => {
-      tgv.style.cursor = 'zoom-in';
-      tgv.addEventListener('click', (e) => {
-        const media = tgv.querySelector('img, video');
+    // 统一为所有具有预览性质的容器增加点击监听
+    document.querySelectorAll('.tg-visual, .cs-feature-v-media').forEach(container => {
+      container.style.cursor = 'zoom-in';
+      container.addEventListener('click', (e) => {
+        const media = container.querySelector('img, video');
         if (media) openLightbox(media);
       });
     });

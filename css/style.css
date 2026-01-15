@@ -558,7 +558,9 @@ body::before {
 /* 3. 文字区域：基础排版 */
 .cs-text {
   flex: 1;
-  position: relative;
+  position: relative;  
+  /* 核心 Debug：打破 Flex Item 的最小宽度限制，解决 802px 溢出问题 */
+  min-width: 0; 
 }
 
 /* 4. 交互提示符：间距修正 */
@@ -685,13 +687,21 @@ body::before {
 .cs-card.is-expanded .cs-text {
   width: 100%;
   max-width: 850px;
-  padding: 80px 40px 80px;
+  padding: 80px 40px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  /* 强制重置：无论 reverse 与否，展开后一律左对齐 */
   text-align: left !important;
+  position: relative; /* 锁定定位上下文，防止指示线乱跑 */
+  box-sizing: border-box; /* 严防宽度计算溢出 */
 }
+
+@media (max-width: 860px) {
+  .cs-card.is-expanded .cs-text {
+    padding: 40px 20px; /* 移动端压缩内边距，解决飞出屏幕的问题 */
+  }
+}
+
 
 /* 文档插图规范 */
 .cs-inline-image {
@@ -767,26 +777,167 @@ body::before {
   font-size: 15px;
   line-height: 1.9;
   color: rgba(127, 134, 155, 0.8);
-  /* 稍微调暗，增加层次感 */
   font-weight: 350;
   max-width: 100%;
-  /* 撑满容器 */
   margin-bottom: 48px;
 }
 
-.cs-detail-story strong {
+/* 优化列表排版：增加缩进和前缀，使其与正文区分 */
+.cs-detail-story ul {
+  margin: 24px 0 24px 10px;
+  list-style: none;
+}
+
+.cs-detail-story li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 12px;
+  color: var(--fg-soft);
+}
+
+.cs-detail-story li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent-aurora-1);
+  opacity: 0.5;
+}
+
+/* 纵向大图流布局：让每一个 Feature 都有足够的展示空间 */
+.cs-feature-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  margin-top: 32px;
+}
+
+.cs-feature-v-item {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cs-feature-v-media {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #000;
+  cursor: zoom-in; /* 提示可以点开 */
+}
+
+.cs-feature-v-media img,
+.cs-feature-v-media video {
+  width: 100%;
   display: block;
-  font-size: 13px;
+  transition: transform 0.4s ease;
+}
+
+.cs-feature-v-media:hover img,
+.cs-feature-v-media:hover video {
+  transform: scale(1.01); /* 轻微放大反馈 */
+}
+
+.cs-feature-v-text {
+  padding-left: 16px;
+  border-left: 1px solid var(--line-soft);
+}
+
+/* Results 对比网格 */
+.cs-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+/* 1. 标签重塑：14px，技术文档风格 */
+.cs-detail-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 400; /* 不加粗，靠字间距和颜色出质感 */
   text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: #ffffff !important;
-  /* 强制纯白 */
-  margin-top: 48px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0;
-  /* 确保没有圆角 */
-  padding-bottom: 10px;
+  letter-spacing: 0.25em;
+  color: var(--fg-main);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* 极细分割线 */
+}
+
+/* 2. 表格容器：增加区分度 */
+.cs-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 32px 0;
+  background: rgb(0, 0, 0, 0.4); /* 稍微亮一点，拉开层次 */
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  /* 确保在 Flex 布局中不被撑开 */
+  display: block; 
+}
+
+/* 3. 滚动条：解决“隐身”问题 */
+.cs-table-wrapper::-webkit-scrollbar {
+  height: 6px; /* 稍微加厚一点点 */
+}
+.cs-table-wrapper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.cs-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(127, 133, 145, 0.212); /* 提高可见度 */
+  border-radius: 3px;
+  transition: background 0.3s;
+}
+.cs-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 183, 204, 0.5); ; /* 鼠标悬停时给点反馈 */
+}
+
+
+/* 3. 表格去色处理 */
+.cs-tech-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: var(--fg-soft);
+  min-width: 800px; /* 确保在窄屏下触发滚动 */
+}
+
+.cs-tech-table th, .cs-tech-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cs-tech-table th {
+  color: var(--fg-main);
+  background: rgba(255, 255, 255, 0.03);
+  font: 11px; 
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 仅在背景上做极轻微的区分，严禁使用极光色 */
+.table-row-highlight {
+  background: rgba(255, 255, 255, 0.04);
+}
+.table-row-highlight td:first-child {
+  color: var(--fg-main);
+  font-weight: 600;
+}
+
+/* 图片占位符样式 */
+.cs-placeholder-img {
+  width: 100%;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  color: var(--fg-muted);
+  text-align: center;
+  font-size: 11px;
+  margin: 20px 0;
 }
 
 /* 确保 Feature Grid 也是对称的 */
@@ -968,11 +1119,20 @@ body::before {
       transparent,
       var(--line-strong),
       transparent);
+  /* 展开态修正：强制指示线回归容器中心，不再随溢出容器飘走 */
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  transform-origin: center !important;
 }
+
 
 .cs-details {
   max-height: 0;
   overflow: hidden;
+  /* 确保宽度受限，不随表格无限延伸 */
+  width: 100%;
+  max-width: 100%; /* 强制不许超过父级 */
   /* 给个稍微深一点的背景，区分于Summary */
   background: rgba(0, 0, 0, 0.2);
   margin-top: 0;
@@ -981,7 +1141,6 @@ body::before {
 }
 
 .cs-card.is-expanded .cs-details {
-  max-height: 1500px;
   /* 给够高度 */
   padding-bottom: 24px;
   border-top: 1px solid var(--line-soft);

@@ -111,11 +111,13 @@
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 01 · Feature and System</div>
           <h2 class="cs-title">Per-Object Shadows <span class="cs-title-badge">URP</span></h2>
-          <div class="cs-meta-line">Optimization · Render Feature · Point Light Support</div>
+          <div class="cs-meta-line">Optimization · Render Feature</div>
 
           <div class="cs-summary">
-            <p>Real-time shadow rendering is a major performance bottleneck. How do we provide high-fidelity,
-              artist-controlled shadows for dynamic actors in a fully-baked environment without the overhead of global
+            <p>Real-time shadow rendering is a major performance bottleneck.
+              In scenes with complex lighting, shadow cost doesn't scale with what you actually need.
+              How do we provide high-fidelity,
+              artist-controlled shadows for dynamic characters without the overhead of global
               shadow maps?</p>
           </div>
 
@@ -131,63 +133,158 @@
             </div>
           </div>
 
-          <!-- Details: 迭代过程 -->
-
+          <!-- Details: 迭代过程 --><!-- Per-Object Shadows Breakdown -->
           <div class="cs-details">
             <div class="cs-detail-story">
+              <div class="cs-detail-label">Context: Where existing solutions fall short</div>
               <p>
-                <strong>The Problem:</strong> Real-time shadow rendering is a major performance bottleneck in games.
-                While techniques like shadowmask and culling exist.
-                They usually fail to address the core issue: rendering full real-time shadows for just a few dynamic
-                characters.
-                In a top-down scene or a complex environment, that can be very costly.
+                While many standard shadow techniques exist, they fail to address a core issue: rendering full
+                real-time shadows and wasting resources on static geometry for just a few dynamic shadow casters. In our
+                top-down scene or a complex environment, that tends to be very costly.
               </p>
 
-              
-              <!-- 示例：如何在两个章节间加图 -->
-              <div class="cs-inline-image">
-                <img src="Assets/shadow-comparison.png" alt="Comparison between Decal and Custom Feature">
-                <span>Fig 1.1: Prototype comparison - Decal Projector (Left) vs. Custom Render Feature (Right)</span>
+              <!-- Table with custom scrollbar -->
+              <div class="cs-table-wrapper">
+                <table class="cs-tech-table">
+                  <thead>
+                    <tr>
+                      <th>Technique</th>
+                      <th>Dynamic-to-Static</th>
+                      <th>Static-to-Dynamic</th>
+                      <th>Cost Scales With</th>
+                      <th>Artistic Control</th>
+                      <th>Typical Limitations</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Shadow Map & Culling (ReSTIR)</td>
+                      <td>Yes</td>
+                      <td>Yes</td>
+                      <td>Scene complexity</td>
+                      <td>Poor</td>
+                      <td>Complex, disproportionate culling <br>poor performance in topdown</td>
+                    </tr>
+                    <tr>
+                      <td>Shadow Mask / <br>Probe Volume</td>
+                      <td>No</td>
+                      <td>Yes</td>
+                      <td>Data sampling</td>
+                      <td>Moderate</td>
+                      <td>Poor dynamic-to-static support <br>(where our system step in)</td>
+                    </tr>
+                    <tr>
+                      <td>SDF + Raymarching (Lumen)</td>
+                      <td>Limited</td>
+                      <td>Yes</td>
+                      <td>Scene complexity</td>
+                      <td>Poor</td>
+                      <td>Blurry, unstable, limited quality <br>and control per object</td>
+                    </tr>
+                    <tr>
+                      <td>Decal / Blob Shadow</td>
+                      <td>Crude</td>
+                      <td>Work around</td>
+                      <td>Shadow count</td>
+                      <td>Good</td>
+                      <td>Only simple shapes, no real lighting</td>
+                    </tr>
+                    <tr class="table-row-highlight">
+                      <td>Per-Object Shadow</td>
+                      <td>Yes</td>
+                      <td>Work around</td>
+                      <td>Shadow count and quality</td>
+                      <td>Good</td>
+                      <td>Limited static occlusion, possible glitching, needs artistic alignment</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
               <p>
-                <strong>Deriving Solution:</strong> I first experimented with <em>Decal Projectors</em> using depth
-                textures.
-                While technically functional, Decals are not designed for shadow projection, leading to poor control
-                over the result.
-                Besides, they are fundamentally orthographic and cannot correctly project point light shadows.
+                For scenarios with complex lighting but only a few dynamic shadow casters — like our top-down environment — per-object shadow rendering is a natural solution.
+              </p>
+
+              <div class="cs-detail-label">Exploration: Prototyping the Pipeline</div>
+              <p>
+                Starting with Unity's Decal Projector as a prototype, I first tried capturing character
+                silhouettes and projecting them as shadows. Then I replaced silhouettes with actual depth
+                maps. This unlocked light attenuation and PCSS, giving the shadows proper falloff and soft edges.
                 <br>
-                I ended up writing a custom Render Feature that manually handles the projection matrix, registers the
-                actor-light pairs, projects and blend their shadow onto world space.
-                It’s a manual setup, but it provides the best results and artistic control with the lowest runtime
-                overhead.
+                The approach worked for directional lights. However, it hit a fundamental limitation: Decal Projectors are orthographic by design
+                and cannot correctly project point light shadows, beyond that, they weren't built for shadows — they
+                introduced pipeline overhead and interfered with actual decal rendering needs.
+                <br>
+                The production system needed to be purpose-built.
               </p>
-            </div>
 
-            <div class="cs-feature-grid">
-              <div class="cs-feature-item">
-                <img src="Assets/shadow-1.png" alt="Top-down baked scene with dynamic characters">
-                <div>
-                  <div class="cs-feature-caption">Shadows In-action</div>
-                  <div class="cs-feature-desc">Dynamic shadows easily blend into fully-baked scene.</div>
-                </div>
-              </div>
-              <div class="cs-feature-item">
-                <img src="Assets/shadow-2.png" alt="Shadow parameters adjusted in editor">
-                <div>
-                  <div class="cs-feature-caption">System Controls</div>
-                  <div class="cs-feature-desc">Support per-character quality, global visual, and other system settings.
-                  </div>
-                </div>
-              </div>
+              <div class="cs-detail-label">Solution: Per-Object Shadow Feature</div>
+              <!-- [Fig 1.1: System Diagram - Flow chart: Actor + Light Registration → Shadow RT Capture → Projection Matrix → Screen-Space Composite] -->
+              <div class="cs-placeholder-img">[Fig 1.1: Pipeline Flow - Registration → Capture → Projection → Composite]</div>
+
+              <p>The resulted system is a custom URP Render Feature built on Render Graph. It
+                consists of four core components:</p>
+
+              <p><strong>Registration System</strong><br>
+                Actor-light pairs are registered dynamically via trigger volumes. When a character enters a light's
+                influence range, the system adds them to the shadow rendering queue. This keeps the overhead
+                proportional to active pairs, not total scene complexity.</p>
+
+              <p><strong>Shadow Rendering</strong><br>
+                Each registered pair gets a virtual camera positioned at the light source, with a projection matrix
+                computed based on the character's bounding box. The camera captures a high-resolution depth map just for
+                that character, at a resolution the character defines. No scene geometry involved.</p>
+
+              <p><strong>Projection & Occlusion</strong><br>
+                The depth map is projected using the light's perspective matrix — true perspective projection for point
+                lights. With screen depth to world space reconstruction, the system factors in light attributes,
+                attenuation and edge-soften. Occlusion is handled via batched physics raycasts (not raymarching) — a
+                pragmatic trade-off between accuracy and performance to check light-to-character visibility and clips
+                shadows at wall boundaries.</p>
+
+              <p><strong>Screen-Space Compositing</strong><br>
+                Shadows are composited into screen space using a pre-multiplied blend with conditional masking. The
+                system identifies lit areas and ignores areas already in shadow. Artists control intensity, edge
+                softness, color tint, PCSS samples, and blend factors. Because it's a post-process overlay rather than
+                baked into the lighting pipeline, artists have full control over the shadow's visual appearance without
+                touching shader code.</p>
+
+              <!-- [Fig 1.2: System Controls] -->
+              <div class="cs-placeholder-img">[Fig 1.2: System Controls - Tuning global editor settings]</div>
+
+              <div class="cs-detail-label">Results</div>
+              <p>
+                The system renders high-quality, artist-controlled PCSS shadows at ~3ms per frame — cost scales only
+                with the real shadow count and quality.
+              </p>
+              <p>
+                This approach enables us to fully bake global lighting and render shadows separately. In our test scene
+                of top-down interior, 20+ point lights, and complex geometry, frame rate went from 27 FPS to 80+ FPS —
+                same shadow fidelity at a fraction of cost.
+              </p>
+
+              <!-- [Fig 1.3: Before/After Comparison] -->
+              <div class="cs-placeholder-img">[Fig 1.3: Before/After Comparison - Global shadow maps vs. per-object
+                shadows]</div>
+
+              <p>
+                The system is modular by design — shadow appearance, registration logic, culling strategies are all
+                independently configurable. It's a general-purpose solution for any scenario with complex lighting but
+                limited dynamic shadow casters: top-down games, narrative-driven interiors, architectural visualization.
+              </p>
+
+              <!-- [Fig 1.4: Shadows In-Action] -->
+              <div class="cs-placeholder-img">[Fig 1.4: Shadows In-Action - Dynamic character shadows blending into
+                baked environment]</div>
             </div>
           </div>
+
         </div>
       </div>
 
       <div class="cs-card hover-float reverse">
         <div class="cs-visual">
-          <img src="Assets/Per-objectShadow.png" alt="Stylized character shading">
+          <video src="Assets/core02-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video> 
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 02 · SHADING</div>
@@ -199,12 +296,9 @@
 
           <div class="cs-summary">
             <p>
-              This shader natively supports G-buffer lighting and screen-space post-processing, delivering high-quality
-              visuals for skin, hair, and physically-based clothing,
-              achieving performance, realism, and stylization all at the same time.
+              Stylized characters often feel disconnected from realistic, dynamic environments. This architecture resolves that friction through an integrated pipeline, bringing custom shading, lighting, and post-processing into a single, consistent visual world.
             </p>
           </div>
-
 
           <!-- 规范的交互提示符 -->
           <div class="cs-action-trigger">
@@ -220,53 +314,150 @@
 
           <div class="cs-details">
             <div class="cs-detail-story">
+              <div class="cs-detail-label">Challenge: Designing a consistent visual for realistic shading</div>
               <p>
-                <strong>The Problem:</strong>
-                Integrating stylized characters into a deferred lighting environment is a major shading and pipeline
-                challenge,
-                both in terms of the artistic consistency and limitations to the lighting model.
-                There're some solutions out there, but they're either too bulky or doesn't provide the art style I'm
-                aiming for.
+                The environment for Eden was built on a high-fidelity baseline where every element responds naturally to light and space. I used the Bakery light mapper and APV scenarios to establish the scene lighting, combined with SSR, HBAO, SSGI, and volumetric lighting to create a world that felt physically consistent and reactive.
               </p>
               <p>
-                <strong>Deriving Solution:</strong>
-                I started on custom Cel-Shading attempting a Forward+ approach for its simplicity and light-culling
-                efficiency.
-                However, this forward-hack broke many deferred-based screen-space effects - AO and reflections won't
-                work correctly without a proper G-buffer.
-                The solution was to modify the shader to fully integrate with the Deferred pipeline and use of G-buffer
-                just like other shaders.
-                I gained valuable insignts into deferred shading in the process. By useing the same mudular API, the
-                shader also maintains consistency between Forward+ and Deferred.
+                However, bringing characters into this environment revealed a new challenge. I initially tried liltoon, a widely-adopted stylized shader, but it hit a wall as I started tuning the scene lighting, exposing several critical bottlenecks:
               </p>
-            </div>
+              <ul>
+                <li><strong>Incomplete Integration:</strong> The shader could not sample scene reflections or APV data and failed to support multiple lights, leaving characters as flat overlays.</li>
+                <li><strong>Performance Overhead:</strong> The bulky and feature-rich structure would lead to unnecessary variant bloat and compilation stalls.</li>
+                <li><strong>Architectural Mismatch:</strong> Its legacy pass-based architecture was not built for a modern unified pipeline and could become a technical debt to modify.</li>
+              </ul>
+              <p>
+                It became clear that achieving a seamless blend of stylization and realism required more than an off-the-shelf wrapper. To gain full artistic control and ensure visual integrity, we moved toward a custom shading solution that is native to the pipeline.
+              </p>
 
-            <div class="cs-feature-grid">
-              <div class="cs-feature-item">
-                <img src="Assets/cel-1.png" alt="Character lighting close-up">
-                <div>
-                  <div class="cs-feature-caption">Responsive Lighting</div>
-                  <div class="cs-feature-desc">Fill</div>
+              <div class="cs-detail-label">Architecture: Bridging Stylization and Deferred Rendering</div>
+              <p>
+                I started by prototyping a custom Forward shader, but quickly it made obvious that deferred screen-space effects wouldn't work without proper G-buffer. Therefore, we need to decide a pipeline solution, I evaluated three following industrial standard architecture for Cel-shading:
+              </p>
+
+              <div class="cs-table-wrapper">
+                <table class="cs-tech-table">
+                  <thead>
+                    <tr>
+                      <th>Approach</th>
+                      <th>Pros</th>
+                      <th>Cons</th>
+                      <th>Engineering Assessment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Forward+</td>
+                      <td>Straightforward, flexible stylization.</td>
+                      <td>Performance drops when adding complex screen-space effects.</td>
+                      <td>Suitable for simple scenarios, inefficient for high-fidelity environments.</td>
+                    </tr>
+                    <tr>
+                      <td>Forward Hacking</td>
+                      <td>Direct artistic control, decoupled rendering.</td>
+                      <td>Maintenance debt; lacks engine/community support and updates.</td>
+                      <td>Only worthwhile for big company/special production, essentially a custom pipeline.</td>
+                    </tr>
+                    <tr class="table-row-highlight">
+                      <td>Native Deferred</td>
+                      <td>Unified lighting, consistent G-Buffer effects.</td>
+                      <td>Substantial development complexity due to G-Buffer rigidity.</td>
+                      <td>Best for visual and pipeline consistency; allows for complex lighting without performance overhead.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>
+                Building a custom G-Buffer from scratch would be a maintenance trap in a constantly updating render environment like Unity 6. Recognizing this, we made the pragmatic decision to choose a modular, interchangeable, and actively maintained shader as the base—Real Toon. Building on its framework, we effectively outsourced the low-level plumbing, allowing focus on the specific NPR features that define the project’s visual character.
+              </p>
+
+              <div class="cs-detail-label">Core Features</div>
+              
+              <div class="cs-feature-vertical-list">
+                <!-- Feature 01: Outline -->
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <!-- [REPLACE]: Assets/core02-outline.mp4 -->
+                    <video src="Assets/core02-outline.mp4" autoplay loop muted playsinline></video>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Outline</div>
+                    <div class="cs-feature-desc">A crystal hand-drawn style outline, using smooth normals asset processing and distance adaptive scaling. It's transparent, responsive to light, with sine-wave controlled noise to simulate the organic feel of a pen stroke.</div>
+                  </div>
+                </div>
+
+                <!-- Feature 02: Detail Normal -->
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <!-- [REPLACE]: Assets/core02-detail-normal.jpg -->
+                    <img src="Assets/core02-detail-normal.jpg" alt="Detail normal textures">
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Detail Normal</div>
+                    <div class="cs-feature-desc">A two-layer RNM blend and adaptive detail normal, changes Mip bias based on UV scale, and interpolates between different sampling based on distance, ensuring robust texture and realistic look on close to medium shot.</div>
+                  </div>
+                </div>
+
+                <!-- Feature 03: Rim Light -->
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <!-- [REPLACE]: Assets/core02-rimlight.mp4 -->
+                    <video src="Assets/core02-rimlight.mp4" autoplay loop muted playsinline></video>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Rim light</div>
+                    <div class="cs-feature-desc">A stable and stylized rim light. Unable to sample from depth in G-Buffer's depth, the effect is instead weighted based on View, Light, and Normal directions to preserve it only for back lighting and atmospheric rim.</div>
+                  </div>
+                </div>
+
+                <!-- Feature 04: Matcap Hair -->
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Matcap Hair</div>
+                    <div class="cs-feature-desc">A view-direction based specular Matcap that mimics the feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
+                  </div>
                 </div>
               </div>
-              <div class="cs-feature-item">
-                <img src="Assets/cel-2.png" alt="Material and stockings detail">
-                <div>
-                  <div class="cs-feature-caption">Adaptive Detail Normals</div>
-                  <div class="cs-feature-desc">Fill</div>
+
+              <div class="cs-detail-label">Results</div>
+              <p>
+                TODO
+              </p>
+              
+              <div class="cs-comparison-grid">
+                <div class="cs-feature-v-media">
+                  <!-- [REPLACE]: Assets/core02-before.jpg -->
+                  <img src="Assets/eden-1.png" alt="Before: Standard NPR">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Standard NPR (Disconnected)</div>
+                </div>
+                <div class="cs-feature-v-media">
+                  <!-- [REPLACE]: Assets/core02-after.jpg -->
+                  <img src="Assets/eden-2.png" alt="After: Integrated Deferred NPR">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Integrated Deferred (Unified)</div>
                 </div>
               </div>
-              <div class="cs-feature-item">
-                <img src="Assets/cel-3.png" alt="Hair shading from different angles">
-                <div>
-                  <div class="cs-feature-caption">Matcap inspired Hair Shading</div>
-                  <div class="cs-feature-desc">Fill</div>
+              
+              <div class="cs-comparison-grid">
+                <div class="cs-feature-v-media">
+                  <!-- [REPLACE]: Assets/core02-before.jpg -->
+                  <img src="Assets/eden-1.png" alt="Before: Standard NPR">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Standard NPR (Disconnected)</div>
+                </div>
+                <div class="cs-feature-v-media">
+                  <!-- [REPLACE]: Assets/core02-after.jpg -->
+                  <img src="Assets/eden-2.png" alt="After: Integrated Deferred NPR">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Integrated Deferred (Unified)</div>
                 </div>
               </div>
+
+              <p>
+                TODO
             </div>
           </div>
         </div>
       </div>
+
     </section>
 
 
@@ -297,7 +488,8 @@
           <!-- <div class="cs-meta-line">Combat · exploration · Narrative</div> -->
           <div class="cs-summary">
             <p>
-              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the remnants of humanity.
+              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the
+              remnants of humanity.
             </p>
           </div>
 
@@ -315,7 +507,8 @@
           <div class="cs-details">
             <div class="cs-detail-story">
               <p>
-                <strong>The Vision:</strong> This project is my primary testbed for establishing a commercial-grade art pipeline. 
+                <strong>The Vision:</strong> This project is my primary testbed for establishing a commercial-grade art
+                pipeline.
                 I'm iterating on everything from asset workflows to lighting and post-processing.
               </p>
             </div>
@@ -367,7 +560,8 @@
           <div class="cs-details">
             <div class="cs-detail-story">
               <p>
-                <strong>The Challenge:</strong> Delivering a unified visual and UX that adapts seamlessly between Desktop and Mobile constraints.
+                <strong>The Challenge:</strong> Delivering a unified visual and UX that adapts seamlessly between
+                Desktop and Mobile constraints.
               </p>
             </div>
           </div>
