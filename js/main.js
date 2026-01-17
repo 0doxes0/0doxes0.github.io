@@ -265,7 +265,7 @@
         // 标记纹理已就绪
         window.blueNoiseLoaded = true;
       };
-      image.src = 'assets/blueNoise.png';
+      image.src = 'Assets/blueNoise.png';
       return texture;
     }
 
@@ -297,7 +297,7 @@
       gl.enableVertexAttribArray(positionAttributeLocation);
       gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-      blueNoiseTexture = loadTexture(gl, 'assets/blueNoise.png');
+      blueNoiseTexture = loadTexture(gl, 'Assets/blueNoise.png');
 
       // --- Phase 2: GPU 投影 Shader (带像素级裁剪) ---
       const gridVS = createShader(gl, gl.VERTEX_SHADER, `
