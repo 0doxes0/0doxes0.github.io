@@ -149,10 +149,10 @@
       }
 
       float fbm(vec2 st) {
-        st *= 0.1; st += 0.1;
+        st *= 0.75; st += 0.0;
         float value = 0.0;
         float amplitude = 0.5;
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
           value += amplitude * snoise(st);
           st *= 2.0;
           amplitude *= 0.5;
@@ -161,24 +161,38 @@
       }
 
       void main() {
-        vec2 st = gl_FragCoord.xy / u_resolution.xy;
+        vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+        vec2 st = uv;
         st.x *= u_resolution.x / u_resolution.y;
-        float t = u_time * 0.6;
-        vec2 q = vec2(
-          fbm(st + vec2(t*0.2, t*0.1)),
-          fbm(st + vec2(-t*0.15, t*0.25))
-        );
-        vec2 r = vec2(
-          fbm(st + q*2.0 + vec2(t*-0.3, t*0.05)),
-          fbm(st + q*2.0 + vec2(t*0.1, -t*0.3))
-        );
-        float value = fbm(st + r*0.5);
-        float contrastValue = pow(max(0.0, value), 2.2);
-        vec3 finalColor = u_color * contrastValue * 1.5;
-        vec3 noise = texture2D(u_blueNoise, gl_FragCoord.xy / 256.0).rgb;
-        finalColor += (noise - 0.5) / 128.0;
-        gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
-      }`;
+
+        // 1. 两个独立的时间轴，控制两层图案的移动
+        float t1 = u_time * 0.06;
+        float t2 = u_time * 0.04;
+
+        // 2. 两个独立的坐标采样，互不干扰，杜绝扭曲
+        // 比例设为 0.6 保证大体积感
+        vec2 p1 = st * 0.6 + vec2(t1, t1 * 0.2);
+        vec2 p2 = st * 0.5 - vec2(t2 * 0.3, t2);
+
+        // 3. 采样两层噪声
+        float val1 = fbm(p1);
+        float val2 = fbm(p2);
+
+        // 4. 叠加逻辑：相乘会让重合部分产生“光斑”，相加则更厚重
+        // 这里用相乘来制造那种深空星云的交错感
+        float value = (val1 + 1.0) * (val2 + 1.0) * 0.5 - 0.5;
+
+        // 5. 柔和的对比度处理
+        float finalMask = pow(max(0.0, value + 0.4), 2.0);
+        vec3 finalColor = u_color * finalMask * 0.3;
+
+        // 6. 蓝噪声抖动
+        vec2 noiseUV = gl_FragCoord.xy / 128.0;
+        float dither = (texture2D(u_blueNoise, noiseUV).r - 0.5) / 255.0;
+
+        gl_FragColor = vec4(finalColor + dither, 1.0);
+      }
+`;
 
     // 必须在全局声明，确保所有函数都能访问到这些“句柄”
     let glProgram,
@@ -202,7 +216,9 @@
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error("Shader compile error:", gl.getShaderInfoLog(shader));
+        const err = gl.getShaderInfoLog(shader);
+        console.error("SHADER ERROR:", err);
+        alert("SHADER ERROR: " + err); // 强行弹窗，确保你不会错过
         gl.deleteShader(shader);
         return null;
       }
@@ -241,6 +257,8 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        // 标记纹理已就绪
+        window.blueNoiseLoaded = true;
       };
       image.src = 'assets/blueNoise.png';
       return texture;
@@ -283,7 +301,7 @@
         uniform float u_fov;
         uniform float u_rotationX;
         uniform vec2 u_resolution;
-        varying float v_z; // 传给 FS 的深度
+        varying float v_z;
 
         void main() {
           float cosX = cos(u_rotationX);
@@ -293,9 +311,8 @@
           float rotatedY = 41.0 * translatedY * cosX - 0.1 * a_pos3d.z * sinX;
           float rotatedZ = a_pos3d.z * cosX; 
           
-          v_z = rotatedZ; // 记录深度
+          v_z = rotatedZ;
 
-          // 即使在相机后，我们也给它一个数学上合理的坐标，由 FS 负责剔除
           float safeZ = max(rotatedZ, 1.0); 
           float scale = u_fov / safeZ;
           float x = (a_pos3d.x * scale) / (u_resolution.x / 2.0);
@@ -308,7 +325,6 @@
         uniform vec4 u_color;
         varying float v_z;
         void main() {
-          // 如果深度小于近平面（比如 20.0），直接丢弃该像素
           if (v_z < 20.0) discard; 
           gl_FragColor = u_color;
         }
@@ -340,8 +356,7 @@
           } else {
             float scale = u_fov / rotatedZ;
             gl_Position = vec4((a_pos3d.x * scale) / (u_resolution.x / 2.0), (rotatedY * scale) / (u_resolution.y / 2.0), 0.0, 1.0);
-            // 模拟 NODE_SIZE * Math.min(p.scale, 1.0)
-            gl_PointSize = 3.5 * min(scale, 1.0); // 稍微放大一点以包含发光边缘
+            gl_PointSize = 3.5 * min(scale, 1.0);
             v_alpha = 1.0 - min(rotatedZ / 8000.0, 1.0);
           }
         }
@@ -358,38 +373,100 @@
         }
       `);
       window.nodeProgram = createProgram(gl, nodeVS, nodeFS);
-      // 预分配一个足够大的数组：(81*41 + 80*41) * 2个点 * 2个坐标
+      // 预分配一个足够大的数组
       gridVertexArray = new Float32Array(20000);
+
+      // --- 合成 Shader (Blit) ---
+      const blitVS = createShader(gl, gl.VERTEX_SHADER, `
+        attribute vec2 a_position;
+        varying vec2 v_texCoord;
+        void main() {
+          v_texCoord = a_position * 0.5 + 0.5;
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+      `);
+      const blitFS = createShader(gl, gl.FRAGMENT_SHADER, `
+        precision highp float;
+        uniform sampler2D u_background;
+        uniform sampler2D u_blueNoise;
+        uniform vec2 u_resolution;
+        varying vec2 v_texCoord;
+        void main() {
+          vec3 bg = texture2D(u_background, v_texCoord).rgb;
+          vec2 screenCoord = (gl_FragCoord.xy + vec2(0.5)) / 256.0; 
+          vec3 noise = texture2D(u_blueNoise, screenCoord).rgb;
+          vec3 finalColor = bg + (noise - 0.5) * 0.006;
+          gl_FragColor = vec4(finalColor, 1.0);
+        }
+      `);
+
+
+      window.blitProgram = createProgram(gl, blitVS, blitFS);
     }
 
     function renderBackground(time) {
       if (!gl) return;
+      
+      // 【关键修复】：如果蓝噪声纹理还没加载完，直接跳过背景渲染，防止黑屏卡死状态机
+      // 我们通过检查纹理是否已绑定过数据来判断
+      if (!window.blueNoiseLoaded) {
+        // 可以在这里给个默认清理颜色，避免闪烁
+        gl.clearColor(0.01, 0.01, 0.02, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        return;
+      }
+
       time *= 0.001;
-
-      // 1. 强制重置 WebGL 状态
-      gl.useProgram(glProgram);
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      gl.enableVertexAttribArray(positionAttributeLocation);
-      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-      // 2. 确保背景是不透明的，关闭混合
-      gl.disable(gl.BLEND);
-
       currentR += (targetR - currentR) * 0.02;
       currentG += (targetG - currentG) * 0.02;
       currentB += (targetB - currentB) * 0.02;
 
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      const fboW = Math.floor(width * 0.4);
+      const fboH = Math.floor(height * 0.4);
 
-      // 3. 重新设置背景 Uniforms (非常重要，切换 Program 后必须重设)
-      gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+      // --- Step 1: 渲染背景到 0.4x FBO ---
+      gl.bindFramebuffer(gl.FRAMEBUFFER, window.backgroundFBO);
+      gl.viewport(0, 0, fboW, fboH);
+      
+      gl.useProgram(glProgram);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(positionAttributeLocation);
+      gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+      
+      gl.uniform2f(resolutionUniformLocation, fboW, fboH);
       gl.uniform1f(timeUniformLocation, time);
       gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
 
+      // 绑定蓝噪声纹理到单元 0，供背景 Shader 使用
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
-      gl.uniform1i(blueNoiseUniformLocation, 0);
+      gl.uniform1i(gl.getUniformLocation(glProgram, "u_blueNoise"), 0);
+      
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+
+      // --- Step 2: Blit 到 1.0x 主画布 ---
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, width, height);
+      
+      gl.useProgram(window.blitProgram);
+      
+      // 【关键修复】：必须为 blitProgram 绑定顶点属性，否则它不知道画在哪
+      const blitPosLoc = gl.getAttribLocation(window.blitProgram, "a_position");
+      gl.enableVertexAttribArray(blitPosLoc);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.vertexAttribPointer(blitPosLoc, 2, gl.FLOAT, false, 0, 0);
+
+      // 传入 0.4x 背景纹理
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, window.backgroundTexture);
+      gl.uniform1i(gl.getUniformLocation(window.blitProgram, "u_background"), 0);
+      
+      // 传入 1.0x 蓝噪声
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
+      gl.uniform1i(gl.getUniformLocation(window.blitProgram, "u_blueNoise"), 1);
+      
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
@@ -421,6 +498,26 @@
       if (gl) {
         bgCanvas.width = width;
         bgCanvas.height = height;
+
+        // 创建 0.4x 离屏缓冲区 (FBO)
+        const fboWidth = Math.floor(width * 0.4);
+        const fboHeight = Math.floor(height * 0.4);
+
+        if (!window.backgroundFBO) {
+          window.backgroundFBO = gl.createFramebuffer();
+          window.backgroundTexture = gl.createTexture();
+        }
+
+        gl.bindTexture(gl.TEXTURE_2D, window.backgroundTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fboWidth, fboHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); // 关键：线性过滤实现平滑拉伸
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, window.backgroundFBO);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, window.backgroundTexture, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       }
 
       // 星星
@@ -479,14 +576,14 @@
       const targetRotationX = (0.5 * (-6 + 6 * scrollRatio)) * Math.PI / 180 + 1.45;
 
       // --- DIRTY FLAG CHECK ---
-      const deltaY = Math.abs(camera.y - targetY);
-      const deltaRot = Math.abs(camera.rotationX - targetRotationX);
+      // const deltaY = Math.abs(camera.y - targetY);
+      // const deltaRot = Math.abs(camera.rotationX - targetRotationX);
 
       // 如果变化极小，且不是第一帧，直接跳过渲染
-      if (deltaY < 0.01 && deltaRot < 0.001 && time > 1000) {
-        requestAnimationFrame(masterAnimate);
-        return;
-      }
+      // if (deltaY < 0.01 && deltaRot < 0.001 && time > 1000) {
+      //   requestAnimationFrame(masterAnimate);
+      //   return;
+      // }
       // -------------------------
 
       camera.y += (targetY - camera.y) * camera.lerpFactor;
@@ -512,6 +609,20 @@
     }, { threshold: 0.5 });
 
     sections.forEach(section => observer.observe(section));
+
+    // 额外处理：确保所有视频在进入视口时尝试播放
+    const videoObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const video = entry.target;
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('video').forEach(v => videoObserver.observe(v));
 
     const lightbox = document.getElementById('lightbox');
     const lightboxContent = lightbox.querySelector('.lightbox-content');
@@ -543,6 +654,12 @@
         if (!isExpanded) {
           // 只要没展开，点卡片任何地方（包括图片）都只执行展开
           card.classList.add('is-expanded');
+          
+          // 解决视频黑屏问题：显式寻找并播放展开区域内的所有视频
+          const hiddenVideos = card.querySelectorAll('.cs-details video');
+          hiddenVideos.forEach(v => {
+            v.play().catch(err => console.warn("Video play interrupted:", err));
+          });
         } else {
           // 只有在已经展开的情况下，点击图片区域才触发 Lightbox
           if (visualArea && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO')) {
