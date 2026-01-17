@@ -161,32 +161,37 @@
       }
 
       void main() {
+        // 报警 1：如果分辨率没传进来，喷红
+        if (u_resolution.y < 1.0) {
+          gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+          return;
+        }
+
         vec2 uv = gl_FragCoord.xy / u_resolution.xy;
         vec2 st = uv;
         st.x *= u_resolution.x / u_resolution.y;
 
-        // 1. 两个独立的时间轴，控制两层图案的移动
         float t1 = u_time * 0.06;
         float t2 = u_time * 0.04;
 
-        // 2. 两个独立的坐标采样，互不干扰，杜绝扭曲
-        // 比例设为 0.6 保证大体积感
         vec2 p1 = st * 0.6 + vec2(t1, t1 * 0.2);
         vec2 p2 = st * 0.5 - vec2(t2 * 0.3, t2);
 
-        // 3. 采样两层噪声
         float val1 = fbm(p1);
         float val2 = fbm(p2);
 
-        // 4. 叠加逻辑：相乘会让重合部分产生“光斑”，相加则更厚重
-        // 这里用相乘来制造那种深空星云的交错感
         float value = (val1 + 1.0) * (val2 + 1.0) * 0.5 - 0.5;
 
-        // 5. 柔和的对比度处理
-        float finalMask = pow(max(0.0, value + 0.4), 2.0);
-        vec3 finalColor = u_color * finalMask * 0.3;
+        float finalMask = pow(max(0.0, value + 0.4), 1.6);
+        
+        // 报警 2：如果计算结果崩了（NaN），喷粉色
+        if (!(finalMask >= 0.0)) {
+          gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+          return;
+        }
 
-        // 6. 蓝噪声抖动
+        vec3 finalColor = u_color * finalMask * 0.15;
+
         vec2 noiseUV = gl_FragCoord.xy / 128.0;
         float dither = (texture2D(u_blueNoise, noiseUV).r - 0.5) / 255.0;
 
@@ -518,6 +523,10 @@
         gl.bindFramebuffer(gl.FRAMEBUFFER, window.backgroundFBO);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, window.backgroundTexture, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        // 强制重置视口到全分辨率。
+        // 如果不加这一行，后续所有直接画到屏幕上的东西（如网格）都会缩在左下角。
+        gl.viewport(0, 0, width, height);
       }
 
       // 星星
