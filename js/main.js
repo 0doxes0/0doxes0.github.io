@@ -107,7 +107,6 @@
     const vertexShaderSource = `
       attribute vec2 a_position;
       void main() { gl_Position = vec4(a_position, 0.0, 1.0); }`;
-
     const fragmentShaderSource = `
       precision highp float;
       uniform vec2 u_resolution;
@@ -117,31 +116,38 @@
       uniform sampler2D u_cloudTexture;
 
       void main() {
-        vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-        vec2 st = uv;
+        // --- Visual Tuning Knobs ---
+        float warpStrength = 0.05;    // Fluid distortion intensity
+        float cloudScale = 0.35;       // Texture tiling scale
+        float brightness = 0.45;       // Global color multiplier
+        // ---------------------------
+
+        vec2 st = gl_FragCoord.xy / u_resolution.xy;
         st.x *= u_resolution.x / u_resolution.y;
 
-        // 正交对冲平移:一层向右上,一层向右下
-        vec2 p1 = st * .4 + vec2(u_time * 0.02, u_time * 0.02);
-        vec2 p2 = st * .32 + vec2(u_time * 0.02, u_time * -0.04);
-
+        // Layer 1: Primary noise and distortion source
+        vec2 p1 = st * cloudScale + vec2(u_time * 0.01, u_time * 0.02);
         float val1 = texture2D(u_cloudTexture, p1).r;
+
+        // Layer 2: Distorted by Layer 1 to create fluid-like motion
+        vec2 p2 = st * (cloudScale * 0.8) + vec2(u_time * 0.02, u_time * -0.035);
+        p2 += (val1 - 0.5) * warpStrength; 
         float val2 = texture2D(u_cloudTexture, p2).r;
 
-        // 混合并增强对比度
-        // 适当放宽 smoothstep 范围 (0.0 -> 0.6),配合 CPU 生成的平滑纹理,边缘会非常柔和
-        float value = val1 * val2;
-        float mask = smoothstep(0.0, 0.6, value);
-        mask = pow(mask + 0.4, 2.0); // 增强对比度,突出云层细节
+        // Combine layers and calculate mask
+        float mask = val1 * val2;
         
-        vec3 finalColor = u_color * mask * 0.16;
+        // Final color composition without spaceColor offset
+        // linear contrast knob
+        vec3 finalColor = u_color * (mask + 0.3) * (mask + 0.3) * brightness;
 
-        
-        // 蓝噪声抖动
+        // Blue noise dithering to prevent color banding
         float dither = (texture2D(u_blueNoise, gl_FragCoord.xy / 128.0).r - 0.5) / 255.0;
         gl_FragColor = vec4(finalColor + dither, 1.0);
       }
 `;
+
+
 
     // 必须在全局声明,确保所有函数都能访问到这些"句柄"
     let glProgram,
@@ -217,8 +223,8 @@
 
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
-          // CPU 分形叠加:4层噪声,彻底消除硬边并增加细节
-          let v = 0, amp = 0.5, freq = 4;
+          // CPU 分形叠加
+          let v = 0, amp = 0.5, freq = 5;
           for(let o = 0; o < 2; o++) {
             v += noise(x, y, freq) * amp;
             amp *= 0.5; freq *= 2;
@@ -369,8 +375,6 @@
         }
       `);
       window.nodeProgram = createProgram(gl, nodeVS, nodeFS);
-      // 预分配一个足够大的数组
-      gridVertexArray = new Float32Array(20000);
 
       // --- 合成 Shader (Blit) ---
       const blitVS = createShader(gl, gl.VERTEX_SHADER, `
@@ -391,7 +395,7 @@
           vec3 bg = texture2D(u_background, v_texCoord).rgb;
           vec2 screenCoord = (gl_FragCoord.xy + vec2(0.5)) / 256.0; 
           vec3 noise = texture2D(u_blueNoise, screenCoord).rgb;
-          vec3 finalColor = bg + (noise - 0.5) * 0.006;
+          vec3 finalColor = bg + (noise - 0.5) * 0.001;
           gl_FragColor = vec4(finalColor, 1.0);
         }
       `);
@@ -401,16 +405,8 @@
     }
 
     function renderBackground(time) {
-      if (!gl) return;
-      
-      // 【关键修复】:如果蓝噪声纹理还没加载完,直接跳过背景渲染,防止黑屏卡死状态机
-      // 我们通过检查纹理是否已绑定过数据来判断
-      if (!window.blueNoiseLoaded) {
-        // 可以在这里给个默认清理颜色,避免闪烁
-        gl.clearColor(0.01, 0.01, 0.02, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        return;
-      }
+      // Safety check: prevent rendering if program or textures are not ready
+      if (!gl || !glProgram || !window.blueNoiseLoaded) return;
 
       time *= 0.001;
       currentR += (targetR - currentR) * 0.02;
@@ -647,35 +643,70 @@
       lightboxContent.innerHTML = '';
     });
 
+    // 核心逻辑：监听属性变化，确保搜索到的内容持久化展开
+    const searchObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+          const details = mutation.target;
+          // 如果浏览器删除了 hidden 属性（说明搜到了），强制展开父级卡片
+          if (!details.hasAttribute('hidden')) {
+            const card = details.closest('.cs-card');
+            if (card && !card.classList.contains('is-expanded')) {
+              card.classList.add('is-expanded');
+              card.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+            }
+          }
+        }
+      });
+    });    
+    
+    document.querySelectorAll('.cs-details').forEach(details => {
+      const card = details.closest('.cs-card');
+      
+      // Signal 1: Browser native search match
+      details.addEventListener('beforematch', () => {
+        card.classList.add('is-expanded');
+        card.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+      });
+
+      // Signal 2: Focus fallback (fires when browser jumps to text inside)
+      details.addEventListener('focusin', () => {
+        if (!card.classList.contains('is-expanded')) {
+          card.classList.add('is-expanded');
+          details.removeAttribute('hidden');
+          card.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+        }
+      });
+    });
+
     document.querySelectorAll('.cs-card').forEach(card => {
       card.addEventListener('click', function (e) {
-        // 链接不触发卡片逻辑
         if (e.target.tagName === 'A' || e.target.closest('a')) return;
 
         const isExpanded = card.classList.contains('is-expanded');
         const visualArea = e.target.closest('.cs-visual');
+        const details = card.querySelector('.cs-details');
 
         if (!isExpanded) {
-          // 只要没展开,点卡片任何地方(包括图片)都只执行展开
           card.classList.add('is-expanded');
+          if (details) details.removeAttribute('hidden');
           
-          // 解决视频黑屏问题:显式寻找并播放展开区域内的所有视频
-          const hiddenVideos = card.querySelectorAll('.cs-details video');
-          hiddenVideos.forEach(v => {
-            v.play().catch(err => console.warn("Video play interrupted:", err));
+          card.querySelectorAll('.cs-details video').forEach(v => {
+            v.play().catch(() => {});
           });
         } else {
-          // 只有在已经展开的情况下,点击图片区域才触发 Lightbox
           if (visualArea && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO')) {
             openLightbox(e.target);
           } else if (e.target.closest('.trigger-close')) {
-            // 只有点关闭按钮才收起
             card.classList.remove('is-expanded');
+            // Restore searchability on close
+            if (details) details.setAttribute('hidden', 'until-found');
             card.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }
       });
     });
+
 
 
     // 统一为所有具有预览性质的容器增加点击监听

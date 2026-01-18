@@ -1141,7 +1141,11 @@ body::before {
 }
 
 .cs-card.is-expanded .cs-details {
-  /* 给够高度 */
+  /* 强制覆盖任何隐藏属性，确保手动点击和搜索跳转都能看到内容 */
+  display: block !important;
+  max-height: none !important;
+  visibility: visible !important;
+  overflow: visible !important;
   padding-bottom: 24px;
   border-top: 1px solid var(--line-soft);
 }
