@@ -114,87 +114,31 @@
       uniform float u_time;
       uniform vec3 u_color;
       uniform sampler2D u_blueNoise;
-
-      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-
-      float snoise(vec2 v) {
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                            -0.577350269189626, 0.024390243902439);
-        vec2 i  = floor(v + dot(v, C.yy));
-        vec2 x0 = v - i + dot(i, C.xx);
-        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-        vec4 x12 = x0.xyxy + C.xxzz;
-        x12.xy -= i1;
-        i = mod289(i);
-        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-                        + i.x + vec3(0.0, i1.x, 1.0 ));
-        vec3 m = max(0.5 - vec3(
-          dot(x0,x0),
-          dot(x12.xy,x12.xy),
-          dot(x12.zw,x12.zw)
-        ), 0.0);
-        m = m*m; m = m*m;
-        vec3 x = 2.0 * fract(p * C.www) - 1.0;
-        vec3 h = abs(x) - 0.5;
-        vec3 ox = floor(x + 0.5);
-        vec3 a0 = x - ox;
-        m *= 1.79284291400159 - 0.85373472095314 *
-             ( a0*a0 + h*h );
-        vec3 g;
-        g.x  = a0.x  * x0.x  + h.x  * x0.y;
-        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-        return 130.0 * dot(m, g);
-      }
-
-      float fbm(vec2 st) {
-        st *= 0.75; st += 0.0;
-        float value = 0.0;
-        float amplitude = 0.5;
-        for (int i = 0; i < 3; i++) {
-          value += amplitude * snoise(st);
-          st *= 2.0;
-          amplitude *= 0.5;
-        }
-        return value;
-      }
+      uniform sampler2D u_cloudTexture;
 
       void main() {
-        // 报警 1：如果分辨率没传进来，喷红
-        if (u_resolution.y < 1.0) {
-          gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-          return;
-        }
-
         vec2 uv = gl_FragCoord.xy / u_resolution.xy;
         vec2 st = uv;
         st.x *= u_resolution.x / u_resolution.y;
 
-        float t1 = u_time * 0.06;
-        float t2 = u_time * 0.04;
+        // 正交对冲平移：一层向右上，一层向右下
+        vec2 p1 = st * .4 + vec2(u_time * 0.02, u_time * 0.02);
+        vec2 p2 = st * .32 + vec2(u_time * 0.02, u_time * -0.04);
 
-        vec2 p1 = st * 0.6 + vec2(t1, t1 * 0.2);
-        vec2 p2 = st * 0.5 - vec2(t2 * 0.3, t2);
+        float val1 = texture2D(u_cloudTexture, p1).r;
+        float val2 = texture2D(u_cloudTexture, p2).r;
 
-        float val1 = fbm(p1);
-        float val2 = fbm(p2);
-
-        float value = (val1 + 1.0) * (val2 + 1.0) * 0.5 - 0.5;
-
-        float finalMask = pow(max(0.0, value + 0.4), 1.6);
+        // 混合并增强对比度
+        // 适当放宽 smoothstep 范围 (0.0 -> 0.6)，配合 CPU 生成的平滑纹理，边缘会非常柔和
+        float value = val1 * val2;
+        float mask = smoothstep(0.0, 0.6, value);
+        mask = pow(mask + 0.4, 2.0); // 增强对比度，突出云层细节
         
-        // 报警 2：如果计算结果崩了（NaN），喷粉色
-        if (!(finalMask >= 0.0)) {
-          gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-          return;
-        }
+        vec3 finalColor = u_color * mask * 0.16;
 
-        vec3 finalColor = u_color * finalMask * 0.15;
-
-        vec2 noiseUV = gl_FragCoord.xy / 128.0;
-        float dither = (texture2D(u_blueNoise, noiseUV).r - 0.5) / 255.0;
-
+        
+        // 蓝噪声抖动
+        float dither = (texture2D(u_blueNoise, gl_FragCoord.xy / 128.0).r - 0.5) / 255.0;
         gl_FragColor = vec4(finalColor + dither, 1.0);
       }
 `;
@@ -243,29 +187,75 @@
       return program;
     }
 
+    function createCloudTexture(gl) {
+      const size = 64;
+      const data = new Uint8Array(size * size * 4);
+      
+      // 内部工具：带平滑插值的噪声
+      const noise = (x, y, res) => {
+        const s = size / res;
+        const f = (v) => {
+          const t = (v % size) / s;
+          const i = Math.floor(t);
+          const frac = t - i;
+          // Smoothstep 插值曲线：3t^2 - 2t^3
+          const sn = frac * frac * (3.0 - 2.0 * frac);
+          return { i, sn };
+        };
+        
+        const nx = f(x), ny = f(y);
+        const seed = (ix, iy) => {
+          const v = Math.sin((ix % res) * 12.9898 + (iy % res) * 78.233) * 43758.5453;
+          return v - Math.floor(v);
+        };
+
+        const v00 = seed(nx.i, ny.i), v10 = seed(nx.i + 1, ny.i);
+        const v01 = seed(nx.i, ny.i + 1), v11 = seed(nx.i + 1, ny.i + 1);
+        return v00 * (1.0 - nx.sn) * (1.0 - ny.sn) + v10 * nx.sn * (1.0 - ny.sn) + 
+               v01 * (1.0 - nx.sn) * ny.sn + v11 * nx.sn * ny.sn;
+      };
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          // CPU 分形叠加：4层噪声，彻底消除硬边并增加细节
+          let v = 0, amp = 0.5, freq = 4;
+          for(let o = 0; o < 2; o++) {
+            v += noise(x, y, freq) * amp;
+            amp *= 0.5; freq *= 2;
+          }
+          const val = Math.floor(v * 255);
+          const idx = (y * size + x) * 4;
+          data[idx] = data[idx+1] = data[idx+2] = val;
+          data[idx+3] = 255;
+        }
+      }
+
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      return texture;
+    }
+
     function loadTexture(gl, url) {
       const texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA,
-        1, 1, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE,
-        new Uint8Array([0, 0, 0, 255])
-      );
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
       const image = new Image();
       image.crossOrigin = "anonymous";
       image.onload = () => {
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA,
-          gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        // 标记纹理已就绪
         window.blueNoiseLoaded = true;
       };
-      image.src = 'Assets/blueNoise.png';
+      image.src = url;
       return texture;
     }
 
@@ -298,6 +288,7 @@
       gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
       blueNoiseTexture = loadTexture(gl, 'Assets/blueNoise.png');
+      window.cloudTexture = createCloudTexture(gl);
 
       // --- Phase 2: GPU 投影 Shader (带像素级裁剪) ---
       const gridVS = createShader(gl, gl.VERTEX_SHADER, `
@@ -442,10 +433,15 @@
       gl.uniform1f(timeUniformLocation, time);
       gl.uniform3f(colorUniformLocation, currentR / 255, currentG / 255, currentB / 255);
 
-      // 绑定蓝噪声纹理到单元 0，供背景 Shader 使用
+      // 通道 0: 蓝噪声
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, blueNoiseTexture);
       gl.uniform1i(gl.getUniformLocation(glProgram, "u_blueNoise"), 0);
+
+      // 通道 1: CPU 生成的云纹理
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, window.cloudTexture);
+      gl.uniform1i(gl.getUniformLocation(glProgram, "u_cloudTexture"), 1);
       
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -478,7 +474,7 @@
     function masterInit() {
       // 1. 限制最大渲染分辨率，防止缩放时显存爆炸
       const MAX_RES = 2560; 
-      const dpr = Math.min(window.devicePixelRatio, 2);
+      const dpr = Math.min(window.devicePixelRatio, 1);
       
       // 逻辑尺寸用于数学计算
       const logicalWidth = window.innerWidth;
@@ -525,7 +521,6 @@
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // 强制重置视口到全分辨率。
-        // 如果不加这一行，后续所有直接画到屏幕上的东西（如网格）都会缩在左下角。
         gl.viewport(0, 0, width, height);
       }
 
