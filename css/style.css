@@ -264,7 +264,7 @@ body::before {
 
 .hero-tagline {
   position: relative;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--hero-text-muted);
@@ -1813,7 +1813,27 @@ body::before {
   text-shadow: 0 0 8px var(--accent-aurora-1);
 }
 
+.resume-link {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--fg-soft);
+  margin-right: 24px;
+  transition: all 0.3s ease;
+  padding: 8px 0; /* 增加点击热区高度 */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.resume-link:hover {
+  color: var(--fg-main);
+  text-shadow: 0 0 8px var(--accent-aurora-1);
+}
+
 .contact-btn {
+  display: inline-block;
+  vertical-align: middle;
   padding: 6px 16px;
   border: 1px solid var(--accent-aurora-1);
   color: var(--accent-aurora-1) !important;
