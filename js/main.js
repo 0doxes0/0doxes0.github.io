@@ -54,7 +54,7 @@
     function drawForeground() {
       fgCtx.clearRect(0, 0, width, height);
 
-      // 1. 依然用 2D 画星星 (数量少，开销低)
+      // 1. 依然用 2D 画星星 (数量少,开销低)
       fgCtx.fillStyle = '#dce2f0';
       stars.forEach(star => {
         const y = (star.y - scrollY * star.depth + height);
@@ -121,7 +121,7 @@
         vec2 st = uv;
         st.x *= u_resolution.x / u_resolution.y;
 
-        // 正交对冲平移：一层向右上，一层向右下
+        // 正交对冲平移:一层向右上,一层向右下
         vec2 p1 = st * .4 + vec2(u_time * 0.02, u_time * 0.02);
         vec2 p2 = st * .32 + vec2(u_time * 0.02, u_time * -0.04);
 
@@ -129,10 +129,10 @@
         float val2 = texture2D(u_cloudTexture, p2).r;
 
         // 混合并增强对比度
-        // 适当放宽 smoothstep 范围 (0.0 -> 0.6)，配合 CPU 生成的平滑纹理，边缘会非常柔和
+        // 适当放宽 smoothstep 范围 (0.0 -> 0.6),配合 CPU 生成的平滑纹理,边缘会非常柔和
         float value = val1 * val2;
         float mask = smoothstep(0.0, 0.6, value);
-        mask = pow(mask + 0.4, 2.0); // 增强对比度，突出云层细节
+        mask = pow(mask + 0.4, 2.0); // 增强对比度,突出云层细节
         
         vec3 finalColor = u_color * mask * 0.16;
 
@@ -143,7 +143,7 @@
       }
 `;
 
-    // 必须在全局声明，确保所有函数都能访问到这些“句柄”
+    // 必须在全局声明,确保所有函数都能访问到这些"句柄"
     let glProgram,
       positionAttributeLocation,
       resolutionUniformLocation,
@@ -167,7 +167,7 @@
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         const err = gl.getShaderInfoLog(shader);
         console.error("SHADER ERROR:", err);
-        alert("SHADER ERROR: " + err); // 强行弹窗，确保你不会错过
+        alert("SHADER ERROR: " + err); // 强行弹窗,确保你不会错过
         gl.deleteShader(shader);
         return null;
       }
@@ -191,14 +191,14 @@
       const size = 64;
       const data = new Uint8Array(size * size * 4);
       
-      // 内部工具：带平滑插值的噪声
+      // 内部工具:带平滑插值的噪声
       const noise = (x, y, res) => {
         const s = size / res;
         const f = (v) => {
           const t = (v % size) / s;
           const i = Math.floor(t);
           const frac = t - i;
-          // Smoothstep 插值曲线：3t^2 - 2t^3
+          // Smoothstep 插值曲线:3t^2 - 2t^3
           const sn = frac * frac * (3.0 - 2.0 * frac);
           return { i, sn };
         };
@@ -217,7 +217,7 @@
 
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
-          // CPU 分形叠加：4层噪声，彻底消除硬边并增加细节
+          // CPU 分形叠加:4层噪声,彻底消除硬边并增加细节
           let v = 0, amp = 0.5, freq = 4;
           for(let o = 0; o < 2; o++) {
             v += noise(x, y, freq) * amp;
@@ -272,7 +272,7 @@
       colorUniformLocation = gl.getUniformLocation(glProgram, "u_color");
       blueNoiseUniformLocation = gl.getUniformLocation(glProgram, "u_blueNoise");
 
-      // 删掉 const！直接给全局变量 positionBuffer 赋值
+      // 删掉 const!直接给全局变量 positionBuffer 赋值
       positionBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.bufferData(
@@ -403,10 +403,10 @@
     function renderBackground(time) {
       if (!gl) return;
       
-      // 【关键修复】：如果蓝噪声纹理还没加载完，直接跳过背景渲染，防止黑屏卡死状态机
+      // 【关键修复】:如果蓝噪声纹理还没加载完,直接跳过背景渲染,防止黑屏卡死状态机
       // 我们通过检查纹理是否已绑定过数据来判断
       if (!window.blueNoiseLoaded) {
-        // 可以在这里给个默认清理颜色，避免闪烁
+        // 可以在这里给个默认清理颜色,避免闪烁
         gl.clearColor(0.01, 0.01, 0.02, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         return;
@@ -452,7 +452,7 @@
       
       gl.useProgram(window.blitProgram);
       
-      // 【关键修复】：必须为 blitProgram 绑定顶点属性，否则它不知道画在哪
+      // 【关键修复】:必须为 blitProgram 绑定顶点属性,否则它不知道画在哪
       const blitPosLoc = gl.getAttribLocation(window.blitProgram, "a_position");
       gl.enableVertexAttribArray(blitPosLoc);
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -472,7 +472,7 @@
     }
 
     function masterInit() {
-      // 1. 限制最大渲染分辨率，防止缩放时显存爆炸
+      // 1. 限制最大渲染分辨率,防止缩放时显存爆炸
       const MAX_RES = 2560; 
       const dpr = Math.min(window.devicePixelRatio, 1);
       
@@ -484,7 +484,7 @@
       let renderWidth = logicalWidth * dpr;
       let renderHeight = logicalHeight * dpr;
 
-      // 如果物理尺寸超过上限，进行等比缩放
+      // 如果物理尺寸超过上限,进行等比缩放
       if (renderWidth > MAX_RES) {
         const ratio = MAX_RES / renderWidth;
         renderWidth = MAX_RES;
@@ -511,7 +511,7 @@
 
         gl.bindTexture(gl.TEXTURE_2D, window.backgroundTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fboWidth, fboHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); // 关键：线性过滤实现平滑拉伸
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); // 关键:线性过滤实现平滑拉伸
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -520,7 +520,7 @@
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, window.backgroundTexture, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // 强制重置视口到全分辨率。
+        // 强制重置视口到全分辨率.
         gl.viewport(0, 0, width, height);
       }
 
@@ -537,7 +537,7 @@
 
       gridPoints.length = 0;
       let lineData = [];
-      let nodeData = []; // 新增：存放点的 3D 坐标
+      let nodeData = []; // 新增:存放点的 3D 坐标
 
       const START_J = 1; // 固化起始排
 
@@ -583,7 +583,7 @@
       // const deltaY = Math.abs(camera.y - targetY);
       // const deltaRot = Math.abs(camera.rotationX - targetRotationX);
 
-      // 如果变化极小，且不是第一帧，直接跳过渲染
+      // 如果变化极小,且不是第一帧,直接跳过渲染
       // if (deltaY < 0.01 && deltaRot < 0.001 && time > 1000) {
       //   requestAnimationFrame(masterAnimate);
       //   return;
@@ -614,7 +614,7 @@
 
     sections.forEach(section => observer.observe(section));
 
-    // 额外处理：确保所有视频在进入视口时尝试播放
+    // 额外处理:确保所有视频在进入视口时尝试播放
     const videoObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -656,16 +656,16 @@
         const visualArea = e.target.closest('.cs-visual');
 
         if (!isExpanded) {
-          // 只要没展开，点卡片任何地方（包括图片）都只执行展开
+          // 只要没展开,点卡片任何地方(包括图片)都只执行展开
           card.classList.add('is-expanded');
           
-          // 解决视频黑屏问题：显式寻找并播放展开区域内的所有视频
+          // 解决视频黑屏问题:显式寻找并播放展开区域内的所有视频
           const hiddenVideos = card.querySelectorAll('.cs-details video');
           hiddenVideos.forEach(v => {
             v.play().catch(err => console.warn("Video play interrupted:", err));
           });
         } else {
-          // 只有在已经展开的情况下，点击图片区域才触发 Lightbox
+          // 只有在已经展开的情况下,点击图片区域才触发 Lightbox
           if (visualArea && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO')) {
             openLightbox(e.target);
           } else if (e.target.closest('.trigger-close')) {
@@ -694,7 +694,7 @@
       resizeTimeout = setTimeout(() => {
         masterInit();
         if (gl) gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-      }, 150); // 延迟 150ms 执行，避开缩放时的压力峰值
+      }, 150); // 延迟 150ms 执行,避开缩放时的压力峰值
     });
 
     setupWebGL();

@@ -70,7 +70,7 @@ body::after {
 
   opacity: 0.075;
   mix-blend-mode: overlay;
-  /* overlay 或 soft-light，overlay 效果更明显 */
+  /* overlay 或 soft-light,overlay 效果更明显 */
 
   pointer-events: none;
   /* 确保在所有内容之上 */
@@ -123,8 +123,8 @@ section {
   position: relative;
 }
 
-/* 扫描线层：固定在视口，盖在背景上，但在 main 内容下面 */
-/* 使用伪元素替代 Canvas 扫描线，完全交给 GPU 合成 */
+/* 扫描线层:固定在视口,盖在背景上,但在 main 内容下面 */
+/* 使用伪元素替代 Canvas 扫描线,完全交给 GPU 合成 */
 body::before {
   content: "";
   position: fixed;
@@ -133,7 +133,7 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: -1;
-  /* 关键：负数会让它在文字下面 */
+  /* 关键:负数会让它在文字下面 */
 
   background: url('../Assets/scanline.png') repeat;
 }
@@ -143,7 +143,7 @@ body::before {
 .hero-shell {
   position: relative;
   padding: 5vh 4vw;
-  /* 在这里局部覆盖一些颜色；只影响 hero 区域 */
+  /* 在这里局部覆盖一些颜色;只影响 hero 区域 */
   --hero-title-gradient: linear-gradient(120deg, var(--accent-aurora-1), var(--accent-aurora-2));
   --hero-strike-color: rgba(140, 200, 255, 0.8);
   --hero-text-main: var(--fg-main);
@@ -152,13 +152,13 @@ body::before {
 }
 
 
-/* 媒体带容器：横贯全屏，控制比例 */
+/* 媒体带容器:横贯全屏,控制比例 */
 .hero-media {
   position: relative;
   width: 100%;
   border-radius: 24px;
   overflow: hidden;
-  /* 用 aspect-ratio 控制大致 16:7，比 16:9 更扁一点 */
+  /* 用 aspect-ratio 控制大致 16:7,比 16:9 更扁一点 */
   aspect-ratio: 16 / 7;
   /* max-height: 60vh; */
   background: radial-gradient(circle at 20% 10%, #274986 0, #040611 55%);
@@ -175,7 +175,7 @@ body::before {
   display: block;
 }
 
-/* 可选：给视频一个轻微的色彩调整，保持跟整站一致的调性 */
+/* 可选:给视频一个轻微的色彩调整,保持跟整站一致的调性 */
 .hero-media video {
   filter: saturate(1.05) contrast(1) brightness(0.97);
 }
@@ -203,59 +203,59 @@ body::before {
   bottom: -1px;
   height: 40%;
   background:
-    /* 垂直渐变：从透明过渡到 bg-deep */
+    /* 垂直渐变:从透明过渡到 bg-deep */
     linear-gradient(to bottom,
       rgba(1, 2, 4, 0.0) 0%,
       rgba(1, 2, 4, 0.35) 45%,
       rgba(1, 2, 4, 0.82) 100%);
   pointer-events: none;
-  /* 简易 noise 纹理：用小尺寸背景图将来可替代；当前先用渐变的“条纹”感占位 */
+  /* 简易 noise 纹理:用小尺寸背景图将来可替代;当前先用渐变的"条纹"感占位 */
   background-blend-mode: soft-light;
 }
 
-/* 文案块：略微 overlap 到 hero-media，下方继续延伸到页面背景 */
+/* 文案块:略微 overlap 到 hero-media,下方继续延伸到页面背景 */
 .hero-content {
   position: relative;
   margin: 0 auto;
   padding-top: 32px;
-  /* 负 margin 把文字稍微拉到图片区域内，形成“嵌入侵入感” */
+  /* 负 margin 把文字稍微拉到图片区域内,形成"嵌入侵入感" */
   margin-top: -120px;
   padding-inline: var(--content-padding-x);
-  /* 为了确保文字仍然清晰可读，加一点顶部内边距 */
+  /* 为了确保文字仍然清晰可读,加一点顶部内边距 */
 }
 
 .hero-content::before {
   content: '';
   position: absolute;
   left: calc(var(--content-padding-x) * -1);
-  /* 稍微向左右溢出，避免看出边 */
+  /* 稍微向左右溢出,避免看出边 */
   right: calc(var(--content-padding-x) * -1);
   top: -24px;
   bottom: -32px;
   pointer-events: none;
   z-index: -1;
 
-  /* 局部渐变 + 微光，注意透明度都比较低 */
+  /* 局部渐变 + 微光,注意透明度都比较低 */
   background:
-    /* 一点偏蓝的光晕，围绕文字区域 */
+    /* 一点偏蓝的光晕,围绕文字区域 */
     radial-gradient(circle at 10% 10%,
       rgba(120, 200, 255, 0.24),
       transparent 05%),
     radial-gradient(circle at 35% 60%,
       rgba(80, 160, 255, 0.06),
       transparent 05%),
-    /* 竖向渐变：上略亮，下略暗，帮文字脱离网格 */
+    /* 竖向渐变:上略亮,下略暗,帮文字脱离网格 */
     linear-gradient(to bottom,
       rgba(0, 0, 0, 0.04),
       rgba(0, 0, 0, 0.8),
       rgba(0, 0, 0, 0.12));
   mix-blend-mode: screen;
-  /* 和背景叠加，而不是盖一块灰 */
+  /* 和背景叠加,而不是盖一块灰 */
   opacity: 0.70;
 }
 
 
-/* 大屏时居左，窄屏时还是左对齐但 margin 自动适配 */
+/* 大屏时居左,窄屏时还是左对齐但 margin 自动适配 */
 @media (min-width: 960px) {
   .hero-content {
     margin-left: 0;
@@ -322,14 +322,14 @@ body::before {
   font-size: 14px;
   line-height: 1.85;
   color: rgba(168, 178, 209, 0.9);
-  /* 冷一点、暗一点，跟背景更融合 */
+  /* 冷一点、暗一点,跟背景更融合 */
 }
 
-/* 第一段气质句，稍微淡一点强调 */
+/* 第一段气质句,稍微淡一点强调 */
 .hero-subline-lead {
   font-weight: 500;
   color: rgba(232, 236, 245, 0.94);
-  /* 稍亮，偏中性 */
+  /* 稍亮,偏中性 */
 }
 
 .hero-word-highlight {
@@ -353,7 +353,7 @@ body::before {
   z-index: -1;
 }
 
-/* 炫光 strike：短横线，带一点渐变发光但不过分 */
+/* 炫光 strike:短横线,带一点渐变发光但不过分 */
 .hero-strike {
   width: 80px;
   height: 1px;
@@ -396,7 +396,7 @@ body::before {
   backdrop-filter: blur(10px);
 }
 
-/* 响应式调整：窄屏时减小高度和 overlap，避免图片过高/文字拥挤 */
+/* 响应式调整:窄屏时减小高度和 overlap,避免图片过高/文字拥挤 */
 @media (max-width: 960px) {
   .hero-shell {
     padding-top: 40px;
@@ -452,7 +452,7 @@ body::before {
   padding-left: var(--content-padding-x);
   padding-right: var(--content-padding-x);
 
-  /* 如果你要限制最大宽度，用响应式设置 */
+  /* 如果你要限制最大宽度,用响应式设置 */
   max-width: var(--section-max-width, none);
   /* 默认不限制 */
   margin-left: auto;
@@ -530,12 +530,12 @@ body::before {
   cursor: pointer;
 }
 
-/* 恢复 Reverse 逻辑：HTML 统一为 [Visual, Text] 后，这里负责交替 */
+/* 恢复 Reverse 逻辑:HTML 统一为 [Visual, Text] 后,这里负责交替 */
 .cs-card.reverse {
   flex-direction: row-reverse !important;
 }
 
-/* 2. 视觉区域：未展开态比例锁死 */
+/* 2. 视觉区域:未展开态比例锁死 */
 .cs-visual {
   flex: 0 0 auto;
   border-radius: 18px;
@@ -555,19 +555,19 @@ body::before {
   /* 保证不拉伸 */
 }
 
-/* 3. 文字区域：基础排版 */
+/* 3. 文字区域:基础排版 */
 .cs-text {
   flex: 1;
   position: relative;  
-  /* 核心 Debug：打破 Flex Item 的最小宽度限制，解决 802px 溢出问题 */
+  /* 核心 Debug:打破 Flex Item 的最小宽度限制,解决 802px 溢出问题 */
   min-width: 0; 
 }
 
-/* 4. 交互提示符：间距修正 */
+/* 4. 交互提示符:间距修正 */
 .cs-action-trigger {
   margin-top: 32px;
   margin-bottom: 40px;
-  /* 未展开时：离下面的装饰线远一点 */
+  /* 未展开时:离下面的装饰线远一点 */
   font-size: 10px;
   letter-spacing: 0.2em;
   color: var(--fg-muted);
@@ -590,7 +590,7 @@ body::before {
   text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
 }
 
-/* --- 展开状态：专题页进化 --- */
+/* --- 展开状态:专题页进化 --- */
 .cs-card.is-expanded {
   flex-direction: column !important;
   gap: 0 !important;
@@ -601,7 +601,7 @@ body::before {
   cursor: default;
 }
 
-/* 蓝噪音：微增透明度 */
+/* 蓝噪音:微增透明度 */
 .cs-card.is-expanded::before {
   content: '';
   position: absolute;
@@ -613,10 +613,10 @@ body::before {
 }
 
 /* 固定 16:9 电影框 */
-/* 展开后的“放映机”容器 */
+/* 展开后的"放映机"容器 */
 .cs-card.is-expanded .cs-visual {
   width: 100%;
-  /* 16:10 容器包含 16:9 图片，天然产生上下 Cinematic Band */
+  /* 16:10 容器包含 16:9 图片,天然产生上下 Cinematic Band */
   aspect-ratio: 16 / 10;
   background: #000;
 
@@ -640,7 +640,7 @@ body::before {
   /* 强制去掉图片可能继承的圆角 */
   border-radius: 0 !important;
 
-  /* 彻底移除“马克思”限制，适配 4K */
+  /* 彻底移除"马克思"限制,适配 4K */
   max-width: none !important;
   max-height: none !important;
   display: block;
@@ -692,13 +692,13 @@ body::before {
   display: flex;
   flex-direction: column;
   text-align: left !important;
-  position: relative; /* 锁定定位上下文，防止指示线乱跑 */
+  position: relative; /* 锁定定位上下文,防止指示线乱跑 */
   box-sizing: border-box; /* 严防宽度计算溢出 */
 }
 
 @media (max-width: 860px) {
   .cs-card.is-expanded .cs-text {
-    padding: 40px 20px; /* 移动端压缩内边距，解决飞出屏幕的问题 */
+    padding: 40px 20px; /* 移动端压缩内边距,解决飞出屏幕的问题 */
   }
 }
 
@@ -724,7 +724,7 @@ body::before {
   letter-spacing: 0.05em;
 }
 
-/* 展开态提示符：扩大热区与鼠标反馈 */
+/* 展开态提示符:扩大热区与鼠标反馈 */
 .cs-card.is-expanded .trigger-expand {
   display: none;
 }
@@ -733,7 +733,7 @@ body::before {
   display: inline-flex;
   align-self: flex-start;
   margin: -54px;
-  /* 抵消 padding，保持视觉对齐 */
+  /* 抵消 padding,保持视觉对齐 */
   padding: 54px;
   /* 扩大点击热区 */
   color: var(--accent-aurora-1);
@@ -749,7 +749,7 @@ body::before {
   color: #fff;
 }
 
-/* 6. 纯净技术文档排版：压缩标题与正文间距 */
+/* 6. 纯净技术文档排版:压缩标题与正文间距 */
 .cs-card.is-expanded .cs-title {
   margin-bottom: 8px;
 }
@@ -782,7 +782,7 @@ body::before {
   margin-bottom: 48px;
 }
 
-/* 优化列表排版：增加缩进和前缀，使其与正文区分 */
+/* 优化列表排版:增加缩进和前缀,使其与正文区分 */
 .cs-detail-story ul {
   margin: 24px 0 24px 10px;
   list-style: none;
@@ -803,7 +803,7 @@ body::before {
   opacity: 0.5;
 }
 
-/* 纵向大图流布局：让每一个 Feature 都有足够的展示空间 */
+/* 纵向大图流布局:让每一个 Feature 都有足够的展示空间 */
 .cs-feature-vertical-list {
   display: flex;
   flex-direction: column;
@@ -851,11 +851,11 @@ body::before {
   margin: 24px 0;
 }
 
-/* 1. 标签重塑：14px，技术文档风格 */
+/* 1. 标签重塑:14px,技术文档风格 */
 .cs-detail-label {
   display: block;
   font-size: 14px;
-  font-weight: 400; /* 不加粗，靠字间距和颜色出质感 */
+  font-weight: 400; /* 不加粗,靠字间距和颜色出质感 */
   text-transform: uppercase;
   letter-spacing: 0.25em;
   color: var(--fg-main);
@@ -865,20 +865,20 @@ body::before {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* 极细分割线 */
 }
 
-/* 2. 表格容器：增加区分度 */
+/* 2. 表格容器:增加区分度 */
 .cs-table-wrapper {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
   margin: 32px 0;
-  background: rgb(0, 0, 0, 0.4); /* 稍微亮一点，拉开层次 */
+  background: rgb(0, 0, 0, 0.4); /* 稍微亮一点,拉开层次 */
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 4px;
   /* 确保在 Flex 布局中不被撑开 */
   display: block; 
 }
 
-/* 3. 滚动条：解决“隐身”问题 */
+/* 3. 滚动条:解决"隐身"问题 */
 .cs-table-wrapper::-webkit-scrollbar {
   height: 6px; /* 稍微加厚一点点 */
 }
@@ -919,7 +919,7 @@ body::before {
   letter-spacing: 0.05em;
 }
 
-/* 仅在背景上做极轻微的区分，严禁使用极光色 */
+/* 仅在背景上做极轻微的区分,严禁使用极光色 */
 .table-row-highlight {
   background: rgba(255, 255, 255, 0.04);
 }
@@ -957,7 +957,7 @@ body::before {
         width: 100% !important;
       }
 
-      /* 2. 解决图片挤压：强制容器和图片全宽 */
+      /* 2. 解决图片挤压:强制容器和图片全宽 */
       .cs-visual {
         width: 100% !important;
         max-width: 100% !important;
@@ -980,16 +980,16 @@ body::before {
         width: 100% !important;
         order: 2;
         text-align: left !important;
-        /* 默认状态下取消 padding 以对齐图片，但在展开态下我们会重新定义它 */
+        /* 默认状态下取消 padding 以对齐图片,但在展开态下我们会重新定义它 */
         padding: 0 !important;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
       }
 
-      /* 4. 展开态（Technical Breakdown）移动端适配 */
+      /* 4. 展开态(Technical Breakdown)移动端适配 */
       .cs-card.is-expanded .cs-text {
-        /* 恢复侧边距，确保文字不贴边 */
+        /* 恢复侧边距,确保文字不贴边 */
         padding: 40px var(--content-padding-x) !important; 
       }
 
@@ -1119,7 +1119,7 @@ body::before {
       transparent,
       var(--line-strong),
       transparent);
-  /* 展开态修正：强制指示线回归容器中心，不再随溢出容器飘走 */
+  /* 展开态修正:强制指示线回归容器中心,不再随溢出容器飘走 */
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
@@ -1130,10 +1130,10 @@ body::before {
 .cs-details {
   max-height: 0;
   overflow: hidden;
-  /* 确保宽度受限，不随表格无限延伸 */
+  /* 确保宽度受限,不随表格无限延伸 */
   width: 100%;
   max-width: 100%; /* 强制不许超过父级 */
-  /* 给个稍微深一点的背景，区分于Summary */
+  /* 给个稍微深一点的背景,区分于Summary */
   background: rgba(0, 0, 0, 0.2);
   margin-top: 0;
   /* 和上面的文字对齐 */
@@ -1146,12 +1146,12 @@ body::before {
   border-top: 1px solid var(--line-soft);
 }
 
-/* 技术故事段落：左对齐，宽一点，像博客 */
+/* 技术故事段落:左对齐,宽一点,像博客 */
 .cs-detail-story {
   font-size: 15px;
   line-height: 1.8;
   color: var(--fg-main);
-  /* 亮一点，强调这是干货 */
+  /* 亮一点,强调这是干货 */
   /* 最佳阅读宽度 */
   margin-bottom: 32px;
 }
@@ -1160,7 +1160,7 @@ body::before {
   margin-top: 16px;
 }
 
-/* 图片/Feature Grid：田字格布局 */
+/* 图片/Feature Grid:田字格布局 */
 .cs-feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1244,13 +1244,13 @@ body::before {
 
 .tg-banner {
   display: flex;
-  /* 限制最大宽度，防止在超宽屏上拉得太长 */
+  /* 限制最大宽度,防止在超宽屏上拉得太长 */
   width: 90%;
   max-width: 1400px;
-  /* 高度设为 auto，由内容(主要是图片比例)撑开 */
+  /* 高度设为 auto,由内容(主要是图片比例)撑开 */
   height: auto;
   position: relative;
-  /* 删除了 transform transition，这里只留背景和滤镜的过渡 */
+  /* 删除了 transform transition,这里只留背景和滤镜的过渡 */
   transition: background 0.4s ease;
 }
 
@@ -1259,7 +1259,7 @@ body::before {
 /* 左图右文 */
 .tg-banner.left {
   margin-right: auto;
-  /* 背景：从图片(左)向文字(右)淡出 */
+  /* 背景:从图片(左)向文字(右)淡出 */
   background: linear-gradient(to right,
       rgba(20, 35, 55, 0.6) 0%,
       rgba(20, 35, 55, 0.25) 50%,
@@ -1270,7 +1270,7 @@ body::before {
 .tg-banner.right {
   margin-left: auto;
   flex-direction: row-reverse;
-  /* 背景：从图片(右)向文字(左)淡出 */
+  /* 背景:从图片(右)向文字(左)淡出 */
   background: linear-gradient(to left,
       rgba(20, 35, 55, 0.6) 0%,
       rgba(20, 35, 55, 0.25) 50%,
@@ -1279,9 +1279,9 @@ body::before {
 
 /* === 图片区域 (固定比例) === */
 .tg-visual {
-  /* 稍微加宽图片占比，给 16:10 留空间 */
+  /* 稍微加宽图片占比,给 16:10 留空间 */
   flex: 0 0 48%;
-  /* 强制 16:10 比例，不再随意裁剪 */
+  /* 强制 16:10 比例,不再随意裁剪 */
   aspect-ratio: 2 / 1;
   position: relative;
   overflow: hidden;
@@ -1294,7 +1294,7 @@ body::before {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* 依然是 cover，但因为容器比例固定了，所以不会切掉太多 */
+  /* 依然是 cover,但因为容器比例固定了,所以不会切掉太多 */
   opacity: 0.8;
   filter: contrast(1.05);
   transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
@@ -1306,13 +1306,13 @@ body::before {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* 统一左对齐，阅读体验最好 */
+  /* 统一左对齐,阅读体验最好 */
   text-align: left;
   align-items: flex-start;
 
-  /* 关键：使用 clamp 控制内边距 
-         最小 24px，理想 4%，最大 60px。
-         这样宽屏时文字不会离图片太远，窄屏时也不会贴死。
+  /* 关键:使用 clamp 控制内边距 
+         最小 24px,理想 4%,最大 60px.
+         这样宽屏时文字不会离图片太远,窄屏时也不会贴死.
       */
   padding-inline: clamp(24px, 4vw, 60px);
 }
@@ -1352,12 +1352,12 @@ body::before {
 .tg-line {
   width: 100%;
   max-width: 240px;
-  /* 限制长度，精致一点 */
+  /* 限制长度,精致一点 */
   height: 1px;
   margin: 12px 0 16px 0;
   /* 上下间距 */
 
-  /* 发光渐变：中间亮，两头淡 */
+  /* 发光渐变:中间亮,两头淡 */
   background: linear-gradient(to right,
       rgba(107, 230, 255, 0.0),
       rgba(107, 230, 255, 0.6),
@@ -1419,7 +1419,7 @@ body::before {
     flex-direction: column;
     /* 垂直堆叠 */
     margin: 0;
-    /* 统一使用左侧渐变 (从左边亮到右边暗)，保持视觉统一 */
+    /* 统一使用左侧渐变 (从左边亮到右边暗),保持视觉统一 */
     background: linear-gradient(to right,
         rgba(20, 35, 55, 0.5) 0%,
         transparent 100%) !important;
@@ -1446,7 +1446,7 @@ body::before {
 }
 
 /* === 通用漂浮动画类 (Utility Class) === */
-/* 你想让谁飘，就给谁加 class="hover-float" */
+/* 你想让谁飘,就给谁加 class="hover-float" */
 .hover-float {
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -1470,11 +1470,11 @@ body::before {
   font-size: 14px;
   line-height: 1.8;
   color: var(--fg-soft);
-  /* 限制最大宽度，保证阅读体验，同时让高度自然撑开 */
+  /* 限制最大宽度,保证阅读体验,同时让高度自然撑开 */
   max-width: 360px;
 }
 
-/* 右侧容器：田字格布局 */
+/* 右侧容器:田字格布局 */
 .skills-hud-matrix {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1487,25 +1487,25 @@ body::before {
   position: relative;
   padding: 6px 20px;
 
-  /* 背景：极度克制。
-           几乎透明的白色 (0.02)，只为了把文字和背景区分开一点点。
-           不再使用长渐变，而是整体微弱填充。 */
+  /* 背景:极度克制.
+           几乎透明的白色 (0.02),只为了把文字和背景区分开一点点.
+           不再使用长渐变,而是整体微弱填充. */
   background: rgba(255, 255, 255, 0.02);
 
-  /* 边框：强调色在这里。
-           3px 宽度，使用你的 Aurora Cyan，实色。 */
+  /* 边框:强调色在这里.
+           3px 宽度,使用你的 Aurora Cyan,实色. */
   border-left: 3px solid var(--accent-aurora-1);
 
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .skills-hud-block:hover {
-  /* Hover 时稍微亮一点点，给个反馈 */
+  /* Hover 时稍微亮一点点,给个反馈 */
   background: rgba(255, 255, 255, 0.05);
 }
 
 .skills-hud-header {
-  /* 字体：恢复原样，白色，大写 */
+  /* 字体:恢复原样,白色,大写 */
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -1542,7 +1542,7 @@ body::before {
   font-size: 11px;
 }
 
-/* 响应式：屏幕窄时变单列 */
+/* 响应式:屏幕窄时变单列 */
 @media (max-width: 860px) {
   .about-section-layout {
     grid-template-columns: 1fr;
@@ -1580,7 +1580,7 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--fg-muted);
-  /* 加一个小竖线分隔，或者只用间距也可以 */
+  /* 加一个小竖线分隔,或者只用间距也可以 */
   padding-right: 24px;
   border-right: 1px solid rgba(140, 200, 255, 0.15);
 }
@@ -1611,7 +1611,7 @@ body::before {
   text-shadow: 0 0 8px rgba(140, 200, 255, 0.6);
 }
 
-/* 移动端适配：屏幕太窄时还是得竖一下，不然放不下 */
+/* 移动端适配:屏幕太窄时还是得竖一下,不然放不下 */
 @media (max-width: 600px) {
   .contact-block {
     flex-direction: column;
@@ -1630,7 +1630,7 @@ body::before {
 /* ============ Horizon & Binary Orbit (原版 Option 3) ============ */
 
 .horizon-wrap {
-  /* 保持你原有的 margin，确保网格对齐 */
+  /* 保持你原有的 margin,确保网格对齐 */
   margin-top: 72px;
   padding-bottom: 40px;
   text-align: center;
@@ -1657,7 +1657,7 @@ body::before {
   pointer-events: none;
 }
 
-/* 轨道线：极细，压扁 */
+/* 轨道线:极细,压扁 */
 .orbit-binary::before {
   content: '';
   position: absolute;
@@ -1665,10 +1665,10 @@ body::before {
   border-radius: 50%;
   border: 1px solid rgba(91, 130, 212, 0.616);
   transform: scaleY(0.3);
-  /* 关键：压扁 */
+  /* 关键:压扁 */
 }
 
-/* 星星 1：浮动在左上 */
+/* 星星 1:浮动在左上 */
 .orbit-binary::after {
   content: '';
   position: absolute;
@@ -1684,7 +1684,7 @@ body::before {
   /* 强制最顶层 */
 }
 
-/* 星星 2：浮动在右下 */
+/* 星星 2:浮动在右下 */
 .orbit-binary .star-2 {
   position: absolute;
   width: 2px;
@@ -1726,10 +1726,10 @@ body::before {
 
 .header-inner {
   width: 90vw;
-  /* 稍微放宽一点，给中间留空间 */
+  /* 稍微放宽一点,给中间留空间 */
   padding: 0 40px;
   display: grid;
-  /* 关键：左右平分剩余空间，中间自适应。这保证了中间绝对居中 */
+  /* 关键:左右平分剩余空间,中间自适应.这保证了中间绝对居中 */
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
 }
@@ -1828,7 +1828,7 @@ body::before {
 @media (max-width: 860px) {
   .header-inner {
     padding: 0 12px;
-    /* 手机端取消 1fr 比例，改为紧凑布局防止挤压 */
+    /* 手机端取消 1fr 比例,改为紧凑布局防止挤压 */
     grid-template-columns: auto 1fr auto;
     gap: 10px;
   }
