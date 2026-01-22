@@ -22,9 +22,9 @@
       <div class="header-slot-center">
         <div class="header-nav">
           <a href="#solutions">Solutions</a>
-          <a href="#games">Projects</a>
+          <a href="#projects">Projects</a>
           <a href="#gallery">Gallery</a>
-          <a href="#about">Profile</a>
+          <a href="#profile">Profile</a>
         </div>
       </div>
 
@@ -52,24 +52,26 @@
       <div class="hero-media">
         <video class="hero-video" src="Assets/hero-banner.mp4" autoplay muted loop playsinline
           poster="Assets/hero-banner.png"></video>
+          <div class="media-credit">Assets and sceneby others</div>
       </div>
 
       <!-- 文案内容层 -->
       <div class="hero-content">
-        <div class="hero-tagline">TECHNICAL ART · REAL-TIME RENDERING · PIPELINES</div>
+        <div class="hero-name-label">ZHENZHI LIU</div>
 
         <h1 class="hero-title">
-          <span class="hero-title-name">Zhenzhi Liu </span>
+          <span class="hero-title-main">TECHNICAL ARTIST</span>
           <div class="hero-strike"></div>
-          <!--
-          <span class="hero-title-highlight">
-            My work lives on the boundary between aesthetics and logic.
-          </span>
-        -->
         </h1>
 
+        <div class="hero-meta-row">
+          <div class="hero-meta-pill">Real-time Rendering</div>
+          <div class="hero-meta-pill">Pipelines</div>
+          <div class="hero-meta-pill">Shaders</div>
+          <div class="hero-meta-pill">Tooling</div>
+        </div>
 
-        <p class="hero-subline hero-subline-lead">
+        <p class="hero-subline hero-subline-lead" style="margin-top: 24px;">
           I enjoy working on the boundary between
           <span class="hero-word-highlight">aesthetics</span>
           and
@@ -79,14 +81,8 @@
           I build real-time visuals and systems for games and interactive work – from shaders and lighting to production
           tools.
         </p>
-        <!--
-        <div class="hero-meta-row">
-          <div class="hero-meta-pill">Rendering & Shading</div>
-          <div class="hero-meta-pill">Pipelines & Tools</div>
-          <div class="hero-meta-pill">PC & Mobile</div>
-        </div>
-        -->
       </div>
+
     </section>
 
     <!-- ============ CORE SOLUTIONS ============ -->
@@ -139,9 +135,10 @@
             <div class="cs-detail-story">
               <div class="cs-detail-label">Context: Where existing solutions fall short</div>
               <p>
-                While many standard shadow techniques exist, they fail to address a core issue: rendering full
-                real-time shadows and wasting resources on static geometry for just a few dynamic shadow casters. In our
-                top-down scene or a complex environment, that tends to be very costly.
+                While many standard shadow techniques exist for modern pipelines, they fail to address a core issue: 
+                rendering full real-time shadows and wasting resources on static geometry for just a few dynamic shadow casters. In our 
+                top-down scene or a complex environment, that tends to be very costly. <br>
+                I researched various approaches to address this issue:
               </p>
 
               <!-- Table with custom scrollbar -->
@@ -175,20 +172,36 @@
                       <td>Poor dynamic-to-static support <br>(where our system step in)</td>
                     </tr>
                     <tr>
-                      <td>SDF + Raymarching (Lumen)</td>
-                      <td>Limited</td>
+                      <td>MDF + Raymarching (DFSS)</td>
+                      <td>Yes</td>
                       <td>Yes</td>
                       <td>Scene complexity</td>
-                      <td>Poor</td>
-                      <td>Blurry, unstable, limited quality <br>and control per object</td>
+                      <td>Moderate</td>
+                      <td>Blurry, unstable, unscalable, <br> only static DF support</td>
                     </tr>
                     <tr>
-                      <td>Decal / Blob Shadow</td>
+                      <td>Virtual Shadow Maps</td>
+                      <td>Yes</td>
+                      <td>Yes</td>
+                      <td>Shadow quality</td>
+                      <td>Pool</td>
+                      <td>Limited global light, unscalable, <br>UE5 nanite only<br></td>
+                    </tr>
+                    <tr>
+                      <td>Ray Tracing</td>
+                      <td>Yes</td>
+                      <td>Yes</td>
+                      <td>Constant</td>
+                      <td>Pool</td>
+                      <td>Very costly, <br>limited platform support</td>
+                    </tr>
+                    <tr>
+                      <td>Capsule / Decal Shadow</td>
                       <td>Crude</td>
                       <td>Work around</td>
                       <td>Shadow count</td>
                       <td>Good</td>
-                      <td>Only simple shapes, no real lighting</td>
+                      <td>Only stylized shapes, no real lighting</td>
                     </tr>
                     <tr class="table-row-highlight">
                       <td>Per-Object Shadow</td>
@@ -203,16 +216,16 @@
               </div>
 
               <p>
-                For scenarios with complex lighting but only a few dynamic shadow casters — like our top-down environment — per-object shadow rendering is a natural solution.
+                We concluded for scenarios with complex lighting but only a few dynamic shadow casters — like our top-down environment — per-object shadow rendering is the natural solution.
               </p>
 
               <div class="cs-detail-label">Exploration: Prototyping the Pipeline</div>
               <p>
-                Starting with Unity's Decal Projector as a prototype, I first tried capturing character
+                Starting with Unity's Decal Projector as a prototype, I tried capturing character
                 silhouettes and projecting them as shadows. Then I replaced silhouettes with actual depth
                 maps. This unlocked light attenuation and PCSS, giving the shadows proper falloff and soft edges.
                 <br>
-                The approach worked for directional lights. However, it hit a fundamental limitation: Decal Projectors are orthographic by design
+                However, this approach worked for directional lights. It hit a fundamental limitation: Decal Projectors are orthographic by design
                 and cannot correctly project point light shadows, beyond that, they weren't built for shadows — they
                 introduced pipeline overhead and interfered with actual decal rendering needs.
                 <br>
@@ -286,6 +299,7 @@
       <div class="cs-card hover-float reverse">
         <div class="cs-visual">
           <video src="Assets/core02-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video> 
+          <div class="media-credit">Assets and scene by others</div>
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow">CORE 02 · SHADING</div>
@@ -374,6 +388,9 @@
               </p>
 
               <div class="cs-detail-label">Core Features</div>
+              <p>
+                To achieve the desired visual quality, I drew inspiration from both 3D rendering techniques and 2D illustrations; went through several iterations before arriving at our current visual style. Each component is fine-tuned to strike a best balance between technical constraints and artistic intent.
+              </p>
               
               <div class="cs-feature-vertical-list">
                 <!-- Feature 01: Outline -->
@@ -381,6 +398,7 @@
                   <div class="cs-feature-v-media">
                     <!-- [REPLACE]: Assets/core02-outline.mp4 -->
                     <video src="Assets/core02-outline.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Outline</div>
@@ -393,6 +411,7 @@
                   <div class="cs-feature-v-media">
                     <!-- [REPLACE]: Assets/core02-detail-normal.jpg -->
                     <img src="Assets/core02-detail-normal.jpg" alt="Detail normal textures">
+                    <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Detail Normal</div>
@@ -405,6 +424,7 @@
                   <div class="cs-feature-v-media">
                     <!-- [REPLACE]: Assets/core02-rimlight.mp4 -->
                     <video src="Assets/core02-rimlight.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Rim light</div>
@@ -416,39 +436,39 @@
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Matcap Hair</div>
-                    <div class="cs-feature-desc">A view-direction based specular Matcap that mimics the feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
+                    <div class="cs-feature-desc">A multi-layer view-direction based specular Matcap that mimics the feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
                   </div>
                 </div>
               </div>
 
               <div class="cs-detail-label">Results</div>
               <p>
-                TODO
+                When pipeline obstacles fade, you can look at the screen as the characters actually become an inherent part of the world—with vivid, high-quality visuals, and little render overhead.
               </p>
               
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-before.jpg -->
-                  <img src="Assets/eden-1.png" alt="Before: Standard NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Standard NPR (Disconnected)</div>
+                  <img src="Assets/Cel_Lilbefore.png" alt="Before: Liltoon Shader">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Liltoon Shader</div>
                 </div>
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-after.jpg -->
-                  <img src="Assets/eden-2.png" alt="After: Integrated Deferred NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Integrated Deferred (Unified)</div>
+                  <img src="Assets/Cel_Lilafter.png" alt="After: Our Shader">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Shader</div>
                 </div>
               </div>
               
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-before.jpg -->
-                  <img src="Assets/eden-1.png" alt="Before: Standard NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Standard NPR (Disconnected)</div>
+                  <img src="Assets/Cel_RTbefore.png" alt="Before: Default Real Toon">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Default Real Toon</div>
                 </div>
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-after.jpg -->
-                  <img src="Assets/eden-2.png" alt="After: Integrated Deferred NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Integrated Deferred (Unified)</div>
+                  <img src="Assets/Cel_RTafter.png" alt="After: Our Tweaked NPR">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Tweaked NPR</div>
                 </div>
               </div>
 
@@ -463,7 +483,7 @@
 
 
     <!-- ============ PROJECTS ============ -->
-    <section id="games" class="content-section" data-color="70, 50, 120">
+    <section id="projects" class="content-section" data-color="70, 50, 120">
       <header class="section-header">
         <div>
           <div class="section-kicker">Independent Works</div>
@@ -685,7 +705,7 @@
 
 
     <!-- ============ PROFILE ============ -->
-    <section id="about" class="content-section">
+    <section id="profile" class="content-section">
       <header class="section-header">
         <div>
           <div class="section-kicker">About & Skills</div>
@@ -791,6 +811,9 @@
         <div class="horizon-caption">END OF PAGE</div>
         <div class="horizon-phrase">
           Looking up is how a great journey would begin.
+        </div>
+        <div style="font-size: 11px; color: var(--fg-muted); margin-top: 24px; opacity: 0.6;">
+          © 2026 Zhenzhi Liu with AI Collaboration.
         </div>
       </div>
 
