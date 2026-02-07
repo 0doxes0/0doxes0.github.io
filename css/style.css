@@ -221,8 +221,12 @@ body::before {
   /* 负 margin 把文字稍微拉到图片区域内,形成"嵌入侵入感" */
   margin-top: -120px;
   padding-inline: var(--content-padding-x);
-  /* 为了确保文字仍然清晰可读,加一点顶部内边距 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
+
 
 .hero-content::before {
   content: '';
@@ -261,6 +265,7 @@ body::before {
     margin-left: 0;
   }
 }
+
 .hero-name-label {
   position: relative;
   font-size: 12px;
@@ -290,7 +295,8 @@ body::before {
 
 .hero-title-main {
   font-size: clamp(1.8rem, 5.0vh, 2.4rem);
-  font-weight: 500; /* 降低粗细，回归优雅 */
+  font-weight: 500;
+  /* 降低粗细，回归优雅 */
   letter-spacing: 0.12em;
   color: var(--hero-text-main);
   text-shadow:
@@ -309,7 +315,8 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   padding: 2px 4px;
-  border-radius: 2px; /* 稍微方一点，更有工业感 */
+  border-radius: 2px;
+  /* 稍微方一点，更有工业感 */
   border: 1px solid rgba(140, 200, 255, 0.2);
   background: rgba(140, 200, 255, 0.05);
   color: var(--fg-soft);
@@ -410,6 +417,11 @@ body::before {
 }
 
 @media (max-width: 600px) {
+  :root {
+    /* 极大幅度缩小手机端侧边距，让内容站满屏幕 */
+    --content-padding-x: 16px;
+  }
+
   .hero-shell {
     padding: 32px var(--content-padding-x) 28px;
   }
@@ -532,7 +544,8 @@ body::before {
   overflow: hidden;
   background: rgba(0, 0, 0, 0.16);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85);
-  position: relative; /* 为 Credit 标签提供定位基准 */
+  position: relative;
+  /* 为 Credit 标签提供定位基准 */
 }
 
 /* 媒体 Credit 标签样式 */
@@ -546,7 +559,8 @@ body::before {
   background: rgba(0, 0, 0, 0.2);
   padding: 2px 6px;
   border-radius: 2px;
-  pointer-events: none; /* 不干扰点击/Lightbox */
+  pointer-events: none;
+  /* 不干扰点击/Lightbox */
   letter-spacing: 0.05em;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -574,9 +588,9 @@ body::before {
 /* 3. 文字区域:基础排版 */
 .cs-text {
   flex: 1;
-  position: relative;  
+  position: relative;
   /* 核心 Debug:打破 Flex Item 的最小宽度限制,解决 802px 溢出问题 */
-  min-width: 0; 
+  min-width: 0;
 }
 
 /* 4. 交互提示符:间距修正 */
@@ -708,13 +722,16 @@ body::before {
   display: flex;
   flex-direction: column;
   text-align: left !important;
-  position: relative; /* 锁定定位上下文,防止指示线乱跑 */
-  box-sizing: border-box; /* 严防宽度计算溢出 */
+  position: relative;
+  /* 锁定定位上下文,防止指示线乱跑 */
+  box-sizing: border-box;
+  /* 严防宽度计算溢出 */
 }
 
 @media (max-width: 860px) {
   .cs-card.is-expanded .cs-text {
-    padding: 40px 20px; /* 移动端压缩内边距,解决飞出屏幕的问题 */
+    padding: 40px 20px;
+    /* 移动端压缩内边距,解决飞出屏幕的问题 */
   }
 }
 
@@ -840,7 +857,8 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.05);
   background: #000;
   cursor: zoom-in;
-  position: relative; /* 必须加这一行，让 Credit 标签贴在它身上 */
+  position: relative;
+  /* 必须加这一行，让 Credit 标签贴在它身上 */
 }
 
 .cs-feature-v-media img,
@@ -852,7 +870,8 @@ body::before {
 
 .cs-feature-v-media:hover img,
 .cs-feature-v-media:hover video {
-  transform: scale(1.01); /* 轻微放大反馈 */
+  transform: scale(1.01);
+  /* 轻微放大反馈 */
 }
 
 .cs-feature-v-text {
@@ -872,14 +891,16 @@ body::before {
 .cs-detail-label {
   display: block;
   font-size: 14px;
-  font-weight: 400; /* 不加粗,靠字间距和颜色出质感 */
+  font-weight: 400;
+  /* 不加粗,靠字间距和颜色出质感 */
   text-transform: uppercase;
   letter-spacing: 0.25em;
   color: var(--fg-main);
   margin-top: 56px;
   margin-bottom: 24px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* 极细分割线 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* 极细分割线 */
 }
 
 /* 2. 表格容器:增加区分度 */
@@ -888,27 +909,35 @@ body::before {
   max-width: 100%;
   overflow-x: auto;
   margin: 32px 0;
-  background: rgb(0, 0, 0, 0.4); /* 稍微亮一点,拉开层次 */
+  background: rgb(0, 0, 0, 0.4);
+  /* 稍微亮一点,拉开层次 */
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 4px;
   /* 确保在 Flex 布局中不被撑开 */
-  display: block; 
+  display: block;
 }
 
 /* 3. 滚动条:解决"隐身"问题 */
 .cs-table-wrapper::-webkit-scrollbar {
-  height: 6px; /* 稍微加厚一点点 */
+  height: 6px;
+  /* 稍微加厚一点点 */
 }
+
 .cs-table-wrapper::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
 }
+
 .cs-table-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(127, 133, 145, 0.212); /* 提高可见度 */
+  background: rgba(127, 133, 145, 0.212);
+  /* 提高可见度 */
   border-radius: 3px;
   transition: background 0.3s;
 }
+
 .cs-table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(169, 183, 204, 0.5); ; /* 鼠标悬停时给点反馈 */
+  background: rgba(169, 183, 204, 0.5);
+  ;
+  /* 鼠标悬停时给点反馈 */
 }
 
 
@@ -918,10 +947,12 @@ body::before {
   border-collapse: collapse;
   font-size: 12px;
   color: var(--fg-soft);
-  min-width: 800px; /* 确保在窄屏下触发滚动 */
+  min-width: 800px;
+  /* 确保在窄屏下触发滚动 */
 }
 
-.cs-tech-table th, .cs-tech-table td {
+.cs-tech-table th,
+.cs-tech-table td {
   padding: 10px 8px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -930,7 +961,7 @@ body::before {
 .cs-tech-table th {
   color: var(--fg-main);
   background: rgba(255, 255, 255, 0.03);
-  font: 11px; 
+  font: 11px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -940,6 +971,7 @@ body::before {
 .table-row-highlight {
   background: rgba(255, 255, 255, 0.04);
 }
+
 .table-row-highlight td:first-child {
   color: var(--fg-main);
   font-weight: 600;
@@ -963,90 +995,95 @@ body::before {
   gap: 32px;
 }
 
-    @media (max-width: 860px) {
-      /* 1. 强制重置堆叠方向与宽度 */
-      .cs-card,
-      .cs-card.reverse {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 24px;
-        padding: 40px 0;
-        width: 100% !important;
-      }
+@media (max-width: 860px) {
 
-      /* 2. 解决图片挤压:强制容器和图片全宽 */
-      .cs-visual {
-        width: 100% !important;
-        max-width: 100% !important;
-        order: 1;
-        margin: 0 !important;
-      }
+  /* 1. 强制重置堆叠方向与宽度 */
+  .cs-card,
+  .cs-card.reverse {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 24px;
+    padding: 40px 0;
+    width: 100% !important;
+  }
 
-      .cs-visual img,
-      .cs-visual video {
-        width: 100% !important;
-        height: auto !important;
-        max-width: none !important;
-        max-height: none !important;
-        object-fit: cover;
-      }
+  /* 2. 解决图片挤压:强制容器和图片全宽 */
+  .cs-visual {
+    width: 100% !important;
+    max-width: 100% !important;
+    order: 1;
+    margin: 0 !important;
+  }
 
-      /* 3. 统一文字区域与触发器对齐 */
-      .cs-text,
-      .cs-card.reverse .cs-text {
-        width: 100% !important;
-        order: 2;
-        text-align: left !important;
-        /* 默认状态下取消 padding 以对齐图片,但在展开态下我们会重新定义它 */
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
+  .cs-visual img,
+  .cs-visual video {
+    width: 100% !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover;
+  }
 
-      /* 4. 展开态(Technical Breakdown)移动端适配 */
-      .cs-card.is-expanded .cs-text {
-        /* 恢复侧边距,确保文字不贴边 */
-        padding: 40px var(--content-padding-x) !important; 
-      }
+  /* 3. 统一文字区域与触发器对齐 */
+  .cs-text,
+  .cs-card.reverse .cs-text {
+    width: 100% !important;
+    order: 2;
+    text-align: left !important;
+    /* 默认状态下取消 padding 以对齐图片,但在展开态下我们会重新定义它 */
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-      .cs-card.is-expanded .cs-title {
-        font-size: 1.4rem !important;
-      }
+  /* 4. 展开态(Technical Breakdown)移动端适配 */
+  .cs-card.is-expanded .cs-text {
+    /* 恢复侧边距,确保文字不贴边 */
+    padding: 40px var(--content-padding-x) !important;
+  }
 
-      .cs-card.is-expanded .cs-summary {
-        font-size: 1.25rem !important; /* 缩小大字号 Summary */
-        line-height: 1.4;
-        margin-bottom: 20px;
-      }
+  .cs-card.is-expanded .cs-title {
+    font-size: 1.4rem !important;
+  }
 
-      .cs-detail-story {
-        font-size: 14px !important; /* 稍微缩小正文 */
-        line-height: 1.7;
-      }
+  .cs-card.is-expanded .cs-summary {
+    font-size: 1.25rem !important;
+    /* 缩小大字号 Summary */
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
 
-      .cs-detail-story strong {
-        font-size: 11px !important; /* 缩小章节标题 */
-        letter-spacing: 0.2em; /* 稍微收紧字间距防止折行 */
-        margin-top: 32px;
-      }
+  .cs-detail-story {
+    font-size: 14px !important;
+    /* 稍微缩小正文 */
+    line-height: 1.7;
+  }
 
-      /* 强制触发器内部的 Flex 布局也左对齐 */
-      .trigger-expand,
-      .trigger-close {
-        justify-content: flex-start !important;
-        width: 100%;
-      }
+  .cs-detail-story strong {
+    font-size: 11px !important;
+    /* 缩小章节标题 */
+    letter-spacing: 0.2em;
+    /* 稍微收紧字间距防止折行 */
+    margin-top: 32px;
+  }
+
+  /* 强制触发器内部的 Flex 布局也左对齐 */
+  .trigger-expand,
+  .trigger-close {
+    justify-content: flex-start !important;
+    width: 100%;
+  }
 
 
-      /* 4. 统一装饰线位置 */
-      .cs-text::after,
-      .cs-card.reverse .cs-text::after {
-        left: 0 !important;
-        right: 0 !important;
-        transform-origin: left !important;
-      }
-    }
+  /* 4. 统一装饰线位置 */
+  .cs-text::after,
+  .cs-card.reverse .cs-text::after {
+    left: 0 !important;
+    right: 0 !important;
+    transform-origin: left !important;
+  }
+}
 
 
 .cs-eyebrow {
@@ -1149,7 +1186,8 @@ body::before {
   overflow: hidden;
   /* 确保宽度受限,不随表格无限延伸 */
   width: 100%;
-  max-width: 100%; /* 强制不许超过父级 */
+  max-width: 100%;
+  /* 强制不许超过父级 */
   /* 给个稍微深一点的背景,区分于Summary */
   background: rgba(0, 0, 0, 0.2);
   margin-top: 0;
@@ -1838,7 +1876,8 @@ body::before {
   color: var(--fg-soft);
   margin-right: 24px;
   transition: all 0.3s ease;
-  padding: 8px 0; /* 增加点击热区高度 */
+  padding: 8px 0;
+  /* 增加点击热区高度 */
   display: inline-block;
   vertical-align: middle;
 }
@@ -1869,9 +1908,11 @@ body::before {
 @media (max-width: 860px) {
   .header-inner {
     padding: 0 12px;
-    /* 手机端取消 1fr 比例,改为紧凑布局防止挤压 */
-    grid-template-columns: auto 1fr auto;
-    gap: 10px;
+    /* 放弃 Grid 和 Absolute，回归稳健的 Flex 布局 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
 
   .status-dot,
@@ -1880,26 +1921,50 @@ body::before {
   }
 
   .header-logo {
-    font-size: 10px;
-    letter-spacing: 0.05em;
+    display: none;
   }
 
   .header-slot-center {
+    /* 允许中间槽位根据剩余空间缩放，但不允许重叠 */
+    flex: 1;
+    display: flex;
     justify-content: center;
+    min-width: 0;
+  }
+
+  .header-slot-right {
+    flex-shrink: 0;
   }
 
   .header-nav {
-    gap: 12px;
-    /* 手机端间距大幅缩小 */
+    /* 进一步缩小间距，防止四个链接挤不下 */
+    gap: 6px;
   }
 
+
   .header-nav a {
-    font-size: 10px;
-    letter-spacing: 0;
+    font-size: 9px;
+    letter-spacing: 0.02em;
   }
 
   .contact-btn {
     padding: 4px 8px;
     font-size: 10px;
   }
+
+  .resume-link {
+    /* 缩小字号并大幅削减与 Contact 按钮的间距 */
+    font-size: 9px;
+    margin-right: 8px;
+    letter-spacing: 0.02em;
+    padding: 4px 0;
+  }
+
+  .contact-btn {
+    /* 缩小按钮体积，使其与缩小的导航链接视觉统一 */
+    padding: 4px 8px;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+  }
+
 }
