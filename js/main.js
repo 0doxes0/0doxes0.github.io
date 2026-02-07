@@ -119,7 +119,7 @@
         // --- Visual Tuning Knobs ---
         float warpStrength = 0.05;    // Fluid distortion intensity
         float cloudScale = 0.35;       // Texture tiling scale
-        float brightness = 0.45;       // Global color multiplier
+        float brightness = 0.5;       // Global color multiplier
         // ---------------------------
 
         vec2 st = gl_FragCoord.xy / u_resolution.xy;
@@ -139,7 +139,7 @@
         
         // Final color composition without spaceColor offset
         // linear contrast knob
-        vec3 finalColor = u_color * (mask + 0.3) * (mask + 0.3) * brightness;
+        vec3 finalColor = u_color * (mask + 0.25) * (mask + 0.25) * brightness;
 
         // Blue noise dithering to prevent color banding
         float dither = (texture2D(u_blueNoise, gl_FragCoord.xy / 128.0).r - 0.5) / 255.0;

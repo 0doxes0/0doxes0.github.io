@@ -30,7 +30,8 @@
 
       <!-- 右侧：联系方式 -->
       <div class="header-slot-right">
-        <a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing" target="_blank" class="resume-link">Resume</a>
+        <a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing"
+          target="_blank" class="resume-link">Resume</a>
         <a href="#contact-footer" class="contact-btn">Contact</a>
       </div>
     </div>
@@ -52,7 +53,7 @@
       <div class="hero-media">
         <video class="hero-video" src="Assets/hero-banner.mp4" autoplay muted loop playsinline
           poster="Assets/hero-banner.png"></video>
-          <div class="media-credit">Assets and sceneby others</div>
+        <div class="media-credit">Assets and sceneby others</div>
       </div>
 
       <!-- 文案内容层 -->
@@ -122,7 +123,7 @@
           <div class="cs-action-trigger">
             <div class="trigger-expand">
               <span class="trigger-icon">+</span>
-              <span class="trigger-text">CLICK TO VIEW TECHNICAL BREAKDOWN</span>
+              <span class="trigger-text">CLICK TO EXPAND</span>
             </div>
             <div class="trigger-close">
               <span class="trigger-icon">×</span>
@@ -135,8 +136,9 @@
             <div class="cs-detail-story">
               <div class="cs-detail-label">Context: Where existing solutions fall short</div>
               <p>
-                While many standard shadow techniques exist for modern pipelines, they fail to address a core issue: 
-                rendering full real-time shadows and wasting resources on static geometry for just a few dynamic shadow casters. In our 
+                While many standard shadow techniques exist for modern pipelines, they fail to address a core issue:
+                rendering full real-time shadows and wasting resources on static geometry for just a few dynamic shadow
+                casters. In our
                 top-down scene or a complex environment, that tends to be very costly. <br>
                 I researched various approaches to address this issue:
               </p>
@@ -216,7 +218,8 @@
               </div>
 
               <p>
-                We concluded for scenarios with complex lighting but only a few dynamic shadow casters — like our top-down environment — per-object shadow rendering is the natural solution.
+                We concluded for scenarios with complex lighting but only a few dynamic shadow casters — like our
+                top-down environment — per-object shadow rendering is the natural solution.
               </p>
 
               <div class="cs-detail-label">Exploration: Prototyping the Pipeline</div>
@@ -225,16 +228,23 @@
                 silhouettes and projecting them as shadows. Then I replaced silhouettes with actual depth
                 maps. This unlocked light attenuation and PCSS, giving the shadows proper falloff and soft edges.
                 <br>
-                However, this approach worked for directional lights. It hit a fundamental limitation: Decal Projectors are orthographic by design
+                However, this approach worked for directional lights. It hit a fundamental limitation: Decal Projectors
+                are orthographic by design
                 and cannot correctly project point light shadows, beyond that, they weren't built for shadows — they
                 introduced pipeline overhead and interfered with actual decal rendering needs.
                 <br>
                 The production system needed to be purpose-built.
               </p>
 
-              <div class="cs-detail-label">Solution: Per-Object Shadow Feature</div>
-              <!-- [Fig 1.1: System Diagram - Flow chart: Actor + Light Registration → Shadow RT Capture → Projection Matrix → Screen-Space Composite] -->
-              <div class="cs-placeholder-img">[Fig 1.1: Pipeline Flow - Registration → Capture → Projection → Composite]</div>
+              <div class="cs-feature-v-item">
+                <div class="cs-feature-v-media">
+                  <img src="Assets/POS-Diagram.png" alt="Per-object shadow system diagram">
+                  <div class="media-credit">Assets by others</div>
+                </div>
+                <div class="cs-feature-v-text">
+                  <div class="cs-feature-desc">Pipeline Flow - Registration → Capture → Projection → Composite</div>
+                </div>
+              </div>
 
               <p>The resulted system is a custom URP Render Feature built on Render Graph. It
                 consists of four core components:</p>
@@ -287,9 +297,31 @@
                 limited dynamic shadow casters: top-down games, narrative-driven interiors, architectural visualization.
               </p>
 
-              <!-- [Fig 1.4: Shadows In-Action] -->
-              <div class="cs-placeholder-img">[Fig 1.4: Shadows In-Action - Dynamic character shadows blending into
-                baked environment]</div>
+
+              <div class="cs-feature-vertical-list">
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <video src="Assets/POS-PCSS.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-desc">High quality shadow with heuristic PCSS.</div>
+                  </div>
+                </div>
+
+                <!-- [Fig 1.4: Shadows In-Action] -->
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <video src="Assets/POS-Example.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-desc">Seemless runtime blend-in.</div>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
           </div>
 
@@ -298,7 +330,8 @@
 
       <div class="cs-card hover-float reverse">
         <div class="cs-visual">
-          <video src="Assets/core02-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video> 
+          <video src="Assets/core02-banner.mp4" autoplay loop muted playsinline
+            alt="Stylized character shading"></video>
           <div class="media-credit">Assets and scene by others</div>
         </div>
         <div class="cs-text">
@@ -311,7 +344,9 @@
 
           <div class="cs-summary">
             <p>
-              Stylized characters often feel disconnected from realistic, dynamic environments. This architecture resolves that friction through an integrated pipeline, bringing custom shading, lighting, and post-processing into a single, consistent visual world.
+              Stylized characters often feel disconnected from realistic, dynamic environments. This architecture
+              resolves that friction through an integrated pipeline, bringing custom shading, lighting, and
+              post-processing into a single, consistent visual world.
             </p>
           </div>
 
@@ -319,7 +354,7 @@
           <div class="cs-action-trigger">
             <div class="trigger-expand">
               <span class="trigger-icon">+</span>
-              <span class="trigger-text">CLICK TO VIEW TECHNICAL BREAKDOWN</span>
+              <span class="trigger-text">CLICK TO EXPAND</span>
             </div>
             <div class="trigger-close">
               <span class="trigger-icon">×</span>
@@ -331,23 +366,35 @@
             <div class="cs-detail-story">
               <div class="cs-detail-label">Challenge: Designing a consistent visual for realistic shading</div>
               <p>
-                The environment for Eden was built on a high-fidelity baseline where every element responds naturally to light and space. I used the Bakery light mapper and APV scenarios to establish the scene lighting, combined with SSR, HBAO, SSGI, and volumetric lighting to create a world that felt physically consistent and reactive.
+                The environment for Eden was built on a high-fidelity baseline where every element responds naturally to
+                light and space. I used the Bakery light mapper and APV scenarios to establish the scene lighting,
+                combined with SSR, HBAO, SSGI, and volumetric lighting to create a world that felt physically consistent
+                and reactive.
               </p>
               <p>
-                However, bringing characters into this environment revealed a new challenge. I initially tried liltoon, a widely-adopted stylized shader, but it hit a wall as I started tuning the scene lighting, exposing several critical bottlenecks:
+                However, bringing characters into this environment revealed a new challenge. I initially tried liltoon,
+                a widely-adopted stylized shader, but it hit a wall as I started tuning the scene lighting, exposing
+                several critical bottlenecks:
               </p>
               <ul>
-                <li><strong>Incomplete Integration:</strong> The shader could not sample scene reflections or APV data and failed to support multiple lights, leaving characters as flat overlays.</li>
-                <li><strong>Performance Overhead:</strong> The bulky and feature-rich structure would lead to unnecessary variant bloat and compilation stalls.</li>
-                <li><strong>Architectural Mismatch:</strong> Its legacy pass-based architecture was not built for a modern unified pipeline and could become a technical debt to modify.</li>
+                <li><strong>Incomplete Integration:</strong> The shader could not sample scene reflections or APV data
+                  and failed to support multiple lights, leaving characters as flat overlays.</li>
+                <li><strong>Performance Overhead:</strong> The bulky and feature-rich structure would lead to
+                  unnecessary variant bloat and compilation stalls.</li>
+                <li><strong>Architectural Mismatch:</strong> Its legacy pass-based architecture was not built for a
+                  modern unified pipeline and could become a technical debt to modify.</li>
               </ul>
               <p>
-                It became clear that achieving a seamless blend of stylization and realism required more than an off-the-shelf wrapper. To gain full artistic control and ensure visual integrity, we moved toward a custom shading solution that is native to the pipeline.
+                It became clear that achieving a seamless blend of stylization and realism required more than an
+                off-the-shelf wrapper. To gain full artistic control and ensure visual integrity, we moved toward a
+                custom shading solution that is native to the pipeline.
               </p>
 
               <div class="cs-detail-label">Architecture: Bridging Stylization and Deferred Rendering</div>
               <p>
-                I started by prototyping a custom Forward shader, but quickly it made obvious that deferred screen-space effects wouldn't work without proper G-buffer. Therefore, we need to decide a pipeline solution, I evaluated three following industrial standard architecture for Cel-shading:
+                I started by prototyping a custom Forward shader, but quickly it made obvious that deferred screen-space
+                effects wouldn't work without proper G-buffer. Therefore, we need to decide a pipeline solution, I
+                evaluated three following industrial standard architecture for Cel-shading:
               </p>
 
               <div class="cs-table-wrapper">
@@ -377,21 +424,28 @@
                       <td>Native Deferred</td>
                       <td>Unified lighting, consistent G-Buffer effects.</td>
                       <td>Substantial development complexity due to G-Buffer rigidity.</td>
-                      <td>Best for visual and pipeline consistency; allows for complex lighting without performance overhead.</td>
+                      <td>Best for visual and pipeline consistency; allows for complex lighting without performance
+                        overhead.</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <p>
-                Building a custom G-Buffer from scratch would be a maintenance trap in a constantly updating render environment like Unity 6. Recognizing this, we made the pragmatic decision to choose a modular, interchangeable, and actively maintained shader as the base—Real Toon. Building on its framework, we effectively outsourced the low-level plumbing, allowing focus on the specific NPR features that define the project’s visual character.
+                Building a custom G-Buffer from scratch would be a maintenance trap in a constantly updating render
+                environment like Unity 6. Recognizing this, we made the pragmatic decision to choose a modular,
+                interchangeable, and actively maintained shader as the base—Real Toon. Building on its framework, we
+                effectively outsourced the low-level plumbing, allowing focus on the specific NPR features that define
+                the project’s visual character.
               </p>
 
               <div class="cs-detail-label">Core Features</div>
               <p>
-                To achieve the desired visual quality, I drew inspiration from both 3D rendering techniques and 2D illustrations; went through several iterations before arriving at our current visual style. Each component is fine-tuned to strike a best balance between technical constraints and artistic intent.
+                To achieve the desired visual quality, I drew inspiration from both 3D rendering techniques and 2D
+                illustrations; went through several iterations before arriving at our current visual style. Each
+                component is fine-tuned to strike a best balance between technical constraints and artistic intent.
               </p>
-              
+
               <div class="cs-feature-vertical-list">
                 <!-- Feature 01: Outline -->
                 <div class="cs-feature-v-item">
@@ -402,7 +456,9 @@
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Outline</div>
-                    <div class="cs-feature-desc">A crystal hand-drawn style outline, using smooth normals asset processing and distance adaptive scaling. It's transparent, responsive to light, with sine-wave controlled noise to simulate the organic feel of a pen stroke.</div>
+                    <div class="cs-feature-desc">A crystal hand-drawn style outline, using smooth normals asset
+                      processing and distance adaptive scaling. It's transparent, responsive to light, with sine-wave
+                      controlled noise to simulate the organic feel of a pen stroke.</div>
                   </div>
                 </div>
 
@@ -415,7 +471,9 @@
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Detail Normal</div>
-                    <div class="cs-feature-desc">A two-layer RNM blend and adaptive detail normal, changes Mip bias based on UV scale, and interpolates between different sampling based on distance, ensuring robust texture and realistic look on close to medium shot.</div>
+                    <div class="cs-feature-desc">A two-layer RNM blend and adaptive detail normal, changes Mip bias
+                      based on UV scale, and interpolates between different sampling based on distance, ensuring robust
+                      texture and realistic look on close to medium shot.</div>
                   </div>
                 </div>
 
@@ -428,7 +486,9 @@
                   </div>
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Rim light</div>
-                    <div class="cs-feature-desc">A stable and stylized rim light. Unable to sample from depth in G-Buffer's depth, the effect is instead weighted based on View, Light, and Normal directions to preserve it only for back lighting and atmospheric rim.</div>
+                    <div class="cs-feature-desc">A stable and stylized rim light. Unable to sample from depth in
+                      G-Buffer's depth, the effect is instead weighted based on View, Light, and Normal directions to
+                      preserve it only for back lighting and atmospheric rim.</div>
                   </div>
                 </div>
 
@@ -436,21 +496,25 @@
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-text">
                     <div class="cs-feature-caption">Matcap Hair</div>
-                    <div class="cs-feature-desc">A multi-layer view-direction based specular Matcap that mimics the feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
+                    <div class="cs-feature-desc">A multi-layer view-direction based specular Matcap that mimics the
+                      feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
                   </div>
                 </div>
               </div>
 
               <div class="cs-detail-label">Results</div>
               <p>
-                When pipeline obstacles fade, you can look at the screen as the characters actually become an inherent part of the world—with vivid, high-quality visuals, and little render overhead.
+                When the pipeline obstacles fade, the characters become an inherent part of the world.
+                With vivid, realistic light and shadows, and little render overhead.
+                These comparisons show that transition—the point where the technical implementation becomes invisible.
               </p>
-              
+
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-before.jpg -->
                   <img src="Assets/Cel_Lilbefore.png" alt="Before: Liltoon Shader">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Liltoon Shader</div>
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Liltoon Shader
+                  </div>
                 </div>
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-after.jpg -->
@@ -458,22 +522,26 @@
                   <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Shader</div>
                 </div>
               </div>
-              
+
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-before.jpg -->
                   <img src="Assets/Cel_RTbefore.png" alt="Before: Default Real Toon">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Default Real Toon</div>
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Default Real Toon
+                  </div>
                 </div>
                 <div class="cs-feature-v-media">
                   <!-- [REPLACE]: Assets/core02-after.jpg -->
                   <img src="Assets/Cel_RTafter.png" alt="After: Our Tweaked NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Tweaked NPR</div>
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Tweaked NPR
+                  </div>
                 </div>
               </div>
 
               <p>
-                TODO
+                The shader is designed to be modular and configurable, allowing artists to dial in the exact look they want without touching shader code. 
+                It is also built with performance in mind, leveraging a few key variants to ensure it runs efficiently even with multiple characters on screen.
+              </p>
             </div>
           </div>
         </div>
@@ -608,7 +676,7 @@
 
         <div class="tg-banner left">
           <div class="tg-visual">
-            <img src="Assets/skybox.png" alt="Skybox System">
+            <video src="Assets/gallery-skybox.webm" autoplay loop muted playsinline></video>
           </div>
           <div class="tg-content">
             <div class="tg-eyebrow">TECH 01 · ATMOSPHERE</div>
@@ -627,7 +695,7 @@
 
         <div class="tg-banner right">
           <div class="tg-visual">
-            <img src="Assets/postfx.png" alt="Post Processing">
+            <video src="Assets/gallery-transition.webm" autoplay loop muted playsinline></video>
           </div>
           <div class="tg-content">
             <div class="tg-eyebrow">TECH 02 · SRP POST PROCESSING</div>
@@ -656,7 +724,7 @@
             <div class="tg-line"></div>
             <div class="tg-desc">
               A triplanar shader that integrates with URP. Use as full-fledged rotatable triplanar shader, or use
-              triplanar uv only for details.
+              triplanar uv only for detail maps.
             </div>
           </div>
         </div>
@@ -675,7 +743,7 @@
             <div class="tg-line"></div>
             <div class="tg-desc">
               A prototype python extension in Blender to iteratively fit clothing to characters and transfer weights.
-              Cuts manual labor for complex outfits down to 2 hours per look.
+              Cuts manual labor for complex outfits down to 2 hours per outfit.
             </div>
           </div>
         </div>
@@ -795,8 +863,10 @@
         <span class="contact-label">Get in touch</span>
         <ul class="contact-list">
           <li><a href="mailto:doxeszhenzhiliu@gmail.com">Email</a></li>
-          <li><a href="https://www.linkedin.com/in/%E6%A1%A2%E4%B9%8B-%E5%88%98-1829a1386/" target="_blank">LinkedIn</a></li>
-          <li><a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing" target="_blank">Resume</a></li>
+          <li><a href="https://www.linkedin.com/in/%E6%A1%A2%E4%B9%8B-%E5%88%98-1829a1386/" target="_blank">LinkedIn</a>
+          </li>
+          <li><a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing"
+              target="_blank">Resume</a></li>
         </ul>
       </div>
 
