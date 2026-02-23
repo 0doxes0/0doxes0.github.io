@@ -610,18 +610,32 @@
 
     sections.forEach(section => observer.observe(section));
 
-    // 额外处理:确保所有视频在进入视口时尝试播放
+    /**
+     * 优化后的视频可见性观察器
+     * 逻辑：只有当视频在视口内，且满足以下条件之一时才播放：
+     * 1. 它是 hero 视频（不在 .cs-details 内部）
+     * 2. 它所在的 .cs-card 已经展开
+     */
     const videoObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const video = entry.target;
-          if (video.paused) {
-            video.play().catch(() => {});
-          }
+        const video = entry.target;
+        const detailsPane = video.closest('.cs-details');
+        const card = video.closest('.cs-card');
+        
+        // 判断是否允许播放
+        const isHeroVideo = !detailsPane;
+        const isExpanded = card && card.classList.contains('is-expanded');
+
+        if (entry.isIntersecting && (isHeroVideo || isExpanded)) {
+          video.play().catch(() => {});
+        } else {
+          // 不在视口或不满足播放条件，立即暂停释放资源
+          video.pause();
         }
       });
     }, { threshold: 0.1 });
 
+    // 初始化观察所有视频
     document.querySelectorAll('video').forEach(v => videoObserver.observe(v));
 
     const lightbox = document.getElementById('lightbox');
@@ -688,19 +702,41 @@
         const details = card.querySelector('.cs-details');
 
         if (!isExpanded) {
+          // 排他性逻辑：收起其他所有卡片并停止它们的视频
+          document.querySelectorAll('.cs-card.is-expanded').forEach(otherCard => {
+            otherCard.classList.remove('is-expanded');
+            const otherDetails = otherCard.querySelector('.cs-details');
+            if (otherDetails) otherDetails.setAttribute('hidden', 'until-found');
+            otherCard.querySelectorAll('video').forEach(v => {
+              v.pause();
+              v.currentTime = 0; // 彻底释放解码资源
+            });
+          });
+
           card.classList.add('is-expanded');
           if (details) details.removeAttribute('hidden');
           
-          card.querySelectorAll('.cs-details video').forEach(v => {
-            v.play().catch(() => {});
+          // 解决布局跳变：在展开新项目并收起旧项目后，强制将视口对齐到当前项目顶部
+          // 使用 requestAnimationFrame 确保在 DOM 渲染更新后执行滚动
+          requestAnimationFrame(() => {
+            card.scrollIntoView({ behavior: 'instant', block: 'start' });
+          });
+
+          card.querySelectorAll('video').forEach(v => {
+            videoObserver.observe(v);
           });
         } else {
           if (visualArea && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO')) {
             openLightbox(e.target);
           } else if (e.target.closest('.trigger-close')) {
             card.classList.remove('is-expanded');
-            // Restore searchability on close
             if (details) details.setAttribute('hidden', 'until-found');
+            
+            // 收起时立即停止所有视频
+            card.querySelectorAll('video').forEach(v => {
+              v.pause();
+              v.currentTime = 0;
+            });
             card.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }

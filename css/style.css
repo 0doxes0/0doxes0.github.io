@@ -1259,6 +1259,51 @@ body::before {
   color: var(--accent-aurora-2);
 }
 
+/* Technical Bridge for Eden */
+.cs-tech-bridge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 64px;
+  padding: 24px 32px;
+  background: linear-gradient(90deg, rgba(107, 230, 255, 0.05) 0%, transparent 100%);
+  border: 1px solid rgba(107, 230, 255, 0.15);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none !important;
+}
+
+.cs-tech-bridge:hover {
+  background: linear-gradient(90deg, rgba(107, 230, 255, 0.1) 0%, transparent 100%);
+  border-color: var(--accent-aurora-1);
+  transform: translateX(4px);
+}
+
+.bridge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bridge-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent-aurora-1);
+}
+
+.bridge-text {
+  font-size: 16px;
+  color: var(--fg-main);
+}
+
+.bridge-icon {
+  font-size: 24px;
+  color: var(--accent-aurora-1);
+  opacity: 0.5;
+}
+
+
 @media (max-width: 860px) {
 
   .cs-card,

@@ -53,7 +53,7 @@
       <div class="hero-media">
         <video class="hero-video" src="Assets/hero-banner.mp4" autoplay muted loop playsinline
           poster="Assets/hero-banner.png"></video>
-        <div class="media-credit">Assets and sceneby others</div>
+        <div class="media-credit">Assets and scene by others</div>
       </div>
 
       <!-- 文案内容层 -->
@@ -103,7 +103,8 @@
       <!-- 统一 HTML 结构：图片在前，文字在后。不再依赖 CSS reverse -->
       <div class="cs-card  hover-float">
         <div class="cs-visual">
-          <img src="Assets/Per-objectShadow.jpg" alt="Per-object shadow visual">
+          <video src="Assets/POS-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video>
+          <div class="media-credit">Assets by others</div>
         </div>
 
         <div class="cs-text">
@@ -112,11 +113,13 @@
           <div class="cs-meta-line">Optimization · Render Feature</div>
 
           <div class="cs-summary">
-            <p>Real-time shadow rendering is a major performance bottleneck.
+            <p>
+              Real-time shadow rendering is a major performance bottleneck.
               In scenes with complex lighting, shadow cost doesn't scale with what you actually need.
-              How do we provide high-fidelity,
+              This system provides high-fidelity,
               artist-controlled shadows for dynamic characters without the overhead of global
-              shadow maps?</p>
+              shadow maps.
+            </p>
           </div>
 
           <!-- 规范的交互提示符 -->
@@ -273,8 +276,18 @@
                 baked into the lighting pipeline, artists have full control over the shadow's visual appearance without
                 touching shader code.</p>
 
-              <!-- [Fig 1.2: System Controls] -->
-              <div class="cs-placeholder-img">[Fig 1.2: System Controls - Tuning global editor settings]</div>
+              <div class="cs-feature-vertical-list">
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <video src="Assets/POS-Settings.webm" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-desc">Tunable volume settings in real-time. (Also supports
+                      per-character/light settings and global bias)</div>
+                  </div>
+                </div>
+              </div>
 
               <div class="cs-detail-label">Results</div>
               <p>
@@ -282,14 +295,26 @@
                 with the real shadow count and quality.
               </p>
               <p>
-                This approach enables us to fully bake global lighting and render shadows separately. In our test scene
-                of top-down interior, 20+ point lights, and complex geometry, frame rate went from 27 FPS to 80+ FPS —
-                same shadow fidelity at a fraction of cost.
+                This approach enables us to fully bake global lighting and render shadows separately. The following
+                comparison are based on a simple 3-lights setup with a single character, as complexity increases, the
+                performance gap will only become more significant.
               </p>
 
               <!-- [Fig 1.3: Before/After Comparison] -->
-              <div class="cs-placeholder-img">[Fig 1.3: Before/After Comparison - Global shadow maps vs. per-object
-                shadows]</div>
+              <div class="cs-comparison-grid">
+                <div class="cs-feature-v-media">
+                  <img src="Assets/POS-before.png" alt="Before: Unity's built-in shadow">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Unity's built-in
+                    shadow with no baked lighting<br>Accurate visual, more calls and render overhead.
+                  </div>
+                </div>
+                <div class="cs-feature-v-media">
+                  <img src="Assets/POS-after.png" alt="After: POS System Shadow">
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: POS System Shadow
+                    with baked lightmap<br>Compromised visual but cheaper and more flexible.
+                  </div>
+                </div>
+              </div>
 
               <p>
                 The system is modular by design — shadow appearance, registration logic, culling strategies are all
@@ -316,7 +341,7 @@
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">Seemless runtime blend-in.</div>
+                    <div class="cs-feature-desc">Seemless blends with baked environment.</div>
                   </div>
                 </div>
               </div>
@@ -330,7 +355,7 @@
 
       <div class="cs-card hover-float reverse">
         <div class="cs-visual">
-          <video src="Assets/core02-banner.mp4" autoplay loop muted playsinline
+          <video src="Assets/Cel-banner.mp4" autoplay loop muted playsinline
             alt="Stylized character shading"></video>
           <div class="media-credit">Assets and scene by others</div>
         </div>
@@ -344,10 +369,9 @@
 
           <div class="cs-summary">
             <p>
-              Stylized characters often feel disconnected from realistic, dynamic environments. This architecture
-              resolves that friction through an integrated pipeline, bringing custom shading, lighting, and
-              post-processing into a single, consistent visual world.
-            </p>
+              Stylized characters often feel disconnected from realistic, dynamic environments.
+              This architecture resolves that friction by integrating with the Deferred pipeline—preserving G-Buffer
+              information for consistent lighting and effects, while delivering a stylized, hand-drawn aesthetic.
           </div>
 
           <!-- 规范的交互提示符 -->
@@ -450,8 +474,7 @@
                 <!-- Feature 01: Outline -->
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-media">
-                    <!-- [REPLACE]: Assets/core02-outline.mp4 -->
-                    <video src="Assets/core02-outline.mp4" autoplay loop muted playsinline></video>
+                    <video src="Assets/Cel-outline.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
@@ -465,8 +488,7 @@
                 <!-- Feature 02: Detail Normal -->
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-media">
-                    <!-- [REPLACE]: Assets/core02-detail-normal.jpg -->
-                    <img src="Assets/core02-detail-normal.jpg" alt="Detail normal textures">
+                    <img src="Assets/Cel-detail-normal.jpg" alt="Detail normal textures">
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
@@ -480,8 +502,7 @@
                 <!-- Feature 03: Rim Light -->
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-media">
-                    <!-- [REPLACE]: Assets/core02-rimlight.mp4 -->
-                    <video src="Assets/core02-rimlight.mp4" autoplay loop muted playsinline></video>
+                    <video src="Assets/Cel-rimlight.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
@@ -511,13 +532,11 @@
 
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
-                  <!-- [REPLACE]: Assets/core02-before.jpg -->
                   <img src="Assets/Cel_Lilbefore.png" alt="Before: Liltoon Shader">
                   <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Liltoon Shader
                   </div>
                 </div>
                 <div class="cs-feature-v-media">
-                  <!-- [REPLACE]: Assets/core02-after.jpg -->
                   <img src="Assets/Cel_Lilafter.png" alt="After: Our Shader">
                   <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Shader</div>
                 </div>
@@ -525,13 +544,11 @@
 
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
-                  <!-- [REPLACE]: Assets/core02-before.jpg -->
                   <img src="Assets/Cel_RTbefore.png" alt="Before: Default Real Toon">
                   <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Default Real Toon
                   </div>
                 </div>
                 <div class="cs-feature-v-media">
-                  <!-- [REPLACE]: Assets/core02-after.jpg -->
                   <img src="Assets/Cel_RTafter.png" alt="After: Our Tweaked NPR">
                   <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Tweaked NPR
                   </div>
@@ -539,8 +556,10 @@
               </div>
 
               <p>
-                The shader is designed to be modular and configurable, allowing artists to dial in the exact look they want without touching shader code. 
-                It is also built with performance in mind, leveraging a few key variants to ensure it runs efficiently even with multiple characters on screen.
+                The shader is designed to be modular and configurable, allowing artists to dial in the exact look they
+                want without touching shader code.
+                It is also built with performance in mind, leveraging a few key variants to ensure it runs efficiently
+                even with multiple characters on screen.
               </p>
             </div>
           </div>
@@ -563,100 +582,258 @@
         </p>
       </header>
 
-      <!-- Game 01 -->
+      <!-- Game 01: EDEN -->
       <div class="cs-card hover-float">
         <div class="cs-visual">
-          <img src="Assets/game-eden-img.png" alt="EDEN game key visual">
+          <video src="Assets/project-eden-hero.mp4" autoplay loop muted playsinline
+            poster="Assets/game-eden-img.png"></video>
+          <div class="media-credit">Assets by others</div>
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 01</span> · PC PROTOTYPE</div>
-          <h2 class="cs-title">
-            EDEN
-            <span class="cs-title-badge">ART PIPELINE R&D</span>
-          </h2>
-          <!-- <div class="cs-meta-line">Combat · exploration · Narrative</div> -->
+          <h2 class="cs-title">EDEN <span class="cs-title-badge">ART PIPELINE R&D</span></h2>
           <div class="cs-summary">
-            <p>
-              Set in a post-collapse metropolis, a former mechanical enforcer went on her journey to uncover the
-              remnants of humanity.
-            </p>
+            <p>A post-apocalyptic, Metroidvania, top-down shooter game set in the near future. A former mechanical
+              enforcer journeys through the ruins of the collapsed metropolis, uncovering the remnants of humanity.</p>
           </div>
 
           <div class="cs-action-trigger">
-            <div class="trigger-expand">
-              <span class="trigger-icon">+</span>
-              <span class="trigger-text">VIEW PROJECT LOG</span>
-            </div>
-            <div class="trigger-close">
-              <span class="trigger-icon">×</span>
-              <span class="trigger-text">CLOSE</span>
-            </div>
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW PROJECT
+                LOG</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <p>
-                <strong>The Vision:</strong> This project is my primary testbed for establishing a commercial-grade art
-                pipeline.
-                I'm iterating on everything from asset workflows to lighting and post-processing.
+              <div class="cs-detail-label">Project Story</div>
+              <p>The game is a reflection on themes of digital governance and technical inequality. I started this
+                project in my sophomore year with two friends. They've since moved on. I'm the only one continuing it.
               </p>
-            </div>
-            <div class="cs-feature-grid">
-              <div class="cs-feature-item">
-                <img src="Assets/eden-1.png" alt="EDEN combat frame">
-                <div class="cs-feature-caption">Combat Systems</div>
+              <p>I'm the technical artist on this project. I architected the URP-based rendering pipeline from scratch -
+                post effects, render graphs, shaders and batches - learning as I built. I established the art direction
+                and visual foundation. I'm also the lead writer, level designer, and implemented the logic layers for
+                the vehicle controller, the skybox and time-of-day system, and connected several logic modules.</p>
+              <p>This project gave me my first real exposure to the scale and complexity of production-level game
+                development: managing large asset libraries, optimizing performance in dense scenes, maintaining visual
+                consistency across a sophisticated pipeline. It's where I learned what it means to be a technical
+                artist, and it serves as my primary testing ground for new rendering techniques.</p>
+
+              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-feature-vertical-list">
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <video src="Assets/POS-Example.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-desc">Per-Object System with baked environment</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media">
+                    <video src="Assets/Cel-banner.mp4" autoplay loop muted playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-desc">Cel-Shading in Deferred</div>
+                  </div>
+                </div>
               </div>
-              <div class="cs-feature-item">
-                <img src="Assets/eden-2.png" alt="EDEN environment">
-                <div class="cs-feature-caption">Lighting R&D</div>
-              </div>
+
+              <!-- Technical Bridge -->
+              <a href="#solutions" class="cs-tech-bridge">
+                <div class="bridge-content">
+                  <span class="bridge-kicker">Technical Deep Dive</span>
+                  <span class="bridge-text">For technical details, please see the Core Solutions sections above.</span>
+                </div>
+                <div class="bridge-icon">↑</div>
+              </a>
             </div>
           </div>
-
         </div>
       </div>
-      </div>
 
-      <!-- Game 02 -->
+      <!-- Game 02: LTV -->
       <div class="cs-card hover-float reverse">
         <div class="cs-visual">
-          <img src="Assets/game-ltv-img1.png" alt="Last Train to Vladivostok visual">
+          <video src="Assets/project-ltv-hero.mp4" autoplay loop muted playsinline
+            poster="Assets/game-ltv-img1.png"></video>
+          <div class="media-credit">Assets by others</div>
         </div>
         <div class="cs-text">
           <div class="cs-eyebrow"><span class="game-tag">GAME 02</span> · PC & MOBILE</div>
-          <h2 class="cs-title">
-            Last Train to Vladivostok
-            <span class="cs-title-badge">DIGITAL BOARD GAME</span>
-          </h2>
-          <!-- <div class="cs-meta-line">Historical setting · systemic play · mobile constraints</div>  -->
+          <h2 class="cs-title">Last Train to Vladivostok <span class="cs-title-badge">DIGITAL BOARD GAME</span></h2>
           <div class="cs-summary">
-            <p>
-              A story-driven survival strategy game following the Czechoslovak Legion's desperate journey across Russia.
-            </p>
+            <p>A narrative-driven survival strategy game following the Czechoslovak Legion's journey across war-torn
+              Russia during WWI. Manage resources, make difficult choices, and navigate the contradictions of a
+              legendary exodus.</p>
           </div>
 
           <div class="cs-action-trigger">
-            <div class="trigger-expand">
-              <span class="trigger-icon">+</span>
-              <span class="trigger-text">VIEW DESIGN CASE STUDY</span>
-            </div>
-            <div class="trigger-close">
-              <span class="trigger-icon">×</span>
-              <span class="trigger-text">CLOSE</span>
-            </div>
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW DESIGN CASE
+                STUDY</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <p>
-                <strong>The Challenge:</strong> Delivering a unified visual and UX that adapts seamlessly between
-                Desktop and Mobile constraints.
-              </p>
+              <div class="cs-detail-label">Project Story</div>
+              <p>This started as a board game I designed for a game design class. It received strong feedback from
+                playtests, and friends encouraged me to develop a digital version. I spent two months in intensive
+                development, building the entire game from scratch.</p>
+              <p>I developed the entire game from scratch - UI management, gameplay logic, localization system -
+                building as a state-based, event-driven, pluggable architecture. I implemented a stackable UI flow powered by
+                Addressables, designed the card interaction and resource management systems, and optimized the rendering
+                pipeline for cross-platform deployment. The game runs on both PC and mobile at a stable 60 FPS.</p>
+
+              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-feature-vertical-list">
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-ui.webm" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">UI System</div>
+                    <div class="cs-feature-desc">Stackable, animated UI management.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-loc.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Settings & Localization</div>
+                    <div class="cs-feature-desc">Atomic runtime asset loading.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-rt.webm" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">RT Transitions</div>
+                    <div class="cs-feature-desc">Smooth screen-space transitions.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-dice.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Dice Effects</div>
+                    <div class="cs-feature-desc">Physics-based interaction and cinematics.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-resource.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Resource Management</div>
+                    <div class="cs-feature-desc">Event-driven and serializable gameplay logic.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-ltv-train.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Train & Rail System</div>
+                    <div class="cs-feature-desc">Dynamic driving and stop logic.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game 03: 28LS -->
+      <div class="cs-card hover-float">
+        <div class="cs-visual">
+          <video src="Assets/project-28ls-hero.mp4" autoplay loop muted playsinline
+            poster="Assets/game-28ls-img.png"></video>
+          <div class="media-credit">Assets by others</div>
+        </div>
+        <div class="cs-text">
+          <div class="cs-eyebrow"><span class="game-tag">GAME 03</span> · CAPSTONE PROJECT</div>
+          <h2 class="cs-title">28 Leicester Square <span class="cs-title-badge">NARRATIVE MYSTERY</span></h2>
+          <div class="cs-summary">
+            <p>A narrative-driven mystery game set in a Victorian interior. Explore, investigate, and piece together the
+              story through environmental clues and interactive objects.</p>
+          </div>
+
+          <div class="cs-action-trigger">
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW CAPSTONE
+                LOG</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
+          </div>
+
+          <div class="cs-details" hidden="until-found">
+            <div class="cs-detail-story">
+              <div class="cs-detail-label">Project Story</div>
+              <p>This is our capstone project - a collaborative effort with team members from different technical
+                backgrounds and skill levels. I am the technical artist on the project.</p>
+              <p>I established the pipeline and lighting, UI, VFX, and item inspection & outlining system. I also
+                implemented the prefab-based level streaming system with lightmap scenario switching.</p>
+              <p>Working in a team with varying technical expertise taught me a lot. We praticed Scrum and Kanban based
+                workflow, established version control protocols, prefabs, and APIs.</p>
+
+              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-feature-vertical-list">
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-28ls-streaming.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets and scene by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Room Streaming</div>
+                    <div class="cs-feature-desc">Asynchronous loading with lightmap switching.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-28ls-inspect.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets and scene by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Item Inspection</div>
+                    <div class="cs-feature-desc">RT blur transition and rotatable inspection logic.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-28ls-highlight.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets and scene by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Item Highlighting</div>
+                    <div class="cs-feature-desc">Smooth-normal asset post-processing and item highlighting API.</div>
+                  </div>
+                </div>
+                <div class="cs-feature-v-item">
+                  <div class="cs-feature-v-media"><video src="Assets/project-28ls-vfx.mp4" autoplay loop muted
+                      playsinline></video>
+                    <div class="media-credit">Assets and scene by others</div>
+                  </div>
+                  <div class="cs-feature-v-text">
+                    <div class="cs-feature-caption">Third-person Shooting & VFX</div>
+                    <div class="cs-feature-desc">Angle-based rejection and Taser visual effects.</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
 
 
     <!-- ============ TECH GALLERY (THE DRIFT) ============ -->
@@ -684,7 +861,6 @@
               Layered Skybox & Time Controller
               <span class="tg-badge">Art Tool</span>
             </div>
-            <!-- 新增的分割线 -->
             <div class="tg-line"></div>
             <div class="tg-desc">
               A dynamic multi-layer skybox shader wired into a time controller, can drive lighting mood and subtle color
@@ -695,18 +871,18 @@
 
         <div class="tg-banner right">
           <div class="tg-visual">
-            <video src="Assets/gallery-transition.webm" autoplay loop muted playsinline></video>
+            <video src="Assets/gallery-feature.webm" autoplay loop muted playsinline></video>
           </div>
           <div class="tg-content">
             <div class="tg-eyebrow">TECH 02 · SRP POST PROCESSING</div>
             <div class="tg-title">
-              Custom Blur & Transitions
+              Custom Post-processing Effects
               <span class="tg-badge">Render Graph</span>
             </div>
             <div class="tg-line"></div>
             <div class="tg-desc">
               I have migrated many features to URP6 render graph, including dual-kawase blur, streak, glitches and more.
-              I'm here for any visual style you desired.
+              Any visual style you desired, and there's probably a way to achieve it with a custom post-process.
             </div>
           </div>
         </div>
