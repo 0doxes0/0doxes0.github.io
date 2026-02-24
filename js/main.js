@@ -597,16 +597,24 @@
     }
 
     const sections = document.querySelectorAll('section[data-color]');
+    // 使用 rootMargin 将判定区域压缩至视口中心线
+    // threshold: 0 表示只要元素碰到这条线就触发
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const [r, g, b] = entry.target.dataset.color.split(',').map(Number);
-          targetR = r;
-          targetG = g;
-          targetB = b;
+          const colorData = entry.target.getAttribute('data-color');
+          if (colorData) {
+            const [r, g, b] = colorData.split(',').map(Number);
+            targetR = r;
+            targetG = g;
+            targetB = b;
+          }
         }
       });
-    }, { threshold: 0.5 });
+    }, { 
+      rootMargin: '-50% 0% -50% 0%',
+      threshold: 0 
+    });
 
     sections.forEach(section => observer.observe(section));
 
@@ -693,38 +701,56 @@
       });
     });
 
+    /**
+     * 统一项目展开逻辑
+     * 解决点击与 URL Hash 触发时的逻辑复用问题
+     */
+    function handleProjectExpansion(card) {
+      if (!card || card.classList.contains('is-expanded')) return;
+
+      const details = card.querySelector('.cs-details');
+
+      // 1. 排他性处理：收起其他已展开的卡片
+      // 必须先执行收起，以确保页面高度变化的第一步被触发
+      document.querySelectorAll('.cs-card.is-expanded').forEach(otherCard => {
+        otherCard.classList.remove('is-expanded');
+        const otherDetails = otherCard.querySelector('.cs-details');
+        if (otherDetails) otherDetails.setAttribute('hidden', 'until-found');
+        otherCard.querySelectorAll('video').forEach(v => {
+          v.pause();
+          v.currentTime = 0;
+        });
+      });
+
+      // 2. 展开当前卡片
+      card.classList.add('is-expanded');
+      if (details) details.removeAttribute('hidden');
+
+      // 3. 视频处理
+      card.querySelectorAll('video').forEach(v => {
+        videoObserver.observe(v);
+        v.play().catch(() => {});
+      });
+
+      // 4. 修正滚动位置
+      // 使用双重 requestAnimationFrame 确保在排他性收起和当前展开导致的布局重排完成后再计算坐标
+      // 恢复 'instant' 模式以确保在复杂高度变动中 100% 命中顶部
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          card.scrollIntoView({ behavior: 'instant', block: 'start' });
+        });
+      });
+    }
+
     document.querySelectorAll('.cs-card').forEach(card => {
       card.addEventListener('click', function (e) {
         if (e.target.tagName === 'A' || e.target.closest('a')) return;
 
         const isExpanded = card.classList.contains('is-expanded');
         const visualArea = e.target.closest('.cs-visual');
-        const details = card.querySelector('.cs-details');
 
         if (!isExpanded) {
-          // 排他性逻辑：收起其他所有卡片并停止它们的视频
-          document.querySelectorAll('.cs-card.is-expanded').forEach(otherCard => {
-            otherCard.classList.remove('is-expanded');
-            const otherDetails = otherCard.querySelector('.cs-details');
-            if (otherDetails) otherDetails.setAttribute('hidden', 'until-found');
-            otherCard.querySelectorAll('video').forEach(v => {
-              v.pause();
-              v.currentTime = 0; // 彻底释放解码资源
-            });
-          });
-
-          card.classList.add('is-expanded');
-          if (details) details.removeAttribute('hidden');
-          
-          // 解决布局跳变：在展开新项目并收起旧项目后，强制将视口对齐到当前项目顶部
-          // 使用 requestAnimationFrame 确保在 DOM 渲染更新后执行滚动
-          requestAnimationFrame(() => {
-            card.scrollIntoView({ behavior: 'instant', block: 'start' });
-          });
-
-          card.querySelectorAll('video').forEach(v => {
-            videoObserver.observe(v);
-          });
+          handleProjectExpansion(card);
         } else {
           if (visualArea && (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO')) {
             openLightbox(e.target);
@@ -767,3 +793,22 @@
     setupWebGL();
     masterInit();
     requestAnimationFrame(masterAnimate);
+
+    /**
+     * 路由监听：处理外部链接进入或 Hash 变化
+     */
+    function checkHashAndExpand() {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        const targetCard = document.getElementById(hash);
+        if (targetCard && targetCard.classList.contains('cs-card')) {
+          handleProjectExpansion(targetCard);
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', checkHashAndExpand);
+    window.addEventListener('load', () => {
+      // 延迟执行以避开浏览器原生的、不带展开逻辑的锚点跳转
+      setTimeout(checkHashAndExpand, 200);
+    });
