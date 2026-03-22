@@ -756,8 +756,12 @@
             openLightbox(e.target);
           } else if (e.target.closest('.trigger-close')) {
             card.classList.remove('is-expanded');
+
+            // 这里不能引用外部的 details 变量（该作用域内不存在）。
+            // 为确保收起逻辑稳定，点击关闭时重新查询当前 card 的详情面板。
+            const details = card.querySelector('.cs-details');
             if (details) details.setAttribute('hidden', 'until-found');
-            
+
             // 收起时立即停止所有视频
             card.querySelectorAll('video').forEach(v => {
               v.pause();
@@ -765,6 +769,7 @@
             });
             card.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
+
         }
       });
     });

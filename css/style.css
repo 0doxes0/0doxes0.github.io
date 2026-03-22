@@ -294,14 +294,15 @@ body::before {
 }
 
 .hero-title-main {
-  font-size: clamp(1.8rem, 5.0vh, 2.4rem);
+  font-size: clamp(1.4rem, 3.0vh, 2.0rem);
   font-weight: 500;
   /* 降低粗细，回归优雅 */
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--hero-text-main);
   text-shadow:
     0 0 8px rgba(157, 217, 255, 0.2),
     0 0 4px rgba(37, 252, 223, 0.3);
+  padding: 10px 0px;
 }
 
 .hero-meta-row {
