@@ -315,12 +315,13 @@ body::before {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  padding: 2px 4px;
-  border-radius: 2px;
-  /* 稍微方一点，更有工业感 */
-  border: 1px solid rgba(140, 200, 255, 0.2);
-  background: rgba(140, 200, 255, 0.05);
-  color: var(--fg-soft);
+  padding: 2px 8px;
+  /* 增加圆角，削弱“按钮感” */
+  border-radius: 999px;
+  /* 降低边框和背景的视觉强度 */
+  border: 1px solid rgba(140, 200, 255, 0.15);
+  background: rgba(140, 200, 255, 0.03);
+  color: var(--fg-muted); /* 文字颜色也调暗一些 */
 }
 
 
@@ -1484,9 +1485,9 @@ body::before {
 @media (hover: hover) {
 
   /* 1. 图片变亮、变彩色、微放大 */
-  .tg-banner:hover .tg-visual img,
-  .tg-banner:hover .tg-visual video {
-    opacity: 1;
+    .tg-banner:hover .tg-visual img,
+    .tg-banner:hover .tg-visual video {
+    opacity: 1; 
   }
 
   /* 2. 背景渐变增强 (发光感) */
@@ -1502,15 +1503,6 @@ body::before {
         rgba(40, 70, 100, 0.5) 0%,
         rgba(40, 70, 100, 0.2) 50%,
         transparent 100%);
-  }
-
-  /* 3. 线条变亮 */
-  .tg-banner:hover .tg-line {
-    background: linear-gradient(to right,
-        rgba(107, 230, 255, 0.0),
-        rgba(107, 230, 255, 1.0),
-        rgba(107, 230, 255, 0.0));
-    opacity: 1;
   }
 }
 
@@ -1949,6 +1941,49 @@ body::before {
   box-shadow: 0 0 15px rgba(107, 230, 255, 0.2);
 }
 
+/* === Nav FX: Common Wrapper Styles (Revised) === */
+.nav-fx-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;      /* 垂直居中 */
+  justify-content: center;  /* 水平居中 */
+  width: 7.5em;             /* 使用 em 使其随字体大小缩放，PC端约 93px */
+  height: 32px;             /* 稍微降低高度 */
+}
+
+.header-nav .nav-fx-wrapper a {
+  position: relative;
+  z-index: 1;
+}
+
+/* === FX-2: Diagonal Shine Sweep Styles === */
+.fx-shine-sweep {
+  overflow: hidden; /* 隐藏在容器外的扫光元素 */
+  border: 1px solid rgba(107, 230, 255, 0.35); /* 静态边框 */
+  transition: border-color 0.5s ease;
+}
+
+/* 动画触发时，边框颜色变亮 */
+.fx-shine-sweep.sweep {
+  border-color: rgba(107, 230, 255, 0.7);
+}
+
+.fx-shine-sweep .fx-sheen {
+  position: absolute;
+  top: 0;
+  left: -150%; /* 从左侧屏幕外开始 */
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(to right, transparent 0%, rgba(107, 230, 255, 0.15) 50%, transparent 100%);
+  transform: skewX(-25deg);
+  pointer-events: none;
+}
+
+/* 动画触发时，扫光元素移动到右侧 */
+.fx-shine-sweep .fx-sheen.sweep {
+  transition: left 2.2s cubic-bezier(0.23, 1, 0.32, 1);
+  left: 150%;
+}
 
 /* 移动端适配*/
 @media (max-width: 860px) {
@@ -1993,6 +2028,11 @@ body::before {
     letter-spacing: 0.02em;
   }
 
+  .nav-fx-wrapper {
+    width: 65px;            /* 移动端强制缩小装饰框宽度 */
+    height: 26px;           /* 移动端降低装饰框高度 */
+  }
+
   .contact-btn {
     padding: 4px 8px;
     font-size: 10px;
@@ -2013,4 +2053,97 @@ body::before {
     letter-spacing: 0.02em;
   }
 
+}
+
+
+/* ============ Scroll Hint Arrows ============ */
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 10;
+}
+
+.scroll-hint.visible {
+  opacity: 1;
+}
+
+.scroll-arrow {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  opacity: 0;
+  animation: arrowGlow 2.4s ease-in-out infinite;
+}
+.scroll-arrow::before,
+.scroll-arrow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 24px;
+  height: 2px;
+  background: var(--accent-aurora-1);
+  box-shadow: 0 0 4px var(--accent-aurora-1);
+}
+
+.scroll-arrow::before {
+  left: 10.5px;
+  transform-origin: left center;
+  transform: rotate(45deg);
+}
+
+.scroll-arrow::after {
+  right: 10.5px;
+  transform-origin: right center;
+  transform: rotate(-45deg);
+}
+
+
+.scroll-arrow:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.scroll-arrow:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.scroll-arrow:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes arrowGlow {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(8px);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+  .scroll-hint {
+    bottom: 24px;
+  }
+  
+  .scroll-arrow {
+    width: 32px;
+    height: 16px;
+  }
+  
+  .scroll-arrow::before,
+  .scroll-arrow::after {
+    width: 18px;
+  }
 }
