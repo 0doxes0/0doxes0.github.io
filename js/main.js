@@ -1,3 +1,97 @@
+// =================================================================
+//                 I18N INITIALIZATION
+// =================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Helper function to update the DOM with translations.
+  const updateContent = () => {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const translation = i18next.t(key);
+      // Use innerHTML for content with HTML tags, otherwise textContent for performance.
+      if (translation.includes('<')) {
+        el.innerHTML = translation;
+      } else {
+        el.textContent = translation;
+      }
+    });
+  };
+
+  // Initialize i18next with the proper backend to load external files.
+  i18next
+    .use(window.i18nextBrowserLanguageDetector) // Detects user language
+    .use(window.i18nextHttpBackend) // Loads translation files from a server
+    .init({
+      fallbackLng: 'en',
+      debug: true,
+      ns: ['translation'],
+      defaultNS: 'translation',
+      backend: {
+        // This tells the backend where to find the .json files.
+        loadPath: '/locales/{{lng}}/{{ns}}.json',
+      },
+      detection: {
+        order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
+        caches: ['localStorage'],
+      }
+    }, (err, t) => {
+      if (err) return console.error('i18next initialization failed:', err);
+      updateContent(); // Perform initial translation
+    });
+
+  // Helper function to update the language switcher's UI state
+  const updateLangWidgetUI = (lng) => {
+    const currentLangEl = document.getElementById('lang-widget-current');
+    if (currentLangEl) {
+      currentLangEl.textContent = lng.startsWith('zh') ? 'ZH' : 'EN';
+    }
+    document.querySelectorAll('.lang-pill-opt').forEach(opt => {
+      if (opt.getAttribute('data-lang') === lng) {
+        opt.classList.add('active');
+      } else {
+        opt.classList.remove('active');
+      }
+    });
+  };
+
+  // Re-run translation and update widget whenever the language is changed.
+  i18next.on('languageChanged', (lng) => {
+    updateContent();
+    updateLangWidgetUI(lng);
+  });
+
+  // --- Language Pill Widget Interaction Logic ---
+  const langWidget = document.getElementById('lang-widget');
+  if (langWidget) {
+    // Toggle menu visibility on click
+    langWidget.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent click from bubbling up to the document
+      langWidget.classList.toggle('is-open');
+    });
+
+    // Handle language selection
+    document.querySelectorAll('.lang-pill-opt').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.preventDefault();
+        const selectedLang = option.getAttribute('data-lang');
+        if (selectedLang !== i18next.language) {
+          i18next.changeLanguage(selectedLang);
+        }
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', () => {
+      if (langWidget.classList.contains('is-open')) {
+        langWidget.classList.remove('is-open');
+      }
+    });
+
+    // Initial UI update
+    updateLangWidgetUI(i18next.language);
+  }
+});
+
+
 
 // ======= same background & interaction code, slightly compressed comments =======
 const fgCanvas = document.getElementById('render-canvas');
@@ -609,6 +703,14 @@ const observer = new IntersectionObserver(entries => {
         targetG = g;
         targetB = b;
       }
+
+      // GA Tracking: 记录用户查看的区块
+      // 确保 gtag 函数已定义，并且目标区块有ID
+      if (typeof gtag === 'function' && entry.target.id) {
+        gtag('event', 'view_section', {
+          'section_id': entry.target.id
+        });
+      }
     }
   });
 }, {
@@ -650,14 +752,35 @@ const lightbox = document.getElementById('lightbox');
 const lightboxContent = lightbox.querySelector('.lightbox-content');
 
 function openLightbox(sourceElement) {
+  // GA Tracking: 记录媒体在灯箱中被打开
+  // 检查gtag函数是否存在
+  if (typeof gtag === 'function') {
+    // 向上查找最近的、带有data-video-name属性的父容器
+    // 这个属性我们统一用作媒体标识，无论是视频还是图片
+    const mediaContainer = sourceElement.closest('[data-video-name]');
+    if (mediaContainer) {
+      const mediaName = mediaContainer.getAttribute('data-video-name');
+      // 使用一个更通用的事件名，因为图片也会被打开
+      gtag('event', 'media_lightbox_open', {
+        'media_id': mediaName
+      });
+    }
+  }
+
   lightboxContent.innerHTML = '';
   const clone = sourceElement.cloneNode(true);
   if (clone.tagName === 'VIDEO') {
     clone.setAttribute('controls', '');
     clone.removeAttribute('autoplay');
+    clone.muted = false; // 在灯箱中播放时取消静音
   }
   lightboxContent.appendChild(clone);
   lightbox.style.display = 'flex';
+
+  // 确保灯箱中的视频能播放
+  if (clone.tagName === 'VIDEO') {
+    clone.play().catch(() => { });
+  }
 }
 
 lightbox.addEventListener('click', () => {
@@ -730,6 +853,19 @@ function handleProjectExpansion(card) {
   card.querySelectorAll('video').forEach(v => {
     videoObserver.observe(v);
     v.play().catch(() => { });
+
+    // GA Tracking: 记录视频播放
+    // 检查gtag函数是否存在，以防GA加载失败
+    if (typeof gtag === 'function') {
+      // 向上查找最近的、带有data-video-name属性的父容器
+      const videoContainer = v.closest('[data-video-name]');
+      if (videoContainer) {
+        const videoName = videoContainer.getAttribute('data-video-name');
+        gtag('event', 'video_play', {
+          'video_id': videoName
+        });
+      }
+    }
   });
 
   // 4. 修正滚动位置
@@ -816,6 +952,17 @@ window.addEventListener('hashchange', checkHashAndExpand);
 window.addEventListener('load', () => {
   // 延迟执行以避开浏览器原生的、不带展开逻辑的锚点跳转
   setTimeout(checkHashAndExpand, 200);
+
+  // GA Tracking: 记录初始入口
+  // 确保 gtag 函数已定义
+  if (typeof gtag === 'function') {
+    const initialHash = window.location.hash.replace('#', '');
+    const entryPoint = initialHash || 'hero'; // 如果没有hash，则入口是hero区
+
+    gtag('event', 'initial_entry', {
+      'section_id': entryPoint
+    });
+  }
 });
 
 // =================================================================

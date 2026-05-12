@@ -4,8 +4,24 @@
 <head>
   <meta charset="UTF-8" />
   <title>Portfolio – Technical Art & Real-Time Rendering</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KWWCMZR0D7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-KWWCMZR0D7');
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/style.css">
+  <!-- i18n Libraries -->
+  <script src="https://unpkg.com/i18next@23.11.5/dist/umd/i18next.min.js" defer></script>
+  <script src="https://unpkg.com/i18next-http-backend@2.5.2/i18nextHttpBackend.min.js" defer></script>
+  <script src="https://unpkg.com/i18next-browser-languagedetector@8.0.0/dist/umd/i18nextBrowserLanguageDetector.min.js" defer></script>
+  
   <script src="js/main.js" defer></script>
 </head>
 
@@ -20,37 +36,35 @@
 
       <!-- 中间：核心导航 (居中) -->
       <div class="header-slot-center">
-        <!-- 在 index.html 中找到 .header-nav 并替换 -->
         <div class="header-nav">
-          <div class="header-nav">
             <div class="nav-fx-wrapper fx-shine-sweep">
-              <a href="#projects">Projects</a>
+              <a href="#projects" data-i18n="nav_projects">Projects</a>
               <span class="fx-sheen"></span>
             </div>
             <div class="nav-fx-wrapper fx-shine-sweep">
-              <a href="#solutions">Solutions</a>
+              <a href="#solutions" data-i18n="nav_solutions">Solutions</a>
               <span class="fx-sheen"></span>
             </div>
             <div class="nav-fx-wrapper fx-shine-sweep">
-              <a href="#gallery">Gallery</a>
+              <a href="#gallery" data-i18n="nav_gallery">Gallery</a>
               <span class="fx-sheen"></span>
             </div>
             <div class="nav-fx-wrapper fx-shine-sweep">
-              <a href="#profile">Profile</a>
+              <a href="#profile" data-i18n="nav_profile">Profile</a>
               <span class="fx-sheen"></span>
             </div>
-          </div>
         </div>
       </div>
 
       <!-- 右侧：联系方式 -->
       <div class="header-slot-right">
         <a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing"
-          target="_blank" class="resume-link">Resume</a>
-        <a href="#contact-footer" class="contact-btn">Contact</a>
+          target="_blank" class="resume-link" data-i18n="nav_resume">Resume</a>
+        <a href="#contact-footer" class="contact-btn" data-i18n="nav_contact">Contact</a>
       </div>
     </div>
   </nav>
+
 
   <div class="background-container">
     <canvas id="bg-canvas"></canvas>
@@ -72,31 +86,23 @@
 
       <!-- 文案内容层 -->
       <div class="hero-content">
-        <div class="hero-name-label">ZHENZHI (DOXES) LIU</div>
+        <div class="hero-name-label" data-i18n="hero_name_label"></div>
 
         <h1 class="hero-title">
-          <span class="hero-title-main">TECHNICAL ARTIST <br>/GAME DEVELOPER</span>
+          <span class="hero-title-main" data-i18n="hero_title"></span>
           <div class="hero-strike"></div>
         </h1>
 
         <div class="hero-meta-row">
-          <div class="hero-meta-pill">Real-time Rendering</div>
-          <div class="hero-meta-pill">Pipelines</div>
-          <div class="hero-meta-pill">Shaders</div>
-          <div class="hero-meta-pill">Tooling</div>
-          <div class="hero-meta-pill">Gameplay Systems</div>
+          <div class="hero-meta-pill" data-i18n="hero_meta_pill_rendering"></div>
+          <div class="hero-meta-pill" data-i18n="hero_meta_pill_pipelines"></div>
+          <div class="hero-meta-pill" data-i18n="hero_meta_pill_shaders"></div>
+          <div class="hero-meta-pill" data-i18n="hero_meta_pill_tooling"></div>
+          <div class="hero-meta-pill" data-i18n="hero_meta_pill_gameplay"></div>
         </div>
 
-        <p class="hero-subline hero-subline-lead" style="margin-top: 24px;">
-          Working on the boundary between
-          <span class="hero-word-highlight">aesthetics</span>
-          and
-          <span class="hero-word-highlight">engineering</span>,
-        </p>
-        <p class="hero-subline">
-          I build real-time visuals and systems for games and interactive work – from shaders and lighting to production
-          tools.
-        </p>
+        <p class="hero-subline hero-subline-lead" style="margin-top: 24px;" data-i18n="hero_subline_lead"></p>
+        <p class="hero-subline" data-i18n="hero_subline"></p>
       </div>
 
       
@@ -114,10 +120,10 @@
 
       <header class="section-header">
         <div>
-          <div class="section-kicker">Rendering Systems</div>
-          <div class="section-title">CORE SOLUTIONS</div>
+          <div class="section-kicker" data-i18n="section_solutions_kicker">Rendering Systems</div>
+          <div class="section-title" data-i18n="section_solutions_title">CORE SOLUTIONS</div>
         </div>
-        <p class="section-subtitle">
+        <p class="section-subtitle" data-i18n="section_solutions_subtitle">
           I build rendering systems that solve real production problems - <br>
           optimized for performance, designed for art direction.
         </p>
@@ -125,18 +131,18 @@
 
       <!-- 统一 HTML 结构：图片在前，文字在后。不再依赖 CSS reverse -->
       <div class="cs-card  hover-float">
-        <div class="cs-visual">
+        <div class="cs-visual" data-video-name="solutions-pos-banner">
           <video src="Assets/POS-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video>
           <div class="media-credit">Assets by others</div>
         </div>
 
         <div class="cs-text">
-          <div class="cs-eyebrow">CORE 01 · Feature and System</div>
-          <h2 class="cs-title">Per-Object Shadows <span class="cs-title-badge">URP</span></h2>
-          <div class="cs-meta-line">Optimization · Render Feature</div>
+          <div class="cs-eyebrow" data-i18n="cs_pos_eyebrow">CORE 01 · Feature and System</div>
+          <h2 class="cs-title" data-i18n="cs_pos_title">Per-Object Shadows <span class="cs-title-badge">URP</span></h2>
+          <div class="cs-meta-line" data-i18n="cs_pos_meta">Optimization · Render Feature</div>
 
           <div class="cs-summary">
-            <p>
+            <p data-i18n="cs_pos_summary">
               Real-time shadow rendering is a major performance bottleneck.
               In scenes with complex lighting, shadow cost doesn't scale with what you actually need.
               This system provides high-fidelity,
@@ -149,19 +155,18 @@
           <div class="cs-action-trigger">
             <div class="trigger-expand">
               <span class="trigger-icon">+</span>
-              <span class="trigger-text">CLICK TO EXPAND</span>
+              <span class="trigger-text" data-i18n="cs_action_expand">CLICK TO EXPAND</span>
             </div>
             <div class="trigger-close">
               <span class="trigger-icon">×</span>
-              <span class="trigger-text">CLOSE BREAKDOWN</span>
+              <span class="trigger-text" data-i18n="cs_action_close">CLOSE BREAKDOWN</span>
             </div>
           </div>
 
-          <!-- Details: 迭代过程 --><!-- Per-Object Shadows Breakdown -->
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <div class="cs-detail-label">Context: Where existing solutions fall short</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_pos_detail_context_label">Context: Where existing solutions fall short</div>
+              <p data-i18n="cs_pos_detail_context_p1">
                 While many standard shadow techniques exist for modern pipelines, they fail to address a core issue:
                 rendering full real-time shadows and wasting resources on static geometry for just a few dynamic shadow
                 casters. In our
@@ -174,82 +179,82 @@
                 <table class="cs-tech-table">
                   <thead>
                     <tr>
-                      <th>Technique</th>
-                      <th>Dynamic-to-Static</th>
-                      <th>Static-to-Dynamic</th>
-                      <th>Cost Scales With</th>
-                      <th>Artistic Control</th>
-                      <th>Typical Limitations</th>
+                      <th data-i18n="cs_pos_detail_table_th_technique">Technique</th>
+                      <th data-i18n="cs_pos_detail_table_th_d2s">Dynamic-to-Static</th>
+                      <th data-i18n="cs_pos_detail_table_th_s2d">Static-to-Dynamic</th>
+                      <th data-i18n="cs_pos_detail_table_th_cost">Cost Scales With</th>
+                      <th data-i18n="cs_pos_detail_table_th_art">Artistic Control</th>
+                      <th data-i18n="cs_pos_detail_table_th_limit">Typical Limitations</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Shadow Map & Culling (ReSTIR)</td>
+                      <td data-i18n="cs_pos_detail_table_td_restir_name">Shadow Map & Culling (ReSTIR)</td>
                       <td>Yes</td>
                       <td>Yes</td>
                       <td>Scene complexity</td>
                       <td>Poor</td>
-                      <td>Complex, disproportionate culling <br>poor performance in topdown</td>
+                      <td data-i18n="cs_pos_detail_table_td_restir_limit">Complex, disproportionate culling <br>poor performance in topdown</td>
                     </tr>
                     <tr>
-                      <td>Shadow Mask / <br>Probe Volume</td>
+                      <td data-i18n="cs_pos_detail_table_td_mask_name">Shadow Mask / <br>Probe Volume</td>
                       <td>No</td>
                       <td>Yes</td>
                       <td>Data sampling</td>
                       <td>Moderate</td>
-                      <td>Poor dynamic-to-static support <br>(where our system step in)</td>
+                      <td data-i18n="cs_pos_detail_table_td_mask_limit">Poor dynamic-to-static support <br>(where our system step in)</td>
                     </tr>
                     <tr>
-                      <td>MDF + Raymarching (DFSS)</td>
+                      <td data-i18n="cs_pos_detail_table_td_mdf_name">MDF + Raymarching (DFSS)</td>
                       <td>Yes</td>
                       <td>Yes</td>
                       <td>Scene complexity</td>
                       <td>Moderate</td>
-                      <td>Blurry, unstable, unscalable, <br> only static DF support</td>
+                      <td data-i18n="cs_pos_detail_table_td_mdf_limit">Blurry, unstable, unscalable, <br> only static DF support</td>
                     </tr>
                     <tr>
-                      <td>Virtual Shadow Maps</td>
+                      <td data-i18n="cs_pos_detail_table_td_vsm_name">Virtual Shadow Maps</td>
                       <td>Yes</td>
                       <td>Yes</td>
                       <td>Shadow quality</td>
                       <td>Pool</td>
-                      <td>Limited global light, unscalable, <br>UE5 nanite only<br></td>
+                      <td data-i18n="cs_pos_detail_table_td_vsm_limit">Limited global light, unscalable, <br>UE5 nanite only<br></td>
                     </tr>
                     <tr>
-                      <td>Ray Tracing</td>
+                      <td data-i18n="cs_pos_detail_table_td_rt_name">Ray Tracing</td>
                       <td>Yes</td>
                       <td>Yes</td>
                       <td>Constant</td>
                       <td>Pool</td>
-                      <td>Very costly, <br>limited platform support</td>
+                      <td data-i18n="cs_pos_detail_table_td_rt_limit">Very costly, <br>limited platform support</td>
                     </tr>
                     <tr>
-                      <td>Capsule / Decal Shadow</td>
+                      <td data-i18n="cs_pos_detail_table_td_capsule_name">Capsule / Decal Shadow</td>
                       <td>Crude</td>
                       <td>Work around</td>
                       <td>Shadow count</td>
                       <td>Good</td>
-                      <td>Only stylized shapes, no real lighting</td>
+                      <td data-i18n="cs_pos_detail_table_td_capsule_limit">Only stylized shapes, no real lighting</td>
                     </tr>
                     <tr class="table-row-highlight">
-                      <td>Per-Object Shadow</td>
+                      <td data-i18n="cs_pos_detail_table_td_pos_name">Per-Object Shadow</td>
                       <td>Yes</td>
                       <td>Work around</td>
                       <td>Shadow count and quality</td>
                       <td>Good</td>
-                      <td>Limited static occlusion, possible glitching, needs artistic alignment</td>
+                      <td data-i18n="cs_pos_detail_table_td_pos_limit">Limited static occlusion, possible glitching, needs artistic alignment</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              <p>
+              <p data-i18n="cs_pos_detail_context_p2">
                 We concluded for scenarios with complex lighting but only a few dynamic shadow casters — like our
                 top-down environment — per-object shadow rendering is the natural solution.
               </p>
 
-              <div class="cs-detail-label">Exploration: Prototyping the Pipeline</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_pos_detail_exploration_label">Exploration: Prototyping the Pipeline</div>
+              <p data-i18n="cs_pos_detail_exploration_p1">
                 Starting with Unity's Decal Projector as a prototype, I tried capturing character
                 silhouettes and projecting them as shadows. Then I replaced silhouettes with actual depth
                 maps. This unlocked light attenuation and PCSS, giving the shadows proper falloff and soft edges.
@@ -258,41 +263,42 @@
                 are orthographic by design
                 and cannot correctly project point light shadows, beyond that, they weren't built for shadows — they
                 introduced pipeline overhead and interfered with actual decal rendering needs.
-                <br>
+              </p>
+              <p data-i18n="cs_pos_detail_exploration_p2">
                 The production system needed to be purpose-built.
               </p>
 
-              <div class="cs-feature-v-item">
+              <div class="cs-feature-v-item" data-video-name="solutions-pos-diagram">
                 <div class="cs-feature-v-media">
                   <img src="Assets/POS-Diagram.png" alt="Per-object shadow system diagram">
                   <div class="media-credit">Assets by others</div>
                 </div>
                 <div class="cs-feature-v-text">
-                  <div class="cs-feature-desc">Pipeline Flow - Registration → Capture → Projection → Composite</div>
+                  <div class="cs-feature-desc" data-i18n="cs_pos_detail_pipeline_desc">Pipeline Flow - Registration → Capture → Projection → Composite</div>
                 </div>
               </div>
 
-              <p>The resulted system is a custom URP Render Feature built on Render Graph. It
+              <p data-i18n="cs_pos_detail_pipeline_p1">The resulted system is a custom URP Render Feature built on Render Graph. It
                 consists of four core components:</p>
 
-              <p><strong>Registration System</strong><br>
+              <p data-i18n="cs_pos_detail_pipeline_p2"><strong>Registration System</strong><br>
                 Actor-light pairs are registered dynamically via trigger volumes. When a character enters a light's
                 influence range, the system adds them to the shadow rendering queue. This keeps the overhead
                 proportional to active pairs, not total scene complexity.</p>
 
-              <p><strong>Shadow Rendering</strong><br>
+              <p data-i18n="cs_pos_detail_pipeline_p3"><strong>Shadow Rendering</strong><br>
                 Each registered pair gets a virtual camera positioned at the light source, with a projection matrix
                 computed based on the character's bounding box. The camera captures a high-resolution depth map just for
                 that character, at a resolution the character defines. No scene geometry involved.</p>
 
-              <p><strong>Projection & Occlusion</strong><br>
+              <p data-i18n="cs_pos_detail_pipeline_p4"><strong>Projection & Occlusion</strong><br>
                 The depth map is projected using the light's perspective matrix — true perspective projection for point
                 lights. With screen depth to world space reconstruction, the system factors in light attributes,
                 attenuation and edge-soften. Occlusion is handled via batched physics raycasts (not raymarching) — a
                 pragmatic trade-off between accuracy and performance to check light-to-character visibility and clips
                 shadows at wall boundaries.</p>
 
-              <p><strong>Screen-Space Compositing</strong><br>
+              <p data-i18n="cs_pos_detail_pipeline_p5"><strong>Screen-Space Compositing</strong><br>
                 Shadows are composited into screen space using a pre-multiplied blend with conditional masking. The
                 system identifies lit areas and ignores areas already in shadow. Artists control intensity, edge
                 softness, color tint, PCSS samples, and blend factors. Because it's a post-process overlay rather than
@@ -300,24 +306,24 @@
                 touching shader code.</p>
 
               <div class="cs-feature-vertical-list">
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="solutions-pos-settings">
                   <div class="cs-feature-v-media">
                     <video src="Assets/POS-Settings.webm" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">Tunable volume settings in real-time. (Also supports
+                    <div class="cs-feature-desc" data-i18n="cs_pos_detail_settings_desc">Tunable volume settings in real-time. (Also supports
                       per-character/light settings and global bias)</div>
                   </div>
                 </div>
               </div>
 
-              <div class="cs-detail-label">Results</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_pos_detail_results_label">Results</div>
+              <p data-i18n="cs_pos_detail_results_p1">
                 The system renders high-quality, artist-controlled PCSS shadows at ~3ms per frame — cost scales only
                 with the real shadow count and quality.
               </p>
-              <p>
+              <p data-i18n="cs_pos_detail_results_p2">
                 This approach enables us to fully bake global lighting and render shadows separately. The following
                 comparison are based on a simple 3-lights setup with a single character, as complexity increases, the
                 performance gap will only become more significant.
@@ -327,19 +333,19 @@
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <img src="Assets/POS-before.png" alt="Before: Unity's built-in shadow">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Unity's built-in
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_pos_detail_compare_before">Before: Unity's built-in
                     shadow with no baked lighting<br>Accurate visual, more calls and render overhead.
                   </div>
                 </div>
                 <div class="cs-feature-v-media">
                   <img src="Assets/POS-after.png" alt="After: POS System Shadow">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: POS System Shadow
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_pos_detail_compare_after">After: POS System Shadow
                     with baked lightmap<br>Compromised visual but cheaper and more flexible.
                   </div>
                 </div>
               </div>
 
-              <p>
+              <p data-i18n="cs_pos_detail_results_p3">
                 The system is modular by design — shadow appearance, registration logic, culling strategies are all
                 independently configurable. It's a general-purpose solution for any scenario with complex lighting but
                 limited dynamic shadow casters: top-down games, narrative-driven interiors, architectural visualization.
@@ -347,24 +353,24 @@
 
 
               <div class="cs-feature-vertical-list">
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="solutions-pos-pcss">
                   <div class="cs-feature-v-media">
                     <video src="Assets/POS-PCSS.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">High quality shadow with heuristic PCSS.</div>
+                    <div class="cs-feature-desc" data-i18n="cs_pos_detail_pcss_desc">High quality shadow with heuristic PCSS.</div>
                   </div>
                 </div>
 
                 <!-- [Fig 1.4: Shadows In-Action] -->
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="solutions-pos-example">
                   <div class="cs-feature-v-media">
                     <video src="Assets/POS-Example.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">Seamless blends with baked environment.</div>
+                    <div class="cs-feature-desc" data-i18n="cs_pos_detail_example_desc">Seamless blends with baked environment.</div>
                   </div>
                 </div>
               </div>
@@ -377,20 +383,20 @@
       </div>
 
       <div class="cs-card hover-float reverse">
-        <div class="cs-visual">
+        <div class="cs-visual" data-video-name="solutions-npr-banner">
           <video src="Assets/Cel-banner.mp4" autoplay loop muted playsinline alt="Stylized character shading"></video>
           <div class="media-credit">Assets and scene by others</div>
         </div>
         <div class="cs-text">
-          <div class="cs-eyebrow">CORE 02 · SHADING</div>
-          <h2 class="cs-title">
+          <div class="cs-eyebrow" data-i18n="cs_npr_eyebrow">CORE 02 · SHADING</div>
+          <h2 class="cs-title" data-i18n="cs_npr_title">
             NPR shading in Deferred
             <span class="cs-title-badge">Shader</span>
           </h2>
-          <div class="cs-meta-line">Cel-Shading · G-Buffer · Lighting</div>
+          <div class="cs-meta-line" data-i18n="cs_npr_meta">Cel-Shading · G-Buffer · Lighting</div>
 
           <div class="cs-summary">
-            <p>
+            <p data-i18n="cs_npr_summary">
               Stylized characters often feel disconnected from realistic, dynamic environments.
               This architecture resolves that friction by integrating with the Deferred pipeline—preserving G-Buffer
               information for consistent lighting and effects, while delivering a stylized, hand-drawn aesthetic.
@@ -400,44 +406,44 @@
           <div class="cs-action-trigger">
             <div class="trigger-expand">
               <span class="trigger-icon">+</span>
-              <span class="trigger-text">CLICK TO EXPAND</span>
+              <span class="trigger-text" data-i18n="cs_action_expand">CLICK TO EXPAND</span>
             </div>
             <div class="trigger-close">
               <span class="trigger-icon">×</span>
-              <span class="trigger-text">CLOSE BREAKDOWN</span>
+              <span class="trigger-text" data-i18n="cs_action_close">CLOSE BREAKDOWN</span>
             </div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <div class="cs-detail-label">Challenge: Designing a consistent visual for realistic shading</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_npr_detail_challenge_label">Challenge: Designing a consistent visual for realistic shading</div>
+              <p data-i18n="cs_npr_detail_challenge_p1">
                 The environment for Eden was built on a high-fidelity baseline where every element responds naturally to
                 light and space. I used the Bakery light mapper and APV scenarios to establish the scene lighting,
                 combined with SSR, HBAO, SSGI, and volumetric lighting to create a world that felt physically consistent
                 and reactive.
               </p>
-              <p>
+              <p data-i18n="cs_npr_detail_challenge_p2">
                 However, bringing characters into this environment revealed a new challenge. I initially tried liltoon,
                 a widely-adopted stylized shader, but it hit a wall as I started tuning the scene lighting, exposing
                 several critical bottlenecks:
               </p>
               <ul>
-                <li><strong>Incomplete Integration:</strong> The shader could not sample scene reflections or APV data
+                <li data-i18n="cs_npr_detail_challenge_li1"><strong>Incomplete Integration:</strong> The shader could not sample scene reflections or APV data
                   and failed to support multiple lights, leaving characters as flat overlays.</li>
-                <li><strong>Performance Overhead:</strong> The bulky and feature-rich structure would lead to
+                <li data-i18n="cs_npr_detail_challenge_li2"><strong>Performance Overhead:</strong> The bulky and feature-rich structure would lead to
                   unnecessary variant bloat and compilation stalls.</li>
-                <li><strong>Architectural Mismatch:</strong> Its legacy pass-based architecture was not built for a
+                <li data-i18n="cs_npr_detail_challenge_li3"><strong>Architectural Mismatch:</strong> Its legacy pass-based architecture was not built for a
                   modern unified pipeline and could become a technical debt to modify.</li>
               </ul>
-              <p>
+              <p data-i18n="cs_npr_detail_challenge_p3">
                 It became clear that achieving a seamless blend of stylization and realism required more than an
                 off-the-shelf wrapper. To gain full artistic control and ensure visual integrity, we moved toward a
                 custom shading solution that is native to the pipeline.
               </p>
 
-              <div class="cs-detail-label">Architecture: Bridging Stylization and Deferred Rendering</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_npr_detail_arch_label">Architecture: Bridging Stylization and Deferred Rendering</div>
+              <p data-i18n="cs_npr_detail_arch_p1">
                 I started by prototyping a custom Forward shader, but quickly it made obvious that deferred screen-space
                 effects wouldn't work without proper G-buffer. Therefore, we need to decide a pipeline solution, I
                 evaluated three following industrial standard architecture for Cel-shading:
@@ -447,37 +453,36 @@
                 <table class="cs-tech-table">
                   <thead>
                     <tr>
-                      <th>Approach</th>
-                      <th>Pros</th>
-                      <th>Cons</th>
-                      <th>Engineering Assessment</th>
+                      <th data-i18n="cs_npr_detail_table_th_approach">Approach</th>
+                      <th data-i18n="cs_npr_detail_table_th_pros">Pros</th>
+                      <th data-i18n="cs_npr_detail_table_th_cons">Cons</th>
+                      <th data-i18n="cs_npr_detail_table_th_assess">Engineering Assessment</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Forward+</td>
-                      <td>Straightforward, flexible stylization.</td>
-                      <td>Performance drops when adding complex screen-space effects.</td>
-                      <td>Suitable for simple scenarios, inefficient for high-fidelity environments.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fplus_name">Forward+</td>
+                      <td data-i18n="cs_npr_detail_table_td_fplus_pros">Straightforward, flexible stylization.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fplus_cons">Performance drops when adding complex screen-space effects.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fplus_assess">Suitable for simple scenarios, inefficient for high-fidelity environments.</td>
                     </tr>
                     <tr>
-                      <td>Forward Hacking</td>
-                      <td>Direct artistic control, decoupled rendering.</td>
-                      <td>Maintenance debt; lacks engine/community support and updates.</td>
-                      <td>Only worthwhile for big company/special production, essentially a custom pipeline.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fhack_name">Forward Hacking</td>
+                      <td data-i18n="cs_npr_detail_table_td_fhack_pros">Direct artistic control, decoupled rendering.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fhack_cons">Maintenance debt; lacks engine/community support and updates.</td>
+                      <td data-i18n="cs_npr_detail_table_td_fhack_assess">Only worthwhile for big company/special production, essentially a custom pipeline.</td>
                     </tr>
                     <tr class="table-row-highlight">
-                      <td>Native Deferred</td>
-                      <td>Unified lighting, consistent G-Buffer effects.</td>
-                      <td>Substantial development complexity due to G-Buffer rigidity.</td>
-                      <td>Best for visual and pipeline consistency; allows for complex lighting without performance
-                        overhead.</td>
+                      <td data-i18n="cs_npr_detail_table_td_ndefer_name">Native Deferred</td>
+                      <td data-i18n="cs_npr_detail_table_td_ndefer_pros">Unified lighting, consistent G-Buffer effects.</td>
+                      <td data-i18n="cs_npr_detail_table_td_ndefer_cons">Substantial development complexity due to G-Buffer rigidity.</td>
+                      <td data-i18n="cs_npr_detail_table_td_ndefer_assess">Best for visual and pipeline consistency; allows for complex lighting without performance overhead.</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              <p>
+              <p data-i18n="cs_npr_detail_arch_p2">
                 Building a custom G-Buffer from scratch would be a maintenance trap in a constantly updating render
                 environment like Unity 6. Recognizing this, we made the pragmatic decision to choose a modular,
                 interchangeable, and actively maintained shader as the base—Real Toon. Building on its framework, we
@@ -485,8 +490,8 @@
                 the project’s visual character.
               </p>
 
-              <div class="cs-detail-label">Core Features</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_npr_detail_features_label">Core Features</div>
+              <p data-i18n="cs_npr_detail_features_p1">
                 To achieve the desired visual quality, I drew inspiration from both 3D rendering techniques and 2D
                 illustrations; went through several iterations before arriving at our current visual style. Each
                 component is fine-tuned to strike a best balance between technical constraints and artistic intent.
@@ -494,14 +499,14 @@
 
               <div class="cs-feature-vertical-list">
                 <!-- Feature 01: Outline -->
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="solutions-npr-outline">
                   <div class="cs-feature-v-media">
                     <video src="Assets/Cel-outline.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Outline</div>
-                    <div class="cs-feature-desc">A crystal hand-drawn style outline, using smooth normals asset
+                    <div class="cs-feature-caption" data-i18n="cs_npr_detail_feature1_caption">Outline</div>
+                    <div class="cs-feature-desc" data-i18n="cs_npr_detail_feature1_desc">A crystal hand-drawn style outline, using smooth normals asset
                       processing and distance adaptive scaling. It's transparent, responsive to light, with sine-wave
                       controlled noise to simulate the organic feel of a pen stroke.</div>
                   </div>
@@ -514,22 +519,22 @@
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Detail Normal</div>
-                    <div class="cs-feature-desc">A two-layer RNM blend and adaptive detail normal, changes Mip bias
+                    <div class="cs-feature-caption" data-i18n="cs_npr_detail_feature2_caption">Detail Normal</div>
+                    <div class="cs-feature-desc" data-i18n="cs_npr_detail_feature2_desc">A two-layer RNM blend and adaptive detail normal, changes Mip bias
                       based on UV scale, and interpolates between different sampling based on distance, ensuring robust
                       texture and realistic look on close to medium shot.</div>
                   </div>
                 </div>
 
                 <!-- Feature 03: Rim Light -->
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="solutions-npr-rimlight">
                   <div class="cs-feature-v-media">
                     <video src="Assets/Cel-rimlight.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Rim light</div>
-                    <div class="cs-feature-desc">A stable and stylized rim light. Unable to sample from depth in
+                    <div class="cs-feature-caption" data-i18n="cs_npr_detail_feature3_caption">Rim light</div>
+                    <div class="cs-feature-desc" data-i18n="cs_npr_detail_feature3_desc">A stable and stylized rim light. Unable to sample from depth in
                       G-Buffer's depth, the effect is instead weighted based on View, Light, and Normal directions to
                       preserve it only for back lighting and atmospheric rim.</div>
                   </div>
@@ -538,15 +543,15 @@
                 <!-- Feature 04: Matcap Hair -->
                 <div class="cs-feature-v-item">
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Matcap Hair</div>
-                    <div class="cs-feature-desc">A multi-layer view-direction based specular Matcap that mimics the
+                    <div class="cs-feature-caption" data-i18n="cs_npr_detail_feature4_caption">Matcap Hair</div>
+                    <div class="cs-feature-desc" data-i18n="cs_npr_detail_feature4_desc">A multi-layer view-direction based specular Matcap that mimics the
                       feeling of anisotropic highlights while preserving a stylized, clean light band.</div>
                   </div>
                 </div>
               </div>
 
-              <div class="cs-detail-label">Results</div>
-              <p>
+              <div class="cs-detail-label" data-i18n="cs_npr_detail_results_label">Results</div>
+              <p data-i18n="cs_npr_detail_results_p1">
                 When the pipeline obstacles fade, the characters become an inherent part of the world.
                 With vivid, realistic light and shadows, and little render overhead.
                 These comparisons show that transition—the point where the technical implementation becomes invisible.
@@ -555,29 +560,29 @@
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <img src="Assets/Cel_Lilbefore.png" alt="Before: Liltoon Shader">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Liltoon Shader
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_npr_detail_compare1_before">Before: Liltoon Shader
                   </div>
                 </div>
                 <div class="cs-feature-v-media">
                   <img src="Assets/Cel_Lilafter.png" alt="After: Our Shader">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Shader</div>
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_npr_detail_compare1_after">After: Our Shader</div>
                 </div>
               </div>
 
               <div class="cs-comparison-grid">
                 <div class="cs-feature-v-media">
                   <img src="Assets/Cel_RTbefore.png" alt="Before: Default Real Toon">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">Before: Default Real Toon
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_npr_detail_compare2_before">Before: Default Real Toon
                   </div>
                 </div>
                 <div class="cs-feature-v-media">
                   <img src="Assets/Cel_RTafter.png" alt="After: Our Tweaked NPR">
-                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;">After: Our Tweaked NPR
+                  <div class="cs-placeholder-img" style="border:none; margin:0; padding:8px;" data-i18n="cs_npr_detail_compare2_after">After: Our Tweaked NPR
                   </div>
                 </div>
               </div>
 
-              <p>
+              <p data-i18n="cs_npr_detail_results_p2">
                 The shader is designed to be modular and configurable, allowing artists to dial in the exact look they
                 want without touching shader code.
                 It is also built with performance in mind, leveraging a few key variants to ensure it runs efficiently
@@ -585,6 +590,7 @@
               </p>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -594,10 +600,10 @@
     <section id="gallery" class="content-section" data-color="65, 70, 120">
       <header class="section-header">
         <div>
-          <div class="section-kicker">Systems, Shaders & Tools</div>
-          <div class="section-title">TECH GALLERY</div>
+          <div class="section-kicker" data-i18n="section_gallery_kicker">Systems, Shaders & Tools</div>
+          <div class="section-title" data-i18n="section_gallery_title">TECH GALLERY</div>
         </div>
-        <p class="section-subtitle">
+        <p class="section-subtitle" data-i18n="section_gallery_subtitle">
           From shaders to features, asset pipeline to optimization tools.
           I have come across many interesting fields and generated these smaller pieces along the way.
         </p>
@@ -605,57 +611,57 @@
 
       <div class="tg-container">
 
-        <div class="tg-banner left">
+        <div class="tg-banner left" data-video-name="gallery-skybox">
           <div class="tg-visual">
             <video src="Assets/gallery-skybox.webm" autoplay loop muted playsinline></video>
             <div class="media-credit">Assets and algorithms by others</div>
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 01 · ATMOSPHERE</div>
+            <div class="tg-eyebrow" data-i18n="tg_item1_eyebrow">TECH 01 · ATMOSPHERE</div>
             <div class="tg-title">
-              Layered Skybox & Time Controller
-              <span class="tg-badge">Art Tool</span>
+              <span data-i18n="tg_item1_title">Layered Skybox & Time Controller</span>
+              <span class="tg-badge" data-i18n="tg_item1_badge">Art Tool</span>
             </div>
             <div class="tg-line"></div>
-            <div class="tg-desc">
+            <div class="tg-desc" data-i18n="tg_item1_desc">
               A dynamic multi-layer skybox shader wired into a time controller, can drive lighting mood and subtle color
               shifts across the scene. Also including a compute shader for directional light’s cloud occlusion.
             </div>
           </div>
         </div>
 
-        <div class="tg-banner right">
+        <div class="tg-banner right" data-video-name="gallery-postfx">
           <div class="tg-visual">
             <video src="Assets/gallery-feature.webm" autoplay loop muted playsinline></video>
             <div class="media-credit">Assets and algorithms by others</div>
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 02 · SRP POST PROCESSING</div>
+            <div class="tg-eyebrow" data-i18n="tg_item2_eyebrow">TECH 02 · SRP POST PROCESSING</div>
             <div class="tg-title">
-              Custom Post-processing Effects
-              <span class="tg-badge">Render Graph</span>
+              <span data-i18n="tg_item2_title">Custom Post-processing Effects</span>
+              <span class="tg-badge" data-i18n="tg_item2_badge">Render Graph</span>
             </div>
             <div class="tg-line"></div>
-            <div class="tg-desc">
+            <div class="tg-desc" data-i18n="tg_item2_desc">
               I have migrated many features to URP6 render graph, including dual-kawase blur, streak, glitches and more.
               Any visual style you desired, and there's probably a way to achieve it with a custom post-process.
             </div>
           </div>
         </div>
 
-        <div class="tg-banner left">
+        <div class="tg-banner left" data-video-name="gallery-triplanar">
           <div class="tg-visual">
             <video src="Assets/triplanar.mp4" autoplay loop muted playsinline></video>
             <div class="media-credit">Assets and algorithms by others</div>
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 03 · SHADERS</div>
+            <div class="tg-eyebrow" data-i18n="tg_item3_eyebrow">TECH 03 · SHADERS</div>
             <div class="tg-title">
-              Triplanar Shader
-              <span class="tg-badge">HLSL</span>
+              <span data-i18n="tg_item3_title">Triplanar Shader</span>
+              <span class="tg-badge" data-i18n="tg_item3_badge">HLSL</span>
             </div>
             <div class="tg-line"></div>
-            <div class="tg-desc">
+            <div class="tg-desc" data-i18n="tg_item3_desc">
               A triplanar shader that integrates with URP. Use as full-fledged rotatable triplanar shader, or use
               triplanar uv only for detail maps.
             </div>
@@ -669,13 +675,13 @@
             <div class="media-credit">Assets by others</div>
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 04 · PIPELINE</div>
+            <div class="tg-eyebrow" data-i18n="tg_item4_eyebrow">TECH 04 · PIPELINE</div>
             <div class="tg-title">
-              Cloth-Fitting Tools
-              <span class="tg-badge">Asset Pipeline</span>
+              <span data-i18n="tg_item4_title">Cloth-Fitting Tools</span>
+              <span class="tg-badge" data-i18n="tg_item4_badge">Asset Pipeline</span>
             </div>
             <div class="tg-line"></div>
-            <div class="tg-desc">
+            <div class="tg-desc" data-i18n="tg_item4_desc">
               A prototype python extension in Blender to iteratively fit clothing to characters and transfer weights.
               Cuts manual labor for complex outfits down to 2 hours per outfit.
             </div>
@@ -688,13 +694,13 @@
             <img src="Assets/ai-hub-preview.png" alt="AI Engineering Hub">
           </div>
           <div class="tg-content">
-            <div class="tg-eyebrow">TECH 05 · WORKFLOWS</div>
+            <div class="tg-eyebrow" data-i18n="tg_item5_eyebrow">TECH 05 · WORKFLOWS</div>
             <div class="tg-title">
-              AIHub
-              <span class="tg-badge">Workflow Tool</span>
+              <span data-i18n="tg_item5_title">AIHub</span>
+              <span class="tg-badge" data-i18n="tg_item5_badge">Workflow Tool</span>
             </div>
             <div class="tg-line"></div>
-            <div class="tg-desc">
+            <div class="tg-desc" data-i18n="tg_item5_desc">
               An AI-driven modular workflow accelerator, featuring a multimodal interaction pipeline.
               It combines a multi-layered prompt injection system with vector-based context indexing,
               enabling a production-ready, frictionless development cycle.
@@ -704,15 +710,16 @@
       </div>
     </section>
 
+
     
     <!-- ============ PROJECTS ============ -->
     <section id="projects" class="content-section" data-color="70, 50, 120">
       <header class="section-header">
         <div>
-          <div class="section-kicker">Game Works</div>
-          <div class="section-title">PROJECTS</div>
+          <div class="section-kicker" data-i18n="section_projects_kicker">Game Works</div>
+          <div class="section-title" data-i18n="section_projects_title">PROJECTS</div>
         </div>
-        <p class="section-subtitle">
+        <p class="section-subtitle" data-i18n="section_projects_subtitle">
           I believe games speak the language of possibility. These projects are my testbed for development,
           rendering, systems, narratives, and design.
         </p>
@@ -720,59 +727,59 @@
 
       <!-- Game 01: EDEN -->
       <div id="eden" class="cs-card hover-float">
-        <div class="cs-visual">
+        <div class="cs-visual" data-video-name="projects-eden-hero">
           <video src="Assets/project-eden-hero.mp4" autoplay loop muted playsinline
             poster="Assets/game-eden-img.png"></video>
           <div class="media-credit">Assets by others</div>
         </div>
         <div class="cs-text">
-          <div class="cs-eyebrow"><span class="game-tag">GAME 01</span> · PC PROTOTYPE</div>
-          <h2 class="cs-title">EDEN <span class="cs-title-badge">ART PIPELINE R&D</span></h2>
+          <div class="cs-eyebrow" data-i18n="proj_eden_eyebrow"><span class="game-tag">GAME 01</span> · PC PROTOTYPE</div>
+          <h2 class="cs-title" data-i18n="proj_eden_title">EDEN <span class="cs-title-badge">ART PIPELINE R&D</span></h2>
           <div class="cs-summary">
-            <p>A post-apocalyptic, Metroidvania, top-down shooter game set in the near future. A former mechanical
+            <p data-i18n="proj_eden_summary">A post-apocalyptic, Metroidvania, top-down shooter game set in the near future. A former mechanical
               enforcer journeys through the ruins of the collapsed metropolis, uncovering the remnants of humanity.</p>
           </div>
 
           <div class="cs-action-trigger">
-            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW PROJECT
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text" data-i18n="proj_eden_action_expand">VIEW PROJECT
                 LOG</span></div>
-            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text" data-i18n="cs_action_close">CLOSE</span></div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <div class="cs-detail-label">Project Story</div>
-              <p>The game is a reflection on themes of digital governance and technical inequality. I started this
+              <div class="cs-detail-label" data-i18n="proj_eden_detail_story_label">Project Story</div>
+              <p data-i18n="proj_eden_detail_story_p1">The game is a reflection on themes of digital governance and technical inequality. I started this
                 project in my sophomore year with two friends. They've since moved on. I'm the only one continuing it.
               </p>
-              <p>I'm the technical artist on this project. I architected the URP-based rendering pipeline from scratch -
+              <p data-i18n="proj_eden_detail_story_p2">I'm the technical artist on this project. I architected the URP-based rendering pipeline from scratch -
                 post effects, render graphs, shaders and batches - learning as I built. I established the art direction
                 and visual foundation. I'm also the lead writer, level designer, and implemented the logic layers for
                 the vehicle controller, the skybox and time-of-day system, and connected several logic modules.</p>
-              <p>This project exposed me to the scale and complexity of production-level game development:
+              <p data-i18n="proj_eden_detail_story_p3">This project exposed me to the scale and complexity of production-level game development:
                 managing large asset libraries, optimizing performance in dense scenes, maintaining visual consistency
                 across a sophisticated pipeline.
                 It serves as my primary R&D platform for testing and validating new rendering techniques before
                 considering them production-ready.</p>
 
-              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-detail-label" data-i18n="proj_eden_detail_showcase_label">Showcase</div>
               <div class="cs-feature-vertical-list">
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-eden-detail_pos">
                   <div class="cs-feature-v-media">
                     <video src="Assets/POS-Example.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">Per-Object System with baked environment</div>
+                    <div class="cs-feature-desc" data-i18n="proj_eden_detail_showcase_item1">Per-Object System with baked environment</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-eden-detail_npr">
                   <div class="cs-feature-v-media">
                     <video src="Assets/Cel-banner.mp4" autoplay loop muted playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-desc">Cel-Shading in Deferred</div>
+                    <div class="cs-feature-desc" data-i18n="proj_eden_detail_showcase_item2">Cel-Shading in Deferred</div>
                   </div>
                 </div>
               </div>
@@ -780,8 +787,8 @@
               <!-- Technical Bridge -->
               <a href="#solutions" class="cs-tech-bridge">
                 <div class="bridge-content">
-                  <span class="bridge-kicker">Technical Deep Dive</span>
-                  <span class="bridge-text">For technical details, please see the Core Solutions sections below.</span>
+                  <span class="bridge-kicker" data-i18n="proj_eden_tech_bridge_kicker">Technical Deep Dive</span>
+                  <span class="bridge-text" data-i18n="proj_eden_tech_bridge_text">For technical details, please see the Core Solutions sections below.</span>
                 </div>
                 <div class="bridge-icon">↑</div>
               </a>
@@ -792,98 +799,98 @@
 
       <!-- Game 02: LTV -->
       <div id="ltv" class="cs-card hover-float reverse">
-        <div class="cs-visual">
+        <div class="cs-visual" data-video-name="projects-ltv-hero">
           <video src="Assets/project-ltv-hero.mp4" autoplay loop muted playsinline
             poster="Assets/game-ltv-img1.png"></video>
           <div class="media-credit">Assets by others</div>
         </div>
         <div class="cs-text">
-          <div class="cs-eyebrow"><span class="game-tag">GAME 02</span> · PC & MOBILE</div>
-          <h2 class="cs-title">Last Train to Vladivostok <span class="cs-title-badge">DIGITAL BOARD GAME</span></h2>
+          <div class="cs-eyebrow" data-i18n="proj_ltv_eyebrow"><span class="game-tag">GAME 02</span> · PC & MOBILE</div>
+          <h2 class="cs-title" data-i18n="proj_ltv_title">Last Train to Vladivostok <span class="cs-title-badge">DIGITAL BOARD GAME</span></h2>
           <div class="cs-summary">
-            <p>A narrative-driven survival strategy game following the Czechoslovak Legion's journey across war-torn
+            <p data-i18n="proj_ltv_summary">A narrative-driven survival strategy game following the Czechoslovak Legion's journey across war-torn
               Russia during WWI. Manage resources, make difficult choices, and navigate the contradictions of a
               legendary exodus.</p>
           </div>
 
           <div class="cs-action-trigger">
-            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW DESIGN CASE
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text" data-i18n="proj_ltv_action_expand">VIEW DESIGN CASE
                 STUDY</span></div>
-            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text" data-i18n="cs_action_close">CLOSE</span></div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <div class="cs-detail-label">Project Story</div>
-              <p>This started as a board game I designed for a game design class. It received strong feedback from
+              <div class="cs-detail-label" data-i18n="proj_ltv_detail_story_label">Project Story</div>
+              <p data-i18n="proj_ltv_detail_story_p1">This started as a board game I designed for a game design class. It received strong feedback from
                 playtests, and friends encouraged me to develop a digital version. I spent two months in intensive
                 development, building the entire game from scratch.</p>
-              <p>I developed the entire game from scratch - UI management, gameplay logic, localization system -
+              <p data-i18n="proj_ltv_detail_story_p2">I developed the entire game from scratch - UI management, gameplay logic, localization system -
                 building as a state-based, event-driven, pluggable architecture. I implemented a stackable UI flow
                 powered by
                 Addressables, designed the card interaction and resource management systems, and optimized the rendering
                 pipeline for cross-platform deployment. The game runs on both PC and mobile at a stable 60 FPS.</p>
 
-              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-detail-label" data-i18n="proj_ltv_detail_showcase_label">Showcase</div>
               <div class="cs-feature-vertical-list">
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-ui">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-ui.webm" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">UI System</div>
-                    <div class="cs-feature-desc">Stackable, animated UI management.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item1_caption">UI System</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item1_desc">Stackable, animated UI management.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-localization">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-loc.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Settings & Localization</div>
-                    <div class="cs-feature-desc">Atomic runtime asset loading.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item2_caption">Settings & Localization</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item2_desc">Atomic runtime asset loading.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-transitions">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-rt.webm" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">RT Transitions</div>
-                    <div class="cs-feature-desc">Smooth screen-space transitions.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item3_caption">RT Transitions</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item3_desc">Smooth screen-space transitions.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-dice">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-dice.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Dice Effects</div>
-                    <div class="cs-feature-desc">Physics-based interaction and cinematics.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item4_caption">Dice Effects</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item4_desc">Physics-based interaction and cinematics.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-resource">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-resource.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Resource Management</div>
-                    <div class="cs-feature-desc">Event-driven and serializable gameplay logic.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item5_caption">Resource Management</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item5_desc">Event-driven and serializable gameplay logic.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-ltv-train">
                   <div class="cs-feature-v-media"><video src="Assets/project-ltv-train.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Train & Rail System</div>
-                    <div class="cs-feature-desc">Dynamic driving and stop logic.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_ltv_detail_showcase_item6_caption">Train & Rail System</div>
+                    <div class="cs-feature-desc" data-i18n="proj_ltv_detail_showcase_item6_desc">Dynamic driving and stop logic.</div>
                   </div>
                 </div>
               </div>
@@ -894,38 +901,38 @@
 
       <!-- Game 03: 28LS -->
       <div id="28ls" class="cs-card hover-float">
-        <div class="cs-visual">
+        <div class="cs-visual" data-video-name="projects-28ls-hero">
           <video src="Assets/project-28ls-hero.mp4" autoplay loop muted playsinline
             poster="Assets/game-28ls-img.png"></video>
           <div class="media-credit">Assets by others</div>
         </div>
         <div class="cs-text">
-          <div class="cs-eyebrow"><span class="game-tag">GAME 03</span> · CAPSTONE PROJECT</div>
-          <h2 class="cs-title">28 Leicester Square <span class="cs-title-badge">NARRATIVE MYSTERY</span></h2>
+          <div class="cs-eyebrow" data-i18n="proj_28ls_eyebrow"><span class="game-tag">GAME 03</span> · CAPSTONE PROJECT</div>
+          <h2 class="cs-title" data-i18n="proj_28ls_title">28 Leicester Square <span class="cs-title-badge">NARRATIVE MYSTERY</span></h2>
           <div class="cs-summary">
-            <p>A narrative-driven mystery game set in a Victorian interior. Explore, investigate, and piece together the
+            <p data-i18n="proj_28ls_summary">A narrative-driven mystery game set in a Victorian interior. Explore, investigate, and piece together the
               story through environmental clues and interactive objects.</p>
           </div>
 
           <div class="cs-action-trigger">
-            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text">VIEW CAPSTONE
+            <div class="trigger-expand"><span class="trigger-icon">+</span><span class="trigger-text" data-i18n="proj_28ls_action_expand">VIEW CAPSTONE
                 LOG</span></div>
-            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text">CLOSE</span></div>
+            <div class="trigger-close"><span class="trigger-icon">×</span><span class="trigger-text" data-i18n="cs_action_close">CLOSE</span></div>
           </div>
 
           <div class="cs-details" hidden="until-found">
             <div class="cs-detail-story">
-              <div class="cs-detail-label">Project Story</div>
+              <div class="cs-detail-label" data-i18n="proj_28ls_detail_story_label">Project Story</div>
 
-              <p>This is our capstone project - a 13-person cross-discipline collaboration. I served as the technical
+              <p data-i18n="proj_28ls_detail_story_p1">This is our capstone project - a 13-person cross-discipline collaboration. I served as the technical
                 artist.
                 We practiced Scrum and Kanban workflows, established version control protocols, assets validation
                 pipelines, and prefabs / API documentations.</p>
-              <p>Bringing my expertise, I developed the visual foundation and pipeline for the project.
+              <p data-i18n="proj_28ls_detail_story_p2">Bringing my expertise, I developed the visual foundation and pipeline for the project.
                 I played a key role in defining the best practices and workflows for level design, UI architecture,
                 lighting and visual effects,
                 empowering the team with a structure that is both solid and optimized. </p>
-              <p>One major technical challenge was realizing the vision of rooms dynamically switching between "lit" and
+              <p data-i18n="proj_28ls_detail_story_p3">One major technical challenge was realizing the vision of rooms dynamically switching between "lit" and
                 "dark" states without compromising the visual or performance budget.
                 While dynamic lighting proved too costly, I architected and pushed for a prefab-based room streaming
                 system with independent runtime lightmap switching.
@@ -933,56 +940,56 @@
                 runtime, significantly reducing the overhead of dynamic shadows while preserving the intended
                 atmosphere.</p>
 
-              <div class="cs-detail-label">Showcase</div>
+              <div class="cs-detail-label" data-i18n="proj_28ls_detail_showcase_label">Showcase</div>
               <div class="cs-feature-vertical-list">
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-28ls-streaming">
                   <div class="cs-feature-v-media"><video src="Assets/project-28ls-streaming.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Room Streaming</div>
-                    <div class="cs-feature-desc">Asynchronous loading with on-need addressable assets and lightmap
+                    <div class="cs-feature-caption" data-i18n="proj_28ls_detail_showcase_item1_caption">Room Streaming</div>
+                    <div class="cs-feature-desc" data-i18n="proj_28ls_detail_showcase_item1_desc">Asynchronous loading with on-need addressable assets and lightmap
                       loading.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-28ls-inspect">
                   <div class="cs-feature-v-media"><video src="Assets/project-28ls-inspect.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Item Inspection</div>
-                    <div class="cs-feature-desc">RT blur transition and rotatable inspection logic.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_28ls_detail_showcase_item2_caption">Item Inspection</div>
+                    <div class="cs-feature-desc" data-i18n="proj_28ls_detail_showcase_item2_desc">RT blur transition and rotatable inspection logic.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-28ls-highlight">
                   <div class="cs-feature-v-media"><video src="Assets/project-28ls-highlight.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Item Highlighting</div>
-                    <div class="cs-feature-desc">Smooth-normal asset post-processing and item highlighting API.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_28ls_detail_showcase_item3_caption">Item Highlighting</div>
+                    <div class="cs-feature-desc" data-i18n="proj_28ls_detail_showcase_item3_desc">Smooth-normal asset post-processing and item highlighting API.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-28ls-vfx">
                   <div class="cs-feature-v-media"><video src="Assets/project-28ls-vfx.mp4" autoplay loop muted
                       playsinline></video>
                     <div class="media-credit">Assets and scene by others</div>
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Third-person Shooting & VFX</div>
-                    <div class="cs-feature-desc">Angle-based rejection and Taser visual effects.</div>
+                    <div class="cs-feature-caption" data-i18n="proj_28ls_detail_showcase_item4_caption">Third-person Shooting & VFX</div>
+                    <div class="cs-feature-desc" data-i18n="proj_28ls_detail_showcase_item4_desc">Angle-based rejection and Taser visual effects.</div>
                   </div>
                 </div>
-                <div class="cs-feature-v-item">
+                <div class="cs-feature-v-item" data-video-name="projects-28ls-map">
                   <div class="cs-feature-v-media">
                     <img src="Assets/project-28ls-map.png" alt="Map">
                   </div>
                   <div class="cs-feature-v-text">
-                    <div class="cs-feature-caption">Map Shader</div>
-                    <div class="cs-feature-desc">Map shader using Roberts Cross, with height fading, AO and spiral
+                    <div class="cs-feature-caption" data-i18n="proj_28ls_detail_showcase_item5_caption">Map Shader</div>
+                    <div class="cs-feature-desc" data-i18n="proj_28ls_detail_showcase_item5_desc">Map shader using Roberts Cross, with height fading, AO and spiral
                       sampled darkening.</div>
                   </div>
                 </div>
@@ -991,84 +998,60 @@
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- ============ PROFILE ============ -->
+    </section>
+        <!-- ============ PROFILE ============ -->
     <section id="profile" class="content-section">
       <header class="section-header">
         <div>
-          <div class="section-kicker">About & Skills</div>
-          <div class="section-title">PROFILE</div>
+          <div class="section-kicker" data-i18n="section_profile_kicker">About & Skills</div>
+          <div class="section-title" data-i18n="section_profile_title">PROFILE</div>
         </div>
       </header>
 
       <div class="about-section-layout">
         <!-- 左侧文字 -->
         <div class="about-text-column">
-          <p>
-            With a broad exposure to rendering contexts and platforms, I'm adept at integrating tools into production
-            workflows and solving complex challenges.
-          </p>
+          <p data-i18n="profile_text"></p>
         </div>
 
-        <!-- 右侧：田字格矩阵 -->
+        <!-- 右侧：六格技能矩阵 -->
         <div class="skills-hud-matrix">
 
-          <!-- Block 1: Real-time Graphics & Rendering -->
+          <!-- Block 1: Related Coursework -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Graphics & Rendering</div>
-            <div class="skills-hud-content">
-              <span class="skill-item">Custom Render Features</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Shader Development (HLSL/GLSL)</span> <span class="skill-sep">/</span>
-              <span class="skill-item">NPR Shading</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Real-time Lighting</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Rendering Optimization</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Compute Shaders</span> <span class="skill-sep">/</span>
-              <span class="skill-item">PBR Principles</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Linear Algebra</span>
-            </div>
+            <div class="skills-hud-header" data-i18n="profile_cat_header_1"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_1"></div>
           </div>
 
-          <!-- Block 2: Technical Pipeline & Tooling -->
+          <!-- Block 2: Graphics & Rendering -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Pipeline & Tooling</div>
-            <div class="skills-hud-content">
-              <span class="skill-item">Asset Workflows (Addressables, AssetBundle)</span> <span
-                class="skill-sep">/</span>
-              <span class="skill-item">Blender Python API</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Editor Tools</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Profiling</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Localization</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Version Control (Git/Perforce)</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Memory Optimization</span>
-            </div>
+            <div class="skills-hud-header" data-i18n="profile_cat_header_2"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_2"></div>
           </div>
 
-          <!-- Block 3: Software Engineering & Languages -->
+          <!-- Block 3: Technical Art & Pipeline -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Engineering & Languages</div>
-            <div class="skills-hud-content">
-              <span class="skill-item">C#</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Python</span> <span class="skill-sep">/</span>
-              <span class="skill-item">C++</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Data Structures & Algorithms</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Object-Oriented Design</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Database SQL</span> <span class="skill-sep">/</span>
-              <span class="skill-item">QT</span>
-            </div>
+            <div class="skills-hud-header" data-i18n="profile_cat_header_3"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_3"></div>
           </div>
 
-          <!-- Block 4: Game Dev & Tech -->
+          <!-- Block 4: Programming -->
           <div class="skills-hud-block">
-            <div class="skills-hud-header">Game Dev & Tech</div>
-            <div class="skills-hud-content">
-              <span class="skill-item">Unity Engine (URP/SRP)</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Unreal Engine 5</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Cross-Platform Development</span> <span class="skill-sep">/</span>
-              <span class="skill-item">AI/ML (PyTorch)</span> <span class="skill-sep">/</span>
-              <span class="skill-item">Gameplay Systems</span> <span class="skill-sep">/</span>
-              <span class="skill-item">3D Modeling (Blender/Maya)</span>
-            </div>
+            <div class="skills-hud-header" data-i18n="profile_cat_header_4"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_4"></div>
+          </div>
+
+          <!-- Block 5: Artificial Intelligence -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header" data-i18n="profile_cat_header_5"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_5"></div>
+          </div>
+
+          <!-- Block 6: Game Development -->
+          <div class="skills-hud-block">
+            <div class="skills-hud-header" data-i18n="profile_cat_header_6"></div>
+            <div class="skills-hud-content" data-i18n="profile_cat_content_6"></div>
           </div>
 
         </div>
@@ -1076,18 +1059,19 @@
     </section>
 
 
+
     <!-- ============ CONTACT & HORIZON ============ -->
     <section id="contact-footer" class="content-section" data-color="50, 80, 200">
 
       <!-- 1. Contact 区域：横向平铺的小条 -->
       <div class="contact-block">
-        <span class="contact-label">Get in touch</span>
+        <span class="contact-label" data-i18n="footer_contact_label">Get in touch</span>
         <ul class="contact-list">
-          <li><a href="mailto:doxeszhenzhiliu@gmail.com">Email</a></li>
-          <li><a href="https://www.linkedin.com/in/%E6%A1%A2%E4%B9%8B-%E5%88%98-1829a1386/" target="_blank">LinkedIn</a>
+          <li><a href="mailto:doxeszhenzhiliu@gmail.com" data-i18n="footer_contact_email">Email</a></li>
+          <li><a href="https://www.linkedin.com/in/%E6%A1%A2%E4%B9%8B-%E5%88%98-1829a1386/" target="_blank" data-i18n="footer_contact_linkedin">LinkedIn</a>
           </li>
           <li><a href="https://docs.google.com/document/d/1VZrF_5B9KzU0qiDsOPSlFIsztoN3FfRYUs0Bet3iKgU/edit?usp=sharing"
-              target="_blank">Resume</a></li>
+              target="_blank" data-i18n="nav_resume">Resume</a></li>
         </ul>
       </div>
 
@@ -1099,11 +1083,11 @@
             <div class="star-2"></div>
           </div>
         </div>
-        <div class="horizon-caption">END OF PAGE</div>
-        <div class="horizon-phrase">
+        <div class="horizon-caption" data-i18n="footer_horizon_caption">END OF PAGE</div>
+        <div class="horizon-phrase" data-i18n="footer_horizon_phrase">
           Looking up is how a great journey would begin.
         </div>
-        <div style="font-size: 11px; color: var(--fg-muted); margin-top: 24px; opacity: 0.6;">
+        <div style="font-size: 11px; color: var(--fg-muted); margin-top: 24px; opacity: 0.6;" data-i18n="footer_copyright">
           © 2026 Zhenzhi Liu with AI Collaboration.
         </div>
       </div>
@@ -1119,6 +1103,15 @@
     </div>
     <div class="lightbox-close">×</div>
   </div>
+  <!-- Language Switcher (Design A) -->
+<div id="lang-widget" class="lang-pill-widget">
+  <span id="lang-widget-current" class="lang-pill-current">EN</span>
+  <div id="lang-widget-options" class="lang-pill-options">
+    <a href="#" class="lang-pill-opt" data-lang="en">EN</a>
+    <a href="#" class="lang-pill-opt" data-lang="zh">ZH</a>
+  </div>
+</div>
+
 </body>
 
 </html>

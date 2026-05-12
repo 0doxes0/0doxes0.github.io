@@ -1556,8 +1556,6 @@ body::before {
 /* ============ About & Skills ============ */
 .about-section-layout {
   display: grid;
-  /* 左侧文字 : 右侧矩阵 = 1 : 2.2 
-           给右侧田字格留出足够宽度 */
   grid-template-columns: 1fr 2.2fr;
   gap: 60px;
   align-items: start;
@@ -1567,57 +1565,42 @@ body::before {
   font-size: 14px;
   line-height: 1.8;
   color: var(--fg-soft);
-  /* 限制最大宽度,保证阅读体验,同时让高度自然撑开 */
-  max-width: 360px;
+  max-width: 380px; /* 限制最大宽度以保证阅读体验 */
 }
 
-/* 右侧容器:田字格布局 */
+/* 技能矩阵: 2x3 网格布局 */
 .skills-hud-matrix {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* 2列 */
   gap: 24px;
-  /* 块之间的间距 */
 }
 
 .skills-hud-block {
   position: relative;
-  padding: 6px 20px;
-
-  /* 背景:极度克制.
-           几乎透明的白色 (0.02),只为了把文字和背景区分开一点点.
-           不再使用长渐变,而是整体微弱填充. */
+  padding: 16px 20px;
   background: rgba(255, 255, 255, 0.02);
-
-  /* 边框:强调色在这里.
-           3px 宽度,使用你的 Aurora Cyan,实色. */
   border-left: 3px solid var(--accent-aurora-1);
-
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .skills-hud-block:hover {
-  /* Hover 时稍微亮一点点,给个反馈 */
   background: rgba(255, 255, 255, 0.05);
 }
 
 .skills-hud-header {
-  /* 字体:恢复原样,白色,大写 */
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--fg-main);
-  /* 白色 */
-
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
 }
 
 .skills-hud-content {
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--fg-soft);
   font-family: var(--font-sans);
 }
@@ -1639,7 +1622,7 @@ body::before {
   font-size: 11px;
 }
 
-/* 响应式:屏幕窄时变单列 */
+/* 响应式: 屏幕窄时变单列 */
 @media (max-width: 860px) {
   .about-section-layout {
     grid-template-columns: 1fr;
@@ -1648,10 +1631,9 @@ body::before {
 
   .skills-hud-matrix {
     grid-template-columns: 1fr;
-    /* 手机上变单列 */
     gap: 16px;
   }
-
+  
   .about-text-column {
     max-width: none;
   }
@@ -2146,4 +2128,79 @@ body::before {
   .scroll-arrow::after {
     width: 18px;
   }
+}
+
+/* ============ Floating Language Switcher ============ */
+.lang-pill-widget {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 10001;
+  
+  display: flex;
+  align-items: center;
+  background: rgba(10, 20, 35, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  height: 40px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.lang-pill-widget:hover {
+  border-color: var(--line-strong);
+  background: rgba(20, 35, 60, 0.8);
+}
+
+.lang-pill-current {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--fg-main);
+  text-transform: uppercase;
+  transition: transform 0.3s;
+}
+
+.lang-pill-options {
+  display: flex;
+  gap: 16px;
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lang-pill-widget.is-open {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.lang-pill-widget.is-open .lang-pill-current {
+  display: none; /* Hide current text to show options */
+}
+
+.lang-pill-widget.is-open .lang-pill-options {
+  opacity: 1;
+  width: auto;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.lang-pill-opt {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.lang-pill-opt:hover, 
+.lang-pill-opt.active {
+  color: var(--accent-aurora-1);
+  text-shadow: 0 0 8px rgba(107, 230, 255, 0.4);
 }
