@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper function to update the language switcher's UI state
   const updateLangWidgetUI = (lng) => {
     const currentLangEl = document.getElementById('lang-widget-current');
-    if (currentLangEl) {
+    if (currentLangEl && lng) {
       currentLangEl.textContent = lng.startsWith('zh') ? 'ZH' : 'EN';
     }
     document.querySelectorAll('.lang-pill-opt').forEach(opt => {
@@ -156,6 +156,8 @@ function drawForeground() {
     fgCtx.arc(star.x, y, star.size, 0, 2 * Math.PI);
     fgCtx.fill();
   });
+
+  if (!gl || !gridProgram) return;
 
   // Phase 2: 纯 GPU 渲染路径
   gl.enable(gl.BLEND);
@@ -355,6 +357,10 @@ function loadTexture(gl, url) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     window.blueNoiseLoaded = true;
   };
+  image.onerror = () => {
+    console.warn('Failed to load texture:', url);
+    window.blueNoiseLoaded = true;
+  };
   image.src = url;
   return texture;
 }
@@ -499,8 +505,7 @@ function setupWebGL() {
 }
 
 function renderBackground(time) {
-  // Safety check: prevent rendering if program or textures are not ready
-  if (!gl || !glProgram || !window.blueNoiseLoaded) return;
+  if (!gl || !glProgram || !window.blitProgram) return;
 
   time *= 0.001;
   currentR += (targetR - currentR) * 0.02;
